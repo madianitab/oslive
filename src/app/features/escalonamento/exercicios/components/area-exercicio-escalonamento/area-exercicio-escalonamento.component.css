@@ -63,3 +63,5 @@
   color: var(--text) !important;
   background: var(--surface-2);
 }
+
+.dados-card { max-width: 440px; }

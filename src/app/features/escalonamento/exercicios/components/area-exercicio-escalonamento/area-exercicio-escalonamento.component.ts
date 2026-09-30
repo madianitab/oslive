@@ -66,6 +66,16 @@ export class AreaExercicioEscalonamentoComponent implements OnChanges {
     return curtos[this.configuracao?.algoritmo ?? ''] ?? '';
   }
 
+  /** Tabela de resultado: dados dos processos exibidos como base para o cálculo. */
+  get processosOrdenados() {
+    return [...(this.configuracao?.processos ?? [])].sort((a, b) => a.chegada - b.chegada);
+  }
+
+  get usaPrioridade(): boolean {
+    const alg = this.configuracao?.algoritmo;
+    return alg === 'PRIO' || alg === 'PRIO_P';
+  }
+
   get processosLegenda(): string {
     return (this.configuracao?.processos ?? []).map(p => p.nome).join(', ');
   }

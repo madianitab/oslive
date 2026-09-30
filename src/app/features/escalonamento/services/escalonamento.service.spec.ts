@@ -88,6 +88,17 @@ describe('EscalonamentoService', () => {
       expect(res[2].nome).toBe('P2'); // t=2: P2 termina
     });
 
+    it('deve contar a espera do processo interrompido e de quem assume após um término', () => {
+      // P1 (0..), P2 preempta em t=1 e termina em t=2; P1 volta em t=3.
+      const processos = [p('P1', 0, 4, 3), p('P2', 1, 2, 1), p('P3', 2, 1, 2)];
+      const res = service.simulaPrioPremp(processos);
+      expect(res.map(r => r.nome).join(',')).toBe('P1,P2,P2,P3,P1,P1,P1');
+      const espera = Object.fromEntries(processos.map(x => [x.nome, x.tempoEspera]));
+      expect(espera['P1']).toBe(3); // esperou em t=1, 2 e 3
+      expect(espera['P2']).toBe(0);
+      expect(espera['P3']).toBe(1); // chegou em t=2 e só executou em t=3
+    });
+
     it('deve retornar lista vazia para lista de processos vazia', () => {
       expect(service.simulaPrioPremp([])).toEqual([]);
     });

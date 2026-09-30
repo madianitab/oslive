@@ -132,11 +132,13 @@ export class EscalonamentoService {
         : { tempo: time, nome: '-', cor: '#FFFFFF' });
 
       const finalizado = cpu.act();
+      // Conta a espera deste instante ANTES de tirar o próximo processo da fila:
+      // ele esperou durante o instante em que o anterior terminou.
+      escalonar.addTEspera();
       if (finalizado) {
         arrumalista.addFinalizado(finalizado);
         cpu.alocaProcesso(escalonar.escolherProcesso());
       }
-      escalonar.addTEspera();
       time++;
     }
     return resultado;

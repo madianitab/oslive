@@ -26,6 +26,57 @@
 
     <!-- TABELA DE RESULTADO -->
     @if (configuracao.tipo === 'tabela') {
+      <!-- Base para o cálculo: dados dos processos e diagrama de uso da CPU -->
+      <section>
+        <div class="viz-label">Dados dos processos</div>
+        <div class="res-card dados-card">
+          <table class="res-table">
+            <thead>
+              <tr>
+                <th>Processo</th><th>Chegada</th><th>Execução</th>
+                @if (usaPrioridade) { <th>Prioridade</th> }
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of processosOrdenados; track p.nome) {
+                <tr>
+                  <td class="nome-proc"><span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>{{ p.nome }}</td>
+                  <td>{{ p.chegada }}</td>
+                  <td>{{ p.execucao }}</td>
+                  @if (usaPrioridade) { <td>{{ p.prioridade }}</td> }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <div class="viz-label">Diagrama de uso da CPU</div>
+        <div class="viz-scroll">
+          <table class="viz-table">
+            <tr>
+              <td class="t-lbl">Tempo</td>
+              @for (c of gabarito()!.diagrama; track $index) { <td class="t-val">{{ c.tempo }}</td> }
+            </tr>
+            <tr>
+              <td class="t-lbl">Processo</td>
+              @for (c of gabarito()!.diagrama; track $index) {
+                @if (c.nome === '-') {
+                  <td class="t-val">–</td>
+                } @else {
+                  <td class="t-proc" [ngStyle]="{ 'background-color': c.cor }">{{ c.nome }}</td>
+                }
+              }
+            </tr>
+          </table>
+        </div>
+        <p class="hint-diagrama">
+          Use o diagrama como base: <b>turnaround</b> = instante em que o processo termina − chegada;
+          <b>tempo de espera</b> = turnaround − execução (tempo na fila de aptos). O tempo "–" indica CPU ociosa.
+        </p>
+      </section>
+
       <section>
         <div class="viz-label">Tabela de resultado</div>
         <div class="res-card tabela-card">
@@ -88,6 +139,7 @@
     @if (mostrarResposta()) {
       <section>
         <div class="viz-label">Resposta</div>
+        @if (configuracao.tipo === 'diagrama') {
         <div class="viz-scroll">
           <table class="viz-table">
             <tr>
@@ -106,8 +158,9 @@
             </tr>
           </table>
         </div>
+        }
         @if (configuracao.tipo === 'tabela') {
-          <div class="res-card tabela-card mt-bloco">
+          <div class="res-card tabela-card">
             <table class="res-table">
               <thead><tr><th>Processo</th><th>Tempo de espera</th><th>Turnaround</th></tr></thead>
               <tbody>
