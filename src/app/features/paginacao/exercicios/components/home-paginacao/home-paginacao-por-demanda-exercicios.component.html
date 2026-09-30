@@ -1,37 +1,36 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-3">
-      <app-menu-lateral
-        (enviarDados)="setDadosProcesso($event)"
-        (enviarTipoAlgoritmo)="setTipoAlgoritmo($event)"
-        (enviarTipoExercicio)="setTipoExercicio($event)"
-        (enviarRespostaMemoriaLogica)="setRespostaMemoriaLogica($event)"
-        (enviarRecursoTecnico)="setRecursoTecnico($event)"
-      [back]="getBack" ></app-menu-lateral>
-    </div>
+<os-sim-shell
+  title="Paginação por Demanda"
+  subtitle="Substituição de páginas entre memória física e disco."
+>
+  <app-menu-lateral
+    slot="config"
+    (enviarDados)="setDadosProcesso($event)"
+    (enviarTipoAlgoritmo)="setTipoAlgoritmo($event)"
+    (enviarTipoExercicio)="setTipoExercicio($event)"
+    (enviarRespostaMemoriaLogica)="setRespostaMemoriaLogica($event)"
+    (enviarRecursoTecnico)="setRecursoTecnico($event)"
+    [back]="getBack"
+  ></app-menu-lateral>
 
-    <div class="col-9">
-      @if (getTipoExercicio!=3) {
-        <app-area-exercicio
-          [listaProcessos]="getDadosProcesso"
-          [exercicioSelecionado]="getTipoExercicio"
-          [respostaMemoriaLogica]="getRespostaMemoriaLogica"
-          [gambiarra]="getRecursoTecnico"
-          (enviarDadosMemoria)="setDadosMemoriaFisica($event)"
-        (enviarBack)="setBack($event)"></app-area-exercicio>
-      }
-
-      @if (getTipoExercicio==3 && qtdPaginas > 7) {
-        <app-pagina-vitima
-          [algoritmoSelecionado]="getTipoAlgoritmo"
-          [listaProcessos]="getDadosProcesso"
-          [recursoTecnico]="getRecursoTecnico"
-        (enviarBack)="setBack($event)"></app-pagina-vitima>
-      }
-
-      @if (getTipoExercicio==3 && qtdPaginas < 8) {
-        <app-infortivo></app-infortivo>
-      }
-    </div>
-  </div>
-</div>
+  @if (getTipoExercicio != 3) {
+    <app-area-exercicio
+      [listaProcessos]="getDadosProcesso"
+      [exercicioSelecionado]="getTipoExercicio"
+      [respostaMemoriaLogica]="getRespostaMemoriaLogica"
+      [gambiarra]="getRecursoTecnico"
+      (enviarDadosMemoria)="setDadosMemoriaFisica($event)"
+      (enviarBack)="setBack($event)"
+    ></app-area-exercicio>
+  }
+  @if (getTipoExercicio == 3 && qtdPaginas > 7) {
+    <app-pagina-vitima
+      [algoritmoSelecionado]="getTipoAlgoritmo"
+      [listaProcessos]="getDadosProcesso"
+      [recursoTecnico]="getRecursoTecnico"
+      (enviarBack)="setBack($event)"
+    ></app-pagina-vitima>
+  }
+  @if (getTipoExercicio == 3 && qtdPaginas < 8) {
+    <app-infortivo></app-infortivo>
+  }
+</os-sim-shell>

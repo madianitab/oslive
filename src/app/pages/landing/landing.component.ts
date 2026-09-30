@@ -12,14 +12,13 @@ import { Router, RouterLink } from '@angular/router';
 import { OsButtonComponent } from '../../ui/button/button.component';
 import { OsCardComponent } from '../../ui/card/card.component';
 import { OsCardIconComponent } from '../../ui/card-icon/card-icon.component';
-import { OsBadgeComponent } from '../../ui/badge/badge.component';
 
 type SceneKind = 'zoom' | 'slideX' | 'slideUp';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [NgFor, RouterLink, OsButtonComponent, OsCardComponent, OsCardIconComponent, OsBadgeComponent],
+  imports: [NgFor, RouterLink, OsButtonComponent, OsCardComponent, OsCardIconComponent],
   styleUrls: ['./landing.component.css'],
   template: `
 <div class="landing" #root>
@@ -93,24 +92,24 @@ type SceneKind = 'zoom' | 'slideX' | 'slideUp';
           <div class="section-idx">02 — Simuladores em destaque</div>
           <h2 class="section-title">Aprenda fazendo</h2>
           <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 tw-mt-8 scene-deck">
-            <os-card title="Paginação por Demanda" [accent]="true">
-              <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></os-card-icon>
-              <os-badge slot="badge" variant="s">exercícios</os-badge>
-              Substituição de páginas entre memória física e disco.
-              <div slot="footer"><os-button variant="p" size="sm" (click)="go('/PaginacaoPorDemandaExercicios')">Abrir →</os-button></div>
-            </os-card>
-            <os-card title="Escalonamento">
-              <os-card-icon slot="icon" variant="info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h6l2-7 4 14 2-7h4"/></svg></os-card-icon>
-              <os-badge slot="badge" variant="a">interativo</os-badge>
-              Round Robin, prioridades e filas de prontos em tempo real.
-              <div slot="footer"><os-button variant="p" size="sm" (click)="go('/EscalonamentoDeProcessos')">Abrir →</os-button></div>
-            </os-card>
-            <os-card title="Segmentação">
-              <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="11" width="18" height="4" rx="1"/><rect x="3" y="17" width="18" height="3" rx="1"/></svg></os-card-icon>
-              <os-badge slot="badge" variant="n">simulador</os-badge>
-              Segmentos mapeando memória lógica para física.
-              <div slot="footer"><os-button variant="p" size="sm" (click)="go('/Segmentacao')">Abrir →</os-button></div>
-            </os-card>
+            <a class="deck-link" href="/PaginacaoPorDemandaExercicios" (click)="go('/PaginacaoPorDemandaExercicios'); $event.preventDefault()">
+              <os-card title="Paginação por Demanda">
+                <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></os-card-icon>
+                Substituição de páginas entre memória física e disco.
+              </os-card>
+            </a>
+            <a class="deck-link" href="/EscalonamentoDeProcessos" (click)="go('/EscalonamentoDeProcessos'); $event.preventDefault()">
+              <os-card title="Escalonamento">
+                <os-card-icon slot="icon" variant="info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h6l2-7 4 14 2-7h4"/></svg></os-card-icon>
+                Round Robin, prioridades e filas de prontos em tempo real.
+              </os-card>
+            </a>
+            <a class="deck-link" href="/Segmentacao" (click)="go('/Segmentacao'); $event.preventDefault()">
+              <os-card title="Segmentação">
+                <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="11" width="18" height="4" rx="1"/><rect x="3" y="17" width="18" height="3" rx="1"/></svg></os-card-icon>
+                Segmentos mapeando memória lógica para física.
+              </os-card>
+            </a>
           </div>
           <div class="tw-mt-6"><a class="see-all" routerLink="/simulacoes">ver todas as simulações →</a></div>
         </div>

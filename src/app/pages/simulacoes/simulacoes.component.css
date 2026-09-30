@@ -41,16 +41,13 @@
 }
 
 .sim-group { margin-bottom: 44px; }
-.sub-label {
-  font-family: var(--f-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: .13em;
-  text-transform: uppercase;
-  color: var(--text-3);
-  margin: 0 0 18px;
+
+/* grade única: todos os cards com a mesma altura, footer alinhado embaixo */
+.sim-deck { align-items: stretch; }
+.sim-deck > os-card { display: flex; }
+.sim-deck > os-card ::ng-deep .os-card {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  width: 100%;
 }
-.sub-label::after { content: ""; flex: 1; height: 1px; background: var(--line-soft); }
+.sim-deck > os-card ::ng-deep .os-card-footer { margin-top: auto; }

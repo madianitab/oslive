@@ -64,6 +64,8 @@
 }
 .scene-inner { width: 100%; max-width: 1040px; text-align: center; }
 .scene-deck { text-align: left; }
+.deck-link { display: block; color: inherit; text-decoration: none; }
+.deck-link > os-card { display: block; height: 100%; }
 
 .scene-cta { background: var(--n-900); }
 [data-theme="dark"] .scene-cta { background: var(--n-950); }

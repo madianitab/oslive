@@ -1,13 +1,18 @@
 import { Component, EventEmitter, OnInit, Output, signal } from '@angular/core';
+import { NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SegmentacaoService, SegmentacaoState } from '../../../services/segmentacao.service';
+import { contrastText } from 'src/app/core/utils';
+import { OsSimShellComponent } from 'src/app/ui/sim-shell/sim-shell.component';
+import { OsPanelComponent } from 'src/app/ui/panel/panel.component';
+import { OsButtonComponent } from 'src/app/ui/button/button.component';
 
 @Component({
     selector: 'app-create-process',
     templateUrl: './create-process.component.html',
-    styleUrls: ['./create-process.component.scss', '/custom.css'],
+    styleUrls: ['./create-process.component.scss'],
     standalone: true,
-    imports: [FormsModule],
+    imports: [NgStyle, FormsModule, OsSimShellComponent, OsPanelComponent, OsButtonComponent],
 })
 export class CreateProcessComponent implements OnInit {
 
@@ -92,6 +97,12 @@ export class CreateProcessComponent implements OnInit {
 
   public whatColor(code: string): string | undefined {
     return this.segmentacaoService.whatColor(this.state().colors, code);
+  }
+
+  /** Estilo da célula: cor de fundo do segmento + texto contrastante. */
+  public cellStyle(code: string): { [k: string]: string } {
+    const bg = this.whatColor(code) ?? '';
+    return { 'background-color': bg, color: contrastText(bg) };
   }
 
   public decimalToBinary(n: number): string {

@@ -6,13 +6,14 @@ import { MenuLateralComponent } from '../menu-lateral/menu-lateral.component';
 import { AreaExercicioComponent } from '../area-exercicio/area-exercicio.component';
 import { PaginaVitimaComponent } from '../pagina-vitima/pagina-vitima.component';
 import { InfortivoComponent } from '../infortivo/infortivo.component';
+import { OsSimShellComponent } from 'src/app/ui/sim-shell/sim-shell.component';
 
 @Component({
     selector: 'app-home-paginacao-por-demanda-exercicios',
     templateUrl: './home-paginacao-por-demanda-exercicios.component.html',
     styleUrls: ['./home-paginacao-por-demanda-exercicios.component.css'],
     standalone: true,
-    imports: [MenuLateralComponent, AreaExercicioComponent, PaginaVitimaComponent, InfortivoComponent]
+    imports: [MenuLateralComponent, AreaExercicioComponent, PaginaVitimaComponent, InfortivoComponent, OsSimShellComponent]
 })
 export class HomePaginacaoPorDemandaExerciciosComponent implements OnInit {
   public getDadosProcesso: Array<Processo> = [];

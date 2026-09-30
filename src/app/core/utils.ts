@@ -21,6 +21,32 @@ export function listaNum(num: number): Array<number> {
   return list;
 }
 
+/**
+ * Cor de texto (preto/branco) que contrasta com um fundo.
+ * Retorna '' para cores inválidas/transparentes (mantém a cor herdada).
+ */
+export function contrastText(bg: string | null | undefined): string {
+  if (!bg) return '';
+  let s = bg.trim();
+  let r: number, g: number, b: number;
+  if (s.startsWith('rgb')) {
+    const m = s.match(/\d+/g);
+    if (!m || m.length < 3) return '';
+    [r, g, b] = [+m[0], +m[1], +m[2]];
+  } else if (s[0] === '#') {
+    let h = s.slice(1);
+    if (h.length === 3) h = h.split('').map(c => c + c).join('');
+    if (h.length !== 6) return '';
+    r = parseInt(h.slice(0, 2), 16);
+    g = parseInt(h.slice(2, 4), 16);
+    b = parseInt(h.slice(4, 6), 16);
+  } else {
+    return '';
+  }
+  const luminancia = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminancia > 0.6 ? '#1a1a1a' : '#ffffff';
+}
+
 export function gera_cor(coresJaUtilizadas: Array<{ cor: string }> = []): string {
   const disponiveis = CORES_DISPONIVEIS.filter(
     c => !coresJaUtilizadas.some(p => p.cor === c)

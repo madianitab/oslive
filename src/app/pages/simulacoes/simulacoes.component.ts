@@ -18,12 +18,10 @@ import { OsBadgeComponent } from '../../ui/badge/badge.component';
     <p class="sim-sub">Mergulhe no comportamento do sistema operacional, um módulo de cada vez.</p>
   </header>
 
-  <!-- ───── MEMÓRIA ───── -->
   <section class="sim-group">
-    <div class="sub-label">Memória</div>
-    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4">
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 sim-deck">
 
-      <os-card title="Paginação por Demanda" [accent]="true">
+      <os-card title="Paginação por Demanda">
         <os-card-icon slot="icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
         </os-card-icon>
@@ -40,23 +38,6 @@ import { OsBadgeComponent } from '../../ui/badge/badge.component';
         Segmentos mapeando memória lógica para a memória física.
         <div slot="footer"><os-button variant="p" size="sm" (click)="go('/Segmentacao')">Abrir →</os-button></div>
       </os-card>
-
-      <os-card title="Exercício de Segmentação">
-        <os-card-icon slot="icon" variant="ok">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-        </os-card-icon>
-        <os-badge slot="badge" variant="s">exercícios</os-badge>
-        Pratique a alocação de segmentos e fixe o conteúdo.
-        <div slot="footer"><os-button variant="p" size="sm" (click)="go('/ExercicioDeSegmentacao')">Abrir →</os-button></div>
-      </os-card>
-
-    </div>
-  </section>
-
-  <!-- ───── PROCESSOS ───── -->
-  <section class="sim-group">
-    <div class="sub-label">Processos</div>
-    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4">
 
       <os-card title="Escalonamento de Processos">
         <os-card-icon slot="icon" variant="info">
