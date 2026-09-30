@@ -1,34 +1,42 @@
-<div class="container-fluid pt-2">
-<div class="row">
-    <div class="col-5 col-lg-3 border-right border-dark">
-        <app-lateral-escalonamento
-        (enviarProcessos)="setDadosProcesso($event)"
-        (enviarTipoAlgoritmo)="setTipoAlgoritmo($event)"
-        (temAnimacao)="setAnimcao($event)"
-        (enviarQuantum)="setQuantum($event)"
-        (enviarQuantum1)="setQuantum1($event)"
-        (enviarQuantum2)="setQuantum2($event)"
-        (enviarQuantum3)="setQuantum3($event)"
-        (enviarFilaRR1)="setFilaRR1($event)"
-        (enviarFilaRR2)="setFilaRR2($event)"
-        (enviarFilaRR3)="setFilaRR3($event)"
-        (enviarFilaRR4)="setFilaRR4($event)"
-        ></app-lateral-escalonamento>
-    </div>
-    <div class="col-7 col-lg-9 ">
-        <app-area-simulacao
-        [listaProcessos]="getDadosProcesso"
-        [escalonador]="getTipoAlgoritmo"
-        [animacao]="getTemAnimacao"
-        [quantum]="getQuantum"
-        [quantum1]="getQuantum1"
-        [quantum2]="getQuantum2"
-        [quantum3]="getQuantum3"
-        [filaRR1]="getFilaRR1"
-        [filaRR2]="getFilaRR2"
-        [filaRR3]="getFilaRR3"
-        [filaRR4]="getFilaRR4"
-        ></app-area-simulacao>
-    </div>
-</div>
-</div>
+<os-sim-shell
+  title="Escalonamento de Processos"
+  subtitle="Monte os processos, escolha o algoritmo e veja a CPU trabalhar."
+>
+  <ng-container slot="actions">
+    <os-button-group>
+      <button class="osbg-btn primary" type="button" aria-label="Iniciar simulação" title="Iniciar" (click)="lat.simular()"><i class="fa-regular fa-circle-play"></i></button>
+      <button class="osbg-btn" type="button" aria-label="Cancelar simulação" title="Cancelar" (click)="lat.cancel_simulacao()"><i class="fa-regular fa-circle-stop"></i></button>
+      <button class="osbg-btn danger" type="button" aria-label="Reiniciar simulação" title="Reiniciar" (click)="lat.reiniciar_simulacao()"><i class="fa-solid fa-rotate-right"></i></button>
+    </os-button-group>
+  </ng-container>
+
+  <app-lateral-escalonamento
+    #lat
+    slot="config"
+    (enviarProcessos)="setDadosProcesso($event)"
+    (enviarTipoAlgoritmo)="setTipoAlgoritmo($event)"
+    (temAnimacao)="setAnimcao($event)"
+    (enviarQuantum)="setQuantum($event)"
+    (enviarQuantum1)="setQuantum1($event)"
+    (enviarQuantum2)="setQuantum2($event)"
+    (enviarQuantum3)="setQuantum3($event)"
+    (enviarFilaRR1)="setFilaRR1($event)"
+    (enviarFilaRR2)="setFilaRR2($event)"
+    (enviarFilaRR3)="setFilaRR3($event)"
+    (enviarFilaRR4)="setFilaRR4($event)"
+  ></app-lateral-escalonamento>
+
+  <app-area-simulacao
+    [listaProcessos]="getDadosProcesso"
+    [escalonador]="getTipoAlgoritmo"
+    [animacao]="getTemAnimacao"
+    [quantum]="getQuantum"
+    [quantum1]="getQuantum1"
+    [quantum2]="getQuantum2"
+    [quantum3]="getQuantum3"
+    [filaRR1]="getFilaRR1"
+    [filaRR2]="getFilaRR2"
+    [filaRR3]="getFilaRR3"
+    [filaRR4]="getFilaRR4"
+  ></app-area-simulacao>
+</os-sim-shell>

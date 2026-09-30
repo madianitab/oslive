@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, signal } from '@angular/core';
+import { Component, Input, OnInit, signal, computed } from '@angular/core';
 import { Processo } from 'src/app/features/escalonamento/models/processo';
 import { ListaProcessos } from 'src/app/features/escalonamento/models/lista-processos';
 import { Comunicacao } from 'src/app/features/escalonamento/models/comunicacao';
@@ -7,6 +7,7 @@ import { EscalonamentoService, ResultadoCpu } from 'src/app/features/escalonamen
 import { trigger, transition, style, animate } from '@angular/animations';
 import { NgStyle } from '@angular/common';
 import { GraficoComponent } from '../grafico/grafico.component';
+import { OsStatComponent } from 'src/app/ui/stat/stat.component';
 
 @Component({
     selector: 'app-area-simulacao',
@@ -26,7 +27,8 @@ import { GraficoComponent } from '../grafico/grafico.component';
     standalone: true,
     imports: [
     NgStyle,
-    GraficoComponent
+    GraficoComponent,
+    OsStatComponent
 ],
 })
 export class AreaSimulacaoComponent implements OnInit {
@@ -47,6 +49,17 @@ export class AreaSimulacaoComponent implements OnInit {
   readonly resultados = signal<ResultadoCpu[]>([]);
   readonly resultados2 = signal<{ nome: string; espera: number; execucao: number; turn: number }[]>([]);
   readonly processosVisiveis = signal<ResultadoCpu[]>([]);
+
+  // Métricas agregadas para a faixa de stats
+  readonly nProcessos = computed(() => this.resultados2().length);
+  readonly mediaEspera = computed(() => {
+    const r = this.resultados2();
+    return r.length ? (r.reduce((s, x) => s + x.espera, 0) / r.length).toFixed(1) : '—';
+  });
+  readonly mediaTurnaround = computed(() => {
+    const r = this.resultados2();
+    return r.length ? (r.reduce((s, x) => s + x.turn, 0) / r.length).toFixed(1) : '—';
+  });
 
   readonly fila1Estatica = signal<{ nome: string; cor: string }[]>([]);
   readonly fila2Estatica = signal<{ nome: string; cor: string }[]>([]);

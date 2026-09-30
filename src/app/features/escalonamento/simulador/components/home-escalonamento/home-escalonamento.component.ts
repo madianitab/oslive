@@ -3,13 +3,15 @@ import { Processo } from 'src/app/features/escalonamento/models/processo';
 import { Comunicacao } from 'src/app/features/escalonamento/models/comunicacao';
 import { LateralEscalonamentoComponent } from '../lateral-escalonamento/lateral-escalonamento.component';
 import { AreaSimulacaoComponent } from '../area-simulacao/area-simulacao.component';
+import { OsSimShellComponent } from 'src/app/ui/sim-shell/sim-shell.component';
+import { OsButtonGroupComponent } from 'src/app/ui/button-group/button-group.component';
 
 @Component({
     selector: 'app-home-escalonamento',
     templateUrl: './home-escalonamento.component.html',
     styleUrls: ['./home-escalonamento.component.css'],
     standalone: true,
-    imports: [LateralEscalonamentoComponent, AreaSimulacaoComponent]
+    imports: [LateralEscalonamentoComponent, AreaSimulacaoComponent, OsSimShellComponent, OsButtonGroupComponent]
 })
 export class HomeEscalonamentoComponent implements OnInit {
   public getDadosProcesso: Array<Processo> = [];
