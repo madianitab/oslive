@@ -1,174 +1,254 @@
-<div class="esc-viz">
+<div class="mt-4" style="font-size: 30px">
+  <h2 style="text-align: center"><b>Simulador de Escalonamento de Processos</b></h2>
+</div>
 
-  <!-- ───────── Diagrama de uso da CPU ───────── -->
-  <section class="viz-block">
-    <div class="viz-label">Diagrama de uso da CPU</div>
-    <div class="viz-scroll">
+<div class="row mt-4" style="text-align: left">
+  <div class="col-sm-9 col-md-12 col-sm-offset-1">
+    <h5>Diagrama de Uso da CPU
+      <i class="fa-solid fa-circle-info icone" data-toggle="modal" data-target="#DiagramaDeUso"></i>
+    </h5>
+    <div class="table-responsive">
       @if (!animacao) {
-        <table class="viz-table">
+        <table class="table table-responsive">
           @if (escalonador.valueOf() < 5) {
-            <tr>
-              <td class="t-lbl">Tempo</td>
-              @for (r of resultados(); track r) { <td class="t-val">{{ r.tempo }}</td> }
+            <tr style="text-align: center">
+              <td style="font-size: 10px ; background: rgb(223, 222, 222)">Tempo</td>
+              @for (r of resultados(); track r) {
+                <td style="font-size: 10px">{{r.tempo}}</td>
+              }
             </tr>
           }
           @if (escalonador.valueOf() < 5) {
-            <tr>
-              <td class="t-lbl">Processo</td>
+            <tr style="text-align: center">
+              <td style="font-size: 10px">Processo</td>
               @for (p of processosVisiveis(); track p) {
-                <td [@fade] class="t-proc" [ngStyle]="{'background-color': p.cor}">{{ p.nome }}</td>
+                <td [@fade]
+                  [ngStyle]="{'background-color': p.cor, 'color': '#FFFFFF', 'font-size': '10px'}">
+                  {{ p.nome }}
+                </td>
               }
             </tr>
           }
           @if (escalonador.valueOf() > 4) {
-            <tr id="diagramaTempo">
-              <td class="t-lbl">Tempo</td>
-              @for (r of processosVisiveis(); track r) { <td [@fade] class="t-val">{{ r.tempo }}</td> }
+            <tr id="diagramaTempo" style="text-align: center">
+              <td style="font-size: 10px ; background: rgb(223, 222, 222)">Tempo</td>
+              @for (r of processosVisiveis(); track r) {
+                <td [@fade] style="font-size: 10px">{{r.tempo}}</td>
+              }
             </tr>
           }
           @if (escalonador.valueOf() > 4) {
-            <tr id="diagramaProcesso">
-              <td class="t-lbl">Processo</td>
+            <tr id="diagramaProcesso" style="text-align: center">
+              <td style="font-size: 10px">Processo</td>
               @for (p of processosVisiveis(); track p) {
-                <td [@fade] class="t-proc" [ngStyle]="{'background-color': p.cor}">{{ p.nome }}</td>
+                <td [@fade]
+                  [ngStyle]="{'background-color': p.cor, 'color': '#FFFFFF', 'font-size': '10px'}">
+                  {{ p.nome }}
+                </td>
               }
             </tr>
           }
         </table>
       }
       @if (animacao) {
-        <table class="viz-table" id="tabelaExec">
-          <tr>
-            <td class="t-lbl">Tempo</td>
-            @for (r of resultados(); track r) { <td class="t-val">{{ r.tempo }}</td> }
-          </tr>
-          <tr>
-            <td class="t-lbl">Processo</td>
+        <table class="table table-responsive" id="tabelaExec">
+          <tr style="text-align: center">
+            <td style="font-size: 10px ; background: rgb(223, 222, 222)">Tempo</td>
             @for (r of resultados(); track r) {
-              <td class="t-proc" [ngStyle]="{'background-color': r.cor}">{{ r.nome }}</td>
+              <td style="font-size: 10px">{{r.tempo}}</td>
+            }
+          </tr>
+          <tr style="text-align: center">
+            <td style="font-size: 10px">Processo</td>
+            @for (r of resultados(); track r) {
+              <td
+                [ngStyle]="{'background-color': r.cor, 'color': '#FFFFFF', 'font-size': '10px'}">
+                {{ r.nome }}
+              </td>
             }
           </tr>
         </table>
       }
     </div>
-  </section>
-
-  <!-- ───────── Filas de aptos ───────── -->
-  <section class="viz-block">
-    <div class="viz-label">Fila(s) de aptos</div>
-
-    <div class="fila-row">
-      <span class="fila-tag">Processos {{ escalonador.valueOf() > 4 ? 'Fila 1' : '' }}</span>
-      <table class="fila-table">
-        @if (escalonador.valueOf() < 5) {
-          <tr id="fila1Estatica">
-            @for (f of fila1Estatica(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
+  </div>
+  <div class="col-sm-9 col-sm-offset-1">
+    <h5>Fila(s) de Aptos
+      <i class="fa-solid fa-circle-info icone" data-toggle="modal" data-target="#FilaDeAptos"></i>
+    </h5>
+    <p style="margin: auto; font-weight: bold">Processos {{escalonador.valueOf() > 4? 'Fila 1' : ''}}
+    </p>
+    <table class="table table-responsive">
+      @if (escalonador.valueOf() < 5) {
+        <tr id="fila1Estatica">
+          @for (f of fila1Estatica(); track f) {
+            <td [@fade]
+              [ngStyle]="{'background-color': f.cor, 'color': '#FFFFFF', 'font-size': '10px'}">
+              {{ f.nome}}
+            </td>
+          }
+        </tr>
+      }
+      @if (escalonador.valueOf() > 4 && !animacao && tempoCpu < resultados().length) {
+        <tr id="fila1Estatica">
+          @for (f of fila1V(); track f) {
+            <td [@fade]
+              [ngStyle]="{'background-color': f.cor, 'color': '#FFFFFF', 'font-size': '10px'}">
+              {{ f.nome}}
+            </td>
+          }
+        </tr>
+      }
+      @if (escalonador.valueOf() > 4 && !animacao && tempoCpu >= resultados().length) {
+        <tr>
+          @for (f of fila1Estatica(); track f) {
+            <td [@fade]
+              [ngStyle]="{'background-color': f.cor, 'color': '#FFFFFF', 'font-size': '10px'}">
+              {{ f.nome}}
+            </td>
+          }
+        </tr>
+      }
+    </table>
+    @if (escalonador.valueOf() > 4 && !animacao) {
+      <p style="margin: auto; font-weight: bold">Processos Fila 2</p>
+    }
+    @if (escalonador.valueOf() > 4) {
+      <table id="tabelafila2" style="text-align: left; width: auto !important; border: none"
+        class="table table-responsive">
+        @if (tempoCpu < resultados().length) {
+          <tr id="fila2Estatica">
+            @for (f of fila2V(); track f) {
+              <td [@fade]
+                [ngStyle]="{'background-color': f.cor, 'color': '#FFFFFF', 'font-size': '10px'}">
+                {{ f.nome}}
+              </td>
+            }
           </tr>
         }
-        @if (escalonador.valueOf() > 4 && !animacao && tempoCpu < resultados().length) {
-          <tr id="fila1Estatica">
-            @for (f of fila1V(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
-          </tr>
-        }
-        @if (escalonador.valueOf() > 4 && !animacao && tempoCpu >= resultados().length) {
+        @if (tempoCpu >= resultados().length) {
           <tr>
-            @for (f of fila1Estatica(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
+            @for (f of fila2Estatica(); track f) {
+              <td [@fade]
+                [ngStyle]="{'background-color': f.cor, 'color': '#FFFFFF', 'font-size': '10px'}">
+                {{ f.nome}}
+              </td>
+            }
           </tr>
         }
       </table>
-    </div>
-
-    @if (escalonador.valueOf() > 4) {
-      <div class="fila-row">
-        <span class="fila-tag">Processos Fila 2</span>
-        <table class="fila-table" id="tabelafila2">
-          @if (tempoCpu < resultados().length) {
-            <tr id="fila2Estatica">
-              @for (f of fila2V(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
-            </tr>
-          }
-          @if (tempoCpu >= resultados().length) {
-            <tr>
-              @for (f of fila2Estatica(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
-            </tr>
-          }
-        </table>
-      </div>
     }
     @if (escalonador.valueOf() > 5) {
-      <div class="fila-row">
-        <span class="fila-tag">Processos Fila 3</span>
-        <table class="fila-table" id="tabelafila3">
-          @if (tempoCpu < resultados().length) {
-            <tr id="fila3Estatica">
-              @for (f of fila3V(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
-            </tr>
-          }
-          @if (tempoCpu >= resultados().length) {
-            <tr>
-              @for (f of fila3Estatica(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
-            </tr>
-          }
-        </table>
-      </div>
+      <p style="margin: auto; font-weight: bold">Processos Fila 3</p>
+    }
+    @if (escalonador.valueOf() > 5) {
+      <table id="tabelafila3" style="text-align: left; width: auto !important; border: none"
+        class="table table-responsive">
+        @if (tempoCpu < resultados().length) {
+          <tr id="fila3Estatica">
+            @for (f of fila3V(); track f) {
+              <td [@fade]
+                [ngStyle]="{'background-color': f.cor, 'color': '#FFFFFF', 'font-size': '10px'}">
+                {{ f.nome}}
+              </td>
+            }
+          </tr>
+        }
+        @if (tempoCpu >= resultados().length) {
+          <tr>
+            @for (f of fila3Estatica(); track f) {
+              <td [@fade]
+                [ngStyle]="{'background-color': f.cor, 'color': '#FFFFFF', 'font-size': '10px'}">
+                {{ f.nome}}
+              </td>
+            }
+          </tr>
+        }
+      </table>
     }
     @if (escalonador.valueOf() > 6) {
-      <div class="fila-row">
-        <span class="fila-tag">Processos Fila 4</span>
-        <table class="fila-table" id="tabelafila4">
-          @if (tempoCpu < resultados().length) {
-            <tr id="fila4Estatica">
-              @for (f of fila4V(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
-            </tr>
-          }
-          @if (tempoCpu >= resultados().length) {
-            <tr>
-              @for (f of fila4Estatica(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
-            </tr>
-          }
-        </table>
-      </div>
+      <p style="margin: auto; font-weight: bold">Processos Fila 4</p>
     }
-  </section>
-
-  <!-- ───────── Resultado ───────── -->
-  <section class="viz-block">
-    <div class="viz-label">Resultado</div>
-
-    @if (resultados2().length > 0) {
-      <div class="viz-stats">
-        <os-stat label="Processos" [value]="nProcessos()"></os-stat>
-        <os-stat label="Espera média" [value]="mediaEspera()" unit="u" [accent]="true"></os-stat>
-        <os-stat label="Turnaround médio" [value]="mediaTurnaround()" unit="u"></os-stat>
-      </div>
-
-      <div class="res-grid">
-        <div class="res-card">
-          <div class="res-card-head">Por processo</div>
-          <table class="res-table">
-            <tr>
-              <td>Processo</td>
-              <td>Espera</td>
-              <td>Turnaround</td>
-            </tr>
-            @for (rr of resultados2(); track rr) {
-              <tr>
-                <td>{{ rr.nome }}</td>
-                <td>{{ rr.espera }}</td>
-                <td>{{ rr.turn }}</td>
-              </tr>
+    @if (escalonador.valueOf() > 6) {
+      <table id="tabelafila4" style="text-align: left; width: auto !important; border: none"
+        class="table table-responsive">
+        @if (tempoCpu < resultados().length) {
+          <tr id="fila4Estatica">
+            @for (f of fila4V(); track f) {
+              <td [@fade]
+                [ngStyle]="{'background-color': f.cor, 'color': '#FFFFFF', 'font-size': '10px'}">
+                {{ f.nome}}
+              </td>
             }
-          </table>
-        </div>
-
-        <div class="res-card">
-          <div class="res-card-head">Comparativo</div>
-          <app-grafico [processos]="resultados2()"></app-grafico>
-        </div>
-      </div>
-    } @else {
-      <p class="empty-hint">Monte os processos e clique em <b>Iniciar</b> para ver os resultados.</p>
+          </tr>
+        }
+        @if (tempoCpu >= resultados().length) {
+          <tr>
+            @for (f of fila4Estatica(); track f) {
+              <td [@fade]
+                [ngStyle]="{'background-color': f.cor, 'color': '#FFFFFF', 'font-size': '10px'}">
+                {{ f.nome}}
+              </td>
+            }
+          </tr>
+        }
+      </table>
     }
-  </section>
+  </div>
+</div>
+<div class="col-12 col-sm-offset-1 mt-5" style="margin-bottom: 18px; margin-top: -25px">
+  <h5 style="text-align: center">Tabela Resultado</h5>
+  <table class="table table-bordered" style="width: auto; margin: auto">
+    <tr style="text-align: center">
+      <td>Processo</td>
+      <td>Tempo de Espera</td>
+      <td>Tempo Total (Turnaround)</td>
+    </tr>
+    @for (rr of resultados2(); track rr) {
+      <tr style="text-align: center">
+        <td>{{rr.nome}}</td>
+        <td>{{rr.espera}}</td>
+        <td>{{rr.turn}}</td>
+      </tr>
+    }
+  </table>
+</div>
+<div class="col-12 col-sm-offset-1 mt-5" style="margin-bottom: 18px; margin-top: -25px">
+  <h5 style="text-align: center">Resultado Gráfico</h5>
+  <app-grafico [processos]="resultados2()"></app-grafico>
+</div>
 
+
+<div class="modal fade" id="DiagramaDeUso" tabindex="-1" role="dialog" aria-labelledby="DiagramaDeUsoLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="DiagramaDeUsoLabel">Diagrama de Uso da CPU</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="text-align: justify">
+        "Diagrama de Uso da CPU" é uma representação visual que mostra como a CPU (Unidade Central de
+        Processamento) de um computador é utilizada ao longo do tempo. Ele é usado principalmente para analisar
+        o desempenho e a eficiência do processamento em sistemas computacionais
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="FilaDeAptos" tabindex="-1" role="dialog" aria-labelledby="FilaDeAptosLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="FilaDeAptosLabel">Fila de Aptos</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      </div>
+    </div>
+  </div>
 </div>

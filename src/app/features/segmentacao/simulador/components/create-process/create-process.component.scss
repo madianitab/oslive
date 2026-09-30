@@ -1,123 +1,270 @@
-:host { display: block; }
-
-/* ───────── Config (sidebar) ───────── */
-.seg-side { display: flex; flex-direction: column; gap: 16px; font-family: var(--f-sans); color: var(--text); }
-.seg-form { display: flex; flex-direction: column; gap: 10px; margin: 0; }
-
-.check-row {
-  display: flex; align-items: center; gap: 9px;
-  font-size: 13px; color: var(--text-2); cursor: pointer; line-height: 1.4;
+.col-sm-9{
+    height: 90%;
+    opacity: 0.9;
+    margin-left: 412px;
 }
-.check-row input[type="checkbox"] { accent-color: var(--a); width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
 
-.fld {
-  width: 100%; padding: 9px 12px;
-  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
-  font-family: var(--f-sans); font-size: 13px; color: var(--text);
-  box-shadow: var(--sh-xs); transition: border-color .14s var(--ease), box-shadow .14s var(--ease);
+.table-responsive{
+  margin-right: 10px; 
+  width: auto 0px;
 }
-.fld:hover { border-color: var(--text-3); }
-.fld:focus { outline: none; border-color: var(--a); box-shadow: var(--ring); }
-.fld::placeholder { color: var(--text-3); }
 
-.acts { display: flex; flex-wrap: wrap; gap: 8px; }
-
-/* lista de processos (chips) */
-.proc-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.proc-chip { display: inline-flex; align-items: stretch; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; box-shadow: var(--sh-xs); }
-.chip-open {
-  border: none; background: var(--surface); color: var(--text);
-  font-family: var(--f-mono); font-weight: 600; font-size: 12px;
-  padding: 6px 12px; cursor: pointer; transition: background .12s var(--ease), color .12s var(--ease);
+p {
+  margin-left: 8px;
+  line-height: 20px;
 }
-.chip-open:hover { background: var(--surface-2); }
-.chip-open.open-process { background: var(--a); color: #fff; }
-[data-theme="dark"] .chip-open.open-process { color: var(--n-950); }
-.chip-del {
-  border: none; border-left: 1px solid var(--line); background: var(--surface);
-  color: var(--text-3); cursor: pointer; padding: 0 9px; font-size: 14px; line-height: 1;
-  transition: background .12s var(--ease), color .12s var(--ease);
+
+label {
+  margin-bottom: 0;
 }
-.chip-del:hover { background: var(--err-soft); color: var(--err); }
 
-.empty { font-family: var(--f-serif); font-style: italic; font-size: 13px; color: var(--text-3); text-align: center; margin: 2px 0; }
+.nav-side-menu {
+  font-size: 40px;
+  background-color: #f0f0f0;
+  max-width: 390px;
+  height: 100%;
+  color: black;
+  border-right: 1px solid black;
+}
+.nav-side-menu .brand {
+  background-color: #f0f0f0;
+  line-height: 50px;
+  display: block;
+  text-align: center;
+  font-size: 14px;
+}
 
-/* ───────── Visualização (main) ───────── */
+.nav-side-menu ul,
+.nav-side-menu li {
+  list-style: none;
+  padding: 0px;
+  margin: 0px;
+  line-height: 35px;
+  cursor: pointer;
+
+}
+.nav-side-menu ul :not(collapsed) .arrow:before,
+.nav-side-menu li :not(collapsed) .arrow:before {
+  font-family: FontAwesome;
+  content: "\f078";
+  display: inline-block;
+  padding-left: 10px;
+  padding-right: 10px;
+  vertical-align: middle;
+  float: none;
+}
+.nav-side-menu ul .active,
+.nav-side-menu li .active {
+  border-left: 3px solid lightblue;
+  background-color: #f0f0f0;
+}
+.nav-side-menu ul .sub-menu li.active,
+.nav-side-menu li .sub-menu li.active {
+  color: black;
+}
+.nav-side-menu ul .sub-menu li.active a,
+.nav-side-menu li .sub-menu li.active a {
+  color: black;
+}
+.nav-side-menu ul .sub-menu li,
+.nav-side-menu li .sub-menu li {
+  background-color: rgb(177, 192, 207);
+  border: none;
+  line-height: 28px;
+  border-bottom: 1px solid black;
+  margin-left: 0px;
+}
+.nav-side-menu ul .sub-menu li:hover,
+.nav-side-menu li .sub-menu li:hover {
+  background-color: rgb(82, 112, 141);
+}
+
+.nav-side-menu li {
+  padding-left: 0px;
+  border-left: 3px solid lightblue;
+  border-bottom: 1px solid black;
+}
+.nav-side-menu li a {
+  text-decoration: none;
+  color: black;
+}
+.nav-side-menu li a i {
+  padding-left: 10px;
+  width: 20px;
+  padding-right: 20px;
+}
+.nav-side-menu li:hover {
+  border-left: 3px solid black;
+  background-color: #9cc0e9;
+  -webkit-transition: all 1s ease;
+  -moz-transition: all 1s ease;
+  -o-transition: all 1s ease;
+  -ms-transition: all 1s ease;
+  transition: all 1s ease;
+}
+@media (max-width: 767px) {
+  .nav-side-menu {
+    position: relative;
+    width: 100%;
+    margin-bottom: 10px;
+
+  }
+   
+  .table-responsive {
+  display: block !important;
+  position: relative !important;
+  width: 100% !important;
+  margin-left: 10px !important;
+  }
+
+  .table-bordered{
+    margin-left: 10px !important;
+  }
+
+  #grafico{
+    margin-left: 10px !important;
+  }
+  
+  #rodape{
+    margin-left: 10px !important;
+    right: 25% !important;
+    bottom: 0% !important;
+    position: fixed !important;
+    visibility: hidden !important;
+  }
+
+  .nav-side-menu .toggle-btn {
+    display: block;
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    z-index: 10 !important;
+    padding: 3px;
+    background-color: #ffffff;
+    color: #000;
+    width: 40px;
+    text-align: center;
+  }
+  .brand {
+    text-align: left !important;
+    font-size: 22px;
+    padding-left: 20px;
+    line-height: 50px !important;
+  }
+}
+@media (min-width: 767px) {
+  .nav-side-menu .menu-list .menu-content {
+    display: block;
+  }
+
+}
+
+body {
+  margin: 0px;
+  padding: 0px;
+}
+
+#processo{
+  width: 70%;
+  margin-top: 9px;
+  margin-bottom: 9px;
+}
+#codigo{
+  width: 70%;
+  margin-top: 9px;
+  margin-bottom: 9px;
+}
+#pilha{
+  width: 70%;
+  margin-top: 9px;
+  margin-bottom: 9px;
+}
+#dado{
+  width: 70%;
+  margin-top: 9px;
+  margin-bottom: 9px;
+}
+
+.nav-side-menu{
+  font-size: 14px;
+
+}
+
+#display{
+  background: #000000;
+}
+
+#media{
+    height: 100%;
+    width: 880px;
+    margin-left: 400px;
+    margin-right: 1px;
+
+}
+
+
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f0f0f0;
+  color: rgb(151, 151, 151);
+}
+.container-fluid {
+  margin-top: 1%;
+  margin-bottom: 0%;
+  
+}
+.table {
+  font-size: 14px;
+  text-align: center;
+  
+}
 .center {
-  display: flex; flex-wrap: wrap; flex-direction: row;
-  align-content: flex-start; gap: 8px 28px; width: 100%;
-  font-family: var(--f-sans); color: var(--text);
+  text-align: center;
+  
+}
+.center-right{
+  text-align: right;
+}
+.center-right{
+  text-align: right;
+}
+td {
+  padding: 0;
+  margin: 0;
+  font-weight: bold;
+}
+.table-memoria-fisica {
+  background-color: #000000;
+  color: #ffffff;
+  width: 100%;
+}
+.distancia-botao-processos {
+  margin-right: 10px;
 }
 
-/* abas dos processos */
-.process { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; min-height: 0; margin-bottom: 8px; }
-.proc-tab {
-  border: 1px solid var(--line); background: var(--surface); color: var(--text-2);
-  font-family: var(--f-mono); font-weight: 600; font-size: 12px;
-  padding: 7px 14px; border-radius: var(--r); cursor: pointer; box-shadow: var(--sh-xs);
-  transition: all .14s var(--ease);
-}
-.proc-tab:hover { border-color: var(--text-3); color: var(--text); }
-.proc-tab.open-process { background: var(--a); color: #fff; border-color: var(--a); }
-[data-theme="dark"] .proc-tab.open-process { color: var(--n-950); }
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+  
+  td,
+  th {
+    padding: 0;
+  }
+  
 
-/* colunas */
-.center-l { flex: 1; min-width: 320px; }
-.center-r { flex: 1; min-width: 280px; }
 
-/* mecanismo de show/hide por processo (preservado do legado) */
-.contain { width: 100%; }
-.tables { display: flex; flex-wrap: wrap; flex-direction: row; gap: 18px; }
-.left-page { display: none; }
-.table0 { display: flex; }
-.tablesL, .tablesR { flex: 1; min-width: 200px; }
+  * {
+    font-family: roboto;
+  }
 
-/* rótulos de seção */
-.seg-label {
-  font-family: var(--f-mono); font-size: 11px; font-weight: 600;
-  letter-spacing: .14em; text-transform: uppercase; color: var(--a);
-  margin: 0 0 12px; display: flex; align-items: center; gap: 10px;
-}
-.seg-label::after { content: ""; flex: 1; height: 1px; background: var(--line-soft); }
-.seg-sub { font-family: var(--f-mono); font-size: 11px; font-weight: 500; color: var(--text-3); margin: 14px 0 6px; }
 
-/* tabelas no DS */
-.seg-table {
-  border-collapse: collapse; width: 100%;
-  font-family: var(--f-mono); font-size: 12px;
-  border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden;
-  background: var(--surface); box-shadow: var(--sh-xs); margin-bottom: 14px;
-}
-.seg-table th {
-  background: var(--surface-2); color: var(--text-3);
-  font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
-  padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--line);
-}
-.seg-table td {
-  padding: 6px 10px; text-align: center; color: var(--text-2);
-  border-bottom: 1px solid var(--line-soft); font-weight: 500;
-}
-.seg-table tr:last-child td { border-bottom: none; }
 
-/* ───────── Popup ───────── */
-#popup { display: none; position: fixed; inset: 0; z-index: 200; }
-#popup .back { position: absolute; inset: 0; background: rgba(0, 0, 0, .4); }
-#popup .pop-body {
-  position: relative; z-index: 1;
-  max-width: 520px; margin: 14vh auto 0;
-  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
-  box-shadow: var(--sh-lg); padding: 26px 28px;
-}
-#popup .pop-close {
-  position: absolute; top: 12px; right: 12px;
-  width: 30px; height: 30px; border-radius: var(--r-sm);
-  border: 1px solid var(--line); background: var(--surface); color: var(--text-3);
-  cursor: pointer; font-size: 16px; line-height: 1;
-}
-#popup .pop-close:hover { background: var(--err-soft); color: var(--err); border-color: var(--err); }
-#popup #popup-title { font-family: var(--f-sans); font-size: 18px; font-weight: 600; color: var(--text); margin: 0 0 12px; letter-spacing: -.01em; }
-#popup #popup-message { font-family: var(--f-serif); font-size: 14px; line-height: 1.65; color: var(--text-2); }
-
-@media (max-width: 1100px) {
-  .center { flex-direction: column; }
+.content{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  background-color: #f0f0f0;
 }

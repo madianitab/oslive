@@ -2,15 +2,14 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, signal } fro
 import { Utils } from 'src/app/core/utils';
 import { Processo } from 'src/app/features/paginacao/models/processo';
 import { FormsModule } from '@angular/forms';
-import { OsPanelComponent } from 'src/app/ui/panel/panel.component';
-import { OsButtonComponent } from 'src/app/ui/button/button.component';
+import { NgClass } from '@angular/common';
 
 @Component({
     selector: 'app-menu-lateral',
     templateUrl: './menu-lateral.component.html',
     styleUrls: ['./menu-lateral.component.css'],
     standalone: true,
-    imports: [FormsModule, OsPanelComponent, OsButtonComponent]
+    imports: [FormsModule, NgClass]
 })
 
 export class MenuLateralComponent implements OnInit, OnChanges {

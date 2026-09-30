@@ -5,15 +5,13 @@ import { Comunicacao } from 'src/app/features/escalonamento/models/comunicacao';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { NgStyle } from '@angular/common';
-import { OsPanelComponent } from 'src/app/ui/panel/panel.component';
-import { OsButtonComponent } from 'src/app/ui/button/button.component';
 
 @Component({
     selector: 'app-lateral-escalonamento',
     templateUrl: './lateral-escalonamento.component.html',
     styleUrls: ['./lateral-escalonamento.component.css'],
     standalone: true,
-    imports: [FormsModule, NgStyle, OsPanelComponent, OsButtonComponent]
+    imports: [FormsModule, NgStyle]
 })
 export class LateralEscalonamentoComponent implements OnInit {
 

@@ -1,55 +1,147 @@
-<div class="pag-config">
 
-  <os-panel title="Tipo de exercício">
-    <select class="fld" id="selectExercicio" (change)="escolheExercicio($event)" [(ngModel)]="exercicioSelecionado.exec">
-      <option value="info" disabled selected>Exercícios disponíveis…</option>
-      @for (idx of listaDeExercicios; track idx; let x = $index) {
-        <option [value]="idx.exec">{{ idx.tipo }}</option>
-      }
-    </select>
-  </os-panel>
+<div class="nav-side-menu col-12">
+  <div class="menu-list">
 
-  @if (exercicioSelecionado.exec == 3) {
-    <os-panel title="Algoritmo de substituição">
-      <select class="fld" id="selectAlgoritmo" (change)="escolheEscalonador($event)" [(ngModel)]="escalonador.exec">
-        <option value="info" disabled selected>Algoritmo de substituição…</option>
-        @for (idx of algoritmoEscalonamento; track idx) {
-          <option [value]="idx.exec">{{ idx.tipo }}</option>
-        }
-      </select>
-    </os-panel>
-  }
+    <ul id="menu-content" class="menu-content collapse out">
+      <li class="active"
+        data-bs-toggle="collapse"
+        data-bs-target="#config"
+        aria-controls="config"
+        aria-expanded="false">
+        <a href="#">
+          <i class="fa fa-cog" aria-hidden="true"></i>
+          <b style="font-size: 17px">Á</b>rea de
+          <b style="font-size: 17px">C</b>onfiguração <span></span>
+        </a>
+      </li>
 
-  <os-panel title="Criar processos">
-    @if (exercicioSelecionado.exec != 3) {
-      <input [(ngModel)]="nProcessos" type="number" min="1" max="4" class="fld" placeholder="Qtd. páginas" id="inputCad" disabled="{{!aleatorio}}">
-    }
-    <os-button variant="p" size="sm" (click)="geradorAleatorio()">
-      <i class="fa fa-cogs"></i> Gerar processos{{ PaginaVitimaCondicaoMinima() ? ' novamente' : '' }}
-    </os-button>
-  </os-panel>
+      <!--UL -->
+      <ul class="sub-menu collapse.show" id="config">
 
-  <os-panel title="Tabela de processos">
-    <span slot="meta">{{ listaProcessos().length }}</span>
-    @if (listaProcessos().length != 0) {
-      <div class="tbl-scroll">
-        <table class="ptable" id="tabelaProcesso">
-          <thead>
-            <tr><th class="th-name">Processo</th><th>Páginas</th></tr>
-          </thead>
-          <tbody>
-            @for (pr of processosOrdenados(listaProcessos()); track pr) {
-              <tr>
-                <td class="p-name"><span class="p-dot" [style.background-color]="pr.cor"></span>{{ pr.nome }}</td>
-                <td>{{ pr.pagina.length }}</td>
-              </tr>
+        <!-- Selecionar Tipo De Exercício -->
+        <li align="center"  class="collapsed active" data-bs-toggle="collapse"
+          data-bs-target="#exercicio"
+          aria-controls="exercicio"
+          aria-expanded="false">
+          <b style="font-size: 15px">T</b>ipo de
+          <b style="font-size: 15px">E</b>xercício
+        </li>
+
+        <ul class="sub-menu collapse.show" id="exercicio">
+          <select  class="form-control" id="selectAlgoritmo" (change)="escolheExercicio($event)"
+            [(ngModel)]="exercicioSelecionado.exec"
+            >
+            <option value=info disabled selected>Exercícios Disponíveis</option>
+            @for (idx of listaDeExercicios; track idx; let x = $index) {
+              <option
+              [value]="idx.exec">{{idx.tipo}}</option>
             }
-          </tbody>
-        </table>
-      </div>
-    } @else {
-      <p class="empty">Nenhum processo cadastrado.</p>
-    }
-  </os-panel>
+          </select>
+        </ul>
 
-</div>
+        <!-- Selecionar Algoritmo -->
+        @if (exercicioSelecionado.exec == 3) {
+          <li  align="center" class="collapsed active"
+            data-bs-toggle="collapse"
+            data-bs-target="#algoritmo"
+            aria-controls="algoritmo"
+            aria-expanded="false">
+            <b style="font-size: 15px">S</b>elecionar
+            <b style="font-size: 15px">A</b>lgoritmo de
+            <b style="font-size: 15px">S</b>ubstituição
+          </li>
+        }
+
+        @if (exercicioSelecionado.exec == 3) {
+          <ul class="sub-menu" id="algoritmo"
+                              [ngClass]="{'collapse.show': (exercicioSelecionado.exec != 0),
+                                          'collapse':exercicioSelecionado.exec == 0}">
+            <select class="form-control" id="selectAlgoritmo" (change)="escolheEscalonador($event)"
+              [(ngModel)]="escalonador.exec"
+              >
+              <option value=info disabled selected>Algoritmo de substituição</option>
+              @for (idx of algoritmoEscalonamento; track idx) {
+                <option
+                [value]="idx.exec">{{idx.tipo}}</option>
+              }
+            </select>
+          </ul>
+        }
+
+        <!-- CRIAR Processos -->
+        <li  align="center"class="collapsed active"
+          data-bs-toggle="collapse"
+          data-bs-target="#add"
+          aria-controls="add"
+          aria-expanded="false">
+          <b style="font-size: 15px;">C</b>riar
+          <b style="font-size: 15px">P</b>rocessos
+        </li>
+
+        <ul class="sub-menu collapse.show" id="add">
+          <div style="background: rgb(218, 218, 218)">
+            <div>
+              <label style="margin-left: 15px" for="check">
+                <!--FORMULARIO PARA CADASTRO DO PROCESSO-->
+                <div class="form-group">
+                  <div class="input-group">
+                    <!-- id="execucao" name="execucao" -->
+                    @if (exercicioSelecionado.exec != 3) {
+                      <input [(ngModel)]="nProcessos" type="number"
+                        min="1" max="4" class="form-control"
+                        placeholder="Qtd. Páginas" id="inputCad" disabled="{{!aleatorio}}">
+                    }
+
+                    <div class="input-group-btn">
+                      <button class="btn btn-outline-primary"
+                        id="btnCad" (click)="geradorAleatorio()">
+                        <i class="fa fa-cogs" aria-hidden="true"></i>
+                        <b>Gerar Processos{{PaginaVitimaCondicaoMinima() ? " Novamente":""}}</b></button>
+                      </div>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </ul>
+
+
+          <!--TABELA DE PROCESSOS-->
+          <div>
+            <div>
+              <li class="active collapsed"
+                data-bs-toggle="collapse"
+                data-bs-target="#tabelaProcesso"
+                aria-controls="tabelaProcesso"
+                aria-expanded="false">
+                <p align="center">Tabela de Processos</p>
+              </li>
+
+              <!-- Listar processos na tabela --> <!--aria-expanded="{{processos.length == 0? 'false' : 'true'}}"class="{{processos.length == 0? 'sub-menu collapsed collapse' : 'sub-menu collapsed collapse in'}}"-->
+              <ul id="tabelaProcesso" style="height: auto !important;">
+                @if (listaProcessos.length != 0) {
+                  <table class="table table-borded" id="tabelaProcesso"
+                    >
+                    <tr style="text-align: center; ">
+                      <td>Processo</td>
+                      <td>Páginas</td>
+                    </tr>
+                    @for (pr of processosOrdenados(listaProcessos()); track pr) {
+                      <tr style="text-align:center;">
+                        <td style="width:10px;"> {{pr.nome}}
+                          <b><i class="fa fa-square" aria-hidden="true" style="color:{{pr.cor}};box-shadow: inset 10em 1em rgba(0, 0, 0, 0.25);"></i>
+                        &nbsp;</b>
+                      </td>
+                      <td>{{pr.pagina.length}}</td>
+                    </tr>
+                  }
+                </table>
+                }<!--style="text-align: center"-->
+                <!-- <h6  *ngIf="listaProcessos.length < 1">Não há processo cadastrado.</h6>  -->
+              </ul>
+            </div>
+          </div>
+        </ul>
+      </ul>
+    </div>
+  </div>
