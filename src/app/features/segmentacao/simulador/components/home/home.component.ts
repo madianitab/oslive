@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { PhysicalMemory } from '../../models/segmentacao-model/physical-memory';
+import { PhysicalMemory } from '../../../models/segmentacao-model/physical-memory';
 import { CreateProcessComponent } from '../create-process/create-process.component';
 import { ProcessListComponent } from '../process-list/process-list.component';
 import { PhysicalMemoryComponent } from '../physical-memory/physical-memory.component';

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CreateProcessComponent } from './create-process.component';
-import { SegmentacaoService } from '../../services/segmentacao.service';
+import { SegmentacaoService } from '../../../services/segmentacao.service';
 
 describe('CreateProcessComponent', () => {
   let component: CreateProcessComponent;

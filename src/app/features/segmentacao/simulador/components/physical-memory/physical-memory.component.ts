@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { PhysicalMemory } from '../../models/segmentacao-model/physical-memory';
+import { PhysicalMemory } from '../../../models/segmentacao-model/physical-memory';
 
 @Component({
     selector: 'app-physical-memory',

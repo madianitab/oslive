@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { SegmentacaoService, SegmentacaoState } from '../../services/segmentacao.service';
+import { SegmentacaoService, SegmentacaoState } from '../../../services/segmentacao.service';
 
 @Component({
     selector: 'app-create-process',
