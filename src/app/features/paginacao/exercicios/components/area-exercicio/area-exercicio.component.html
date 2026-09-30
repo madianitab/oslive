@@ -13,8 +13,8 @@
   <!-- TABELAS DA MEMÓRIA LÓGICA DOS PROCESSOS------------------------------------------------------------------------------------------------------------------------------------>
   <div class="col-12 ">
     @if (exercicioSelecionado!=-1) {
-      <div class="row">
-        <div class="col-7">
+      <div class="row viz-row">
+        <div class="col-7 viz-region">
           <h5> Processo/Páginas
             <a href="" data-toggle="modal" data-target="#tb_memoria_logica"> <img src="assets/info_ico.png" width="13px" alt=""> </a>
           </h5>
@@ -165,7 +165,7 @@
             </div>
           </div>
           <!-- TABELA DA MEMÓRIA FISICA ---------------------------------------------------------------------------------------------------------------->
-          <div class="col-2 text-center">
+          <div class="col-2 text-center viz-region">
             <h5 class="alerta">Memória Física
               <a href="" data-toggle="modal" data-target="#tb_memoria_fisica"> <img src="assets/info_ico.png" width="13px" alt=""> </a>
             </h5>
@@ -210,7 +210,7 @@
             <div><p class="alertamf"></p></div>
           </div>
           <!--DISCO COM PÁGINAS DOS PROCESSOS------------------------------------------------------------------------------------------------------------->
-          <div class="col-2" style="background-color: rgb(230, 228, 228);" align="center" >
+          <div class="col-2 viz-region disco-region" align="center" >
             <h5>Disco <a href="#" data-toggle="modal" data-target="#tb_disco">
               <img src="assets/info_ico.png" width="13px" alt=""> </a> </h5>
               <div class="row align-items-start" >
@@ -240,33 +240,12 @@
         <p>&nbsp;</p>
       </div>
       @if (listaProcessos.length) {
-        <div class="col-12" >
-          <div class="row justify-content-center">
-            <div class="col-11">
-              @if (nivelAcerto()==100) {
-                <button class="btn btn-success btn-lg btnSolicitacaoResposta" (click)="correcao()"
-                  data-toggle="modal" data-target="#acerto">
-                  <i class="fa fa-play" aria-hidden="true"></i>
-                  Corrigir Resposta
-                </button>
-              }
-              @if (!(nivelAcerto()==100)) {
-                <button class="btn btn-success btn-lg btnSolicitacaoResposta" (click)="correcao()"
-                  data-toggle="modal" data-target="#erro">
-                  <i class="fa fa-play" aria-hidden="true"></i>
-                  Corrigir Resposta
-                </button>
-              }
-              <button class="btn btn-primary btn-lg btnSolicitacaoResposta" (click)="visualizarRespostaExercicio()">
-                <i class="fa fa-play" aria-hidden="true"></i>
-                Visualizar Resposta
-              </button>
-              <button class="btn btn-danger btn-lg btnSolicitacaoResposta" (click)="reiniciar()">
-                <i class="fa fa-stop" aria-hidden="true"></i>
-                Limpar
-              </button>
-            </div>
-          </div>
+        <div class="col-12 viz-actions">
+          <os-button-group>
+            <button class="osbg-btn" type="button" (click)="correcao()" aria-label="Corrigir resposta" title="Corrigir"><i class="fa fa-check"></i> Corrigir</button>
+            <button class="osbg-btn" type="button" (click)="visualizarRespostaExercicio()" aria-label="Visualizar resposta" title="Visualizar"><i class="fa fa-eye"></i> Visualizar</button>
+            <button class="osbg-btn danger" type="button" (click)="reiniciar()" aria-label="Limpar" title="Limpar"><i class="fa fa-eraser"></i> Limpar</button>
+          </os-button-group>
         </div>
       }
     </div>

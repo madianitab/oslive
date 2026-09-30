@@ -8,13 +8,14 @@ import { PaginacaoService } from 'src/app/features/paginacao/services/paginacao.
 import { Utils } from 'src/app/core/utils';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { OsButtonGroupComponent } from 'src/app/ui/button-group/button-group.component';
 
 @Component({
     selector: 'app-area-exercicio',
     templateUrl: './area-exercicio.component.html',
     styleUrls: ['./area-exercicio.component.css'],
     standalone: true,
-    imports: [FormsModule, NgClass]
+    imports: [FormsModule, NgClass, OsButtonGroupComponent]
 })
 export class AreaExercicioComponent implements OnInit, OnChanges {
   public title: string = 'Exercícios de Paginação por Demanda com Substituição de Páginas';

@@ -39,6 +39,9 @@ yarn-error.log
 testem.log
 /typings
 
+# Superpowers brainstorm (mockups locais)
+.superpowers/
+
 # System files
 .DS_Store
 Thumbs.db

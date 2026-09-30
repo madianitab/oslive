@@ -1,0 +1,11 @@
+.sim-layout { display: grid; grid-template-columns: 1fr 220px; gap: 12px; }
+.sim-hint { font: 300 15px/1.6 var(--f-serif); color: var(--text-2); padding: 24px; }
+.sim-palco-col { display: flex; flex-direction: column; gap: 10px; }
+
+.sim-modo { display: inline-flex; border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; margin-right: 12px; }
+.sim-modo button { border: none; background: transparent; padding: 6px 14px; font: 500 13px/1 var(--f-mono); cursor: pointer; color: var(--text-2); }
+.sim-modo button.ativo { background: var(--a); color: #fff; }
+
+.sim-feedback { font: 600 14px/1.5 var(--f-mono); margin: 0; padding: 8px 12px; border-radius: 6px; }
+.sim-feedback.correto { color: #1a7f37; background: rgba(26,127,55,.1); }
+.sim-feedback.incorreto { color: #b3261e; background: rgba(179,38,30,.1); }

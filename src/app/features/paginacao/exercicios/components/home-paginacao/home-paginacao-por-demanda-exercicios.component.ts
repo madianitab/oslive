@@ -1,63 +1,96 @@
-import { Component, OnInit } from '@angular/core';
-import { Processo } from 'src/app/features/paginacao/models/processo';
-import { FIFO } from 'src/app/features/paginacao/models/fifo';
-import { MenuLateralComponent } from '../menu-lateral/menu-lateral.component';
-
-import { AreaExercicioComponent } from '../area-exercicio/area-exercicio.component';
-import { PaginaVitimaComponent } from '../pagina-vitima/pagina-vitima.component';
-import { InfortivoComponent } from '../infortivo/infortivo.component';
+import { Component, inject, OnDestroy } from '@angular/core';
+import { NgIf } from '@angular/common';
+import { OsSimShellComponent } from 'src/app/ui/sim-shell/sim-shell.component';
+import { OsSimPlayerComponent } from 'src/app/ui/sim-player/sim-player.component';
+import { OsSimLogComponent } from 'src/app/ui/sim-log/sim-log.component';
+import { OsButtonComponent } from 'src/app/ui/button/button.component';
+import { PalcoPaginacaoComponent } from '../palco-paginacao/palco-paginacao.component';
+import { TrilhaPaginacaoService } from '../../../services/trilha-paginacao.service';
+import { PassoPaginacao } from '../../../models/passo-paginacao';
+import { Pagina } from '../../../models/pagina';
+import { Processo } from '../../../models/processo';
+import { Utils } from 'src/app/core/utils';
 
 @Component({
-    selector: 'app-home-paginacao-por-demanda-exercicios',
-    templateUrl: './home-paginacao-por-demanda-exercicios.component.html',
-    styleUrls: ['./home-paginacao-por-demanda-exercicios.component.css'],
-    standalone: true,
-    imports: [MenuLateralComponent, AreaExercicioComponent, PaginaVitimaComponent, InfortivoComponent]
+  selector: 'app-home-paginacao-por-demanda-exercicios',
+  standalone: true,
+  imports: [NgIf, OsSimShellComponent, OsSimPlayerComponent, OsSimLogComponent, OsButtonComponent, PalcoPaginacaoComponent],
+  templateUrl: './home-paginacao-por-demanda-exercicios.component.html',
+  styleUrls: ['./home-paginacao-por-demanda-exercicios.component.css'],
 })
-export class HomePaginacaoPorDemandaExerciciosComponent implements OnInit {
-  public getDadosProcesso: Array<Processo> = [];
-  public getDadosPaginas: FIFO = new FIFO();
-  public getTipoExercicio: Number = new Number;
-  public getTipoAlgoritmo: Number = new Number;
-  public getRecursoTecnico: Number = new Number;
-  public getRespostaMemoriaLogica: Array<Processo> = [];
-  public getBack: Number = new Number;
-  public qtdPaginas = 0;
+export class HomePaginacaoPorDemandaExerciciosComponent implements OnDestroy {
+  private readonly trilhaSvc = inject(TrilhaPaginacaoService);
 
-  title = 'OSlive-Ex-paginacao-por-demanda';
+  trilha: PassoPaginacao[] = [];
+  indice = 0;
+  tocando = false;
+  velocidade = 1;
+  modo: 'assistir' | 'praticar' = 'assistir';
+  feedback?: { correto: boolean };
+  private timer?: ReturnType<typeof setInterval>;
 
-  ngOnInit(): void {
+  get passoAtual(): PassoPaginacao | undefined { return this.trilha[this.indice]; }
+  get itensLog(): { rotulo: string }[] {
+    return this.trilha.map(p => ({ rotulo: `${p.indice + 1}. ${p.narrativa}` }));
   }
-  public setTipoAlgoritmo(event:number){
-          this.getTipoAlgoritmo = event;
-        } 
-  public setRecursoTecnico(event:number){
-          this.getRecursoTecnico = event;
-        } 
 
-  public setBack(event:number){
-    this.getBack = event;
-  } 
+  ngOnDestroy(): void { this.pausar(); }
 
-  public setTipoExercicio(event:number){
-          this.getTipoExercicio = event;
-          } 
+  gerarCenario(): void {
+    const fila = this.montarFilaDeReferencias(); // usa geração existente → Pagina[]
+    this.trilha = this.trilhaSvc.construir(fila);
+    this.indice = 0;
+    this.pausar();
+  }
 
-  public setDadosProcesso(event:Array<Processo>){
-        this.getDadosProcesso = event;
-        this.qtdPaginas = 0;
-          for(let i of this.getDadosProcesso){
-            this.qtdPaginas+=i.pagina.length;
-          }
-        } 
+  irPara(i: number): void {
+    this.indice = Math.max(0, Math.min(this.trilha.length - 1, i));
+    this.feedback = undefined;
+  }
+  avancar(d: 1 | -1): void { this.irPara(this.indice + d); }
 
-  public setDadosMemoriaFisica(event:FIFO){
-        this.getDadosPaginas = event;
-        } 
+  tocar(): void {
+    if (this.tocando || !this.trilha.length) return;
+    this.tocando = true;
+    this.timer = setInterval(() => {
+      if (this.indice >= this.trilha.length - 1) { this.pausar(); return; }
+      this.avancar(1);
+    }, 1000 / this.velocidade);
+  }
+  pausar(): void {
+    this.tocando = false;
+    if (this.timer) { clearInterval(this.timer); this.timer = undefined; }
+  }
+  mudarVelocidade(v: number): void {
+    this.velocidade = v;
+    if (this.tocando) { this.pausar(); this.tocar(); }
+  }
 
-public setRespostaMemoriaLogica(event:Array<Processo>){
-          this.getRespostaMemoriaLogica = [];
-          this.getRespostaMemoriaLogica = event;
-        } 
+  trocarModo(m: 'assistir' | 'praticar'): void {
+    this.modo = m;
+    this.pausar();
+    this.indice = 0;
+    this.feedback = undefined;
+  }
 
+  responderVitima(quadro: number): void {
+    const p = this.passoAtual;
+    if (!p || p.quadroVitima === undefined) return;
+    this.feedback = { correto: quadro === p.quadroVitima };
+  }
+
+  /** monta a fila de páginas na ordem de acesso reusando a geração existente */
+  private montarFilaDeReferencias(): Pagina[] {
+    const nProcessos = 4;
+    const sequencia = Utils.embaralhamentoFisherYates(Utils.listaNum(nProcessos));
+    const paginasPorProc = Utils.listaNumAleatoriosComQuantMinimaFinal(nProcessos, false);
+    const nomes = ['A', 'B', 'C', 'D'];
+    const processos: Processo[] = [];
+    for (let i = 0; i < nProcessos; i++) {
+      processos.push(new Processo(nomes[sequencia[i]], paginasPorProc[i], Utils.gera_cor(processos)));
+    }
+    const todas: Pagina[] = processos.flatMap(p => p.pagina);
+    const ordem = Utils.embaralhamentoFisherYates(Utils.listaNum(todas.length));
+    return ordem.map(idx => todas[idx]);
+  }
 }

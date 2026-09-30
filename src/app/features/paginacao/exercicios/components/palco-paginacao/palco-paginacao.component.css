@@ -1,0 +1,13 @@
+:host { display: block; }
+.palco { background: var(--surface); border: 1px solid var(--a, #c0562b); border-radius: var(--r-lg); padding: 16px; }
+.palco-h { font: 600 10px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--a); margin: 0 0 12px; }
+.quadros { display: flex; flex-wrap: wrap; gap: 8px; }
+.quadro { width: 52px; height: 58px; border: 1px solid var(--line); border-radius: 6px; background: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; transition: box-shadow .25s, transform .25s; }
+.quadro-idx { font: 500 9px/1 var(--f-mono); color: var(--text-3); }
+.quadro-nome { font: 600 14px/1 var(--f-mono); color: var(--text); }
+.quadro.entra { box-shadow: 0 0 0 2px var(--a); }
+.quadro.sai { opacity: .45; }
+.quadro.clicavel { cursor: pointer; }
+.quadro.clicavel:hover { box-shadow: 0 0 0 2px var(--a); }
+.palco-balao { display: block; margin-top: 14px; }
