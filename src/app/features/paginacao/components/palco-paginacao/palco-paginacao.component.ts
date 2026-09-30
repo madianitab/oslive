@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgFor, NgIf, NgClass } from '@angular/common';
 import { OsSimCalloutComponent } from 'src/app/ui/sim-callout/sim-callout.component';
 import { PassoPaginacao } from '../../models/passo-paginacao';
@@ -13,8 +13,11 @@ import { PassoPaginacao } from '../../models/passo-paginacao';
       <h4 class="palco-h">Memória física · {{ p.memoriaFisica.length }} quadros</h4>
       <div class="quadros">
         <div class="quadro" *ngFor="let q of p.memoriaFisica; let i = index"
-             [ngClass]="{ entra: i === p.quadroDestino, sai: i === p.quadroVitima }"
-             [style.borderColor]="q.nome.trim() ? q.cor : null">
+             [ngClass]="{ entra: modo==='assistir' && i === p.quadroDestino,
+                          sai: modo==='assistir' && i === p.quadroVitima,
+                          clicavel: modo==='praticar' && p.tipo==='fault' && p.quadroVitima!==undefined && !!q.nome.trim() }"
+             [style.borderColor]="q.nome.trim() ? q.cor : null"
+             (click)="modo==='praticar' && p.tipo==='fault' && p.quadroVitima!==undefined && q.nome.trim() ? escolherVitima.emit(i) : null">
           <span class="quadro-idx">{{ i }}</span>
           <span class="quadro-nome">{{ q.nome.trim() || '—' }}</span>
         </div>
@@ -25,4 +28,6 @@ import { PassoPaginacao } from '../../models/passo-paginacao';
 })
 export class PalcoPaginacaoComponent {
   @Input() passo?: PassoPaginacao;
+  @Input() modo: 'assistir' | 'praticar' = 'assistir';
+  @Output() escolherVitima = new EventEmitter<number>();
 }

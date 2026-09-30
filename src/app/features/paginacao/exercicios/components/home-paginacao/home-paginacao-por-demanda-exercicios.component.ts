@@ -24,6 +24,8 @@ export class HomePaginacaoPorDemandaExerciciosComponent implements OnDestroy {
   indice = 0;
   tocando = false;
   velocidade = 1;
+  modo: 'assistir' | 'praticar' = 'assistir';
+  feedback?: { correto: boolean };
   private timer?: ReturnType<typeof setInterval>;
 
   get passoAtual(): PassoPaginacao | undefined { return this.trilha[this.indice]; }
@@ -60,6 +62,19 @@ export class HomePaginacaoPorDemandaExerciciosComponent implements OnDestroy {
   mudarVelocidade(v: number): void {
     this.velocidade = v;
     if (this.tocando) { this.pausar(); this.tocar(); }
+  }
+
+  trocarModo(m: 'assistir' | 'praticar'): void {
+    this.modo = m;
+    this.pausar();
+    this.indice = 0;
+    this.feedback = undefined;
+  }
+
+  responderVitima(quadro: number): void {
+    const p = this.passoAtual;
+    if (!p || p.quadroVitima === undefined) return;
+    this.feedback = { correto: quadro === p.quadroVitima };
   }
 
   /** monta a fila de páginas na ordem de acesso reusando a geração existente */

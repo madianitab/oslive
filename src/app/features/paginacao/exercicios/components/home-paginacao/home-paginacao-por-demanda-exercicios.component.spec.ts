@@ -29,4 +29,18 @@ describe('HomePaginacao (Assistir)', () => {
     c.irPara(5); expect(c.indice).toBe(2);
     c.irPara(-3); expect(c.indice).toBe(0);
   });
+
+  it('responderVitima marca correto quando o quadro bate com a vítima do passo', () => {
+    const f = TestBed.createComponent(HomePaginacaoPorDemandaExerciciosComponent);
+    const c = f.componentInstance;
+    const svc = TestBed.inject(TrilhaPaginacaoService);
+    // 9 páginas únicas → passo 8 é substituição (vítima A0 no quadro 0)
+    c.trilha = svc.construir(Array.from({length:9},(_,i)=>new Pagina('A','#111',i)));
+    c.modo = 'praticar'; c.indice = 8;
+    const passo = c.trilha[8];
+    c.responderVitima(passo.quadroVitima!);
+    expect(c.feedback?.correto).toBeTrue();
+    c.responderVitima((passo.quadroVitima! + 1) % 8);
+    expect(c.feedback?.correto).toBeFalse();
+  });
 });

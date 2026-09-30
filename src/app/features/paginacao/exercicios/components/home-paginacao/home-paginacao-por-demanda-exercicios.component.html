@@ -1,5 +1,9 @@
 <os-sim-shell title="Paginação por Demanda" subtitle="Assista o SO substituir páginas entre memória física e disco">
   <ng-container slot="actions">
+    <div class="sim-modo">
+      <button type="button" [class.ativo]="modo==='assistir'" (click)="trocarModo('assistir')">Assistir</button>
+      <button type="button" [class.ativo]="modo==='praticar'" (click)="trocarModo('praticar')">Praticar</button>
+    </div>
     <os-sim-player
       [total]="trilha.length" [atual]="indice" [tocando]="tocando" [velocidade]="velocidade"
       (play)="tocar()" (pause)="pausar()" (passo)="avancar($event)" (seek)="irPara($event)"
@@ -13,7 +17,13 @@
   </ng-container>
 
   <div class="sim-layout" *ngIf="trilha.length; else vazio">
-    <app-palco-paginacao class="sim-palco" [passo]="passoAtual"></app-palco-paginacao>
+    <div class="sim-palco-col">
+      <app-palco-paginacao class="sim-palco" [passo]="passoAtual" [modo]="modo"
+        (escolherVitima)="responderVitima($event)"></app-palco-paginacao>
+      <p class="sim-feedback" *ngIf="feedback" [class.correto]="feedback.correto" [class.incorreto]="!feedback.correto">
+        {{ feedback.correto ? '✓ Correto! Essa é a página mais antiga.' : '✗ Não é essa — tente a página que entrou primeiro.' }}
+      </p>
+    </div>
     <os-sim-log class="sim-diario" [itens]="itensLog" [ativo]="indice"></os-sim-log>
   </div>
   <ng-template #vazio>

@@ -8,4 +8,6 @@
 .quadro-nome { font: 600 14px/1 var(--f-mono); color: var(--text); }
 .quadro.entra { box-shadow: 0 0 0 2px var(--a); }
 .quadro.sai { opacity: .45; }
+.quadro.clicavel { cursor: pointer; }
+.quadro.clicavel:hover { box-shadow: 0 0 0 2px var(--a); }
 .palco-balao { display: block; margin-top: 14px; }
