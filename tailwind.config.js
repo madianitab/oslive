@@ -3,6 +3,11 @@ module.exports = {
   // Escaneia templates externos (.html) e inline (.ts)
   content: ['./src/**/*.{html,ts}'],
 
+  // Prefixo obrigatório em TODOS os utilitários (tw-flex, tw-bg-surface, ...).
+  // Evita colisão de NOME com Bootstrap 4 e classes legadas — ex.: o Tailwind
+  // geraria .collapse{visibility:collapse} e escondia a sidebar (.collapse do BS).
+  prefix: 'tw-',
+
   // Dark mode dirigido pelo atributo do app: <html data-theme="dark">
   // (na prática as cores já trocam sozinhas porque os tokens são variáveis CSS)
   darkMode: ['selector', '[data-theme="dark"]'],
