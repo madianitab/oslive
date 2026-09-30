@@ -78,6 +78,11 @@ export class AreaSimulacaoComponent implements OnInit {
   public processoAtual = 0;
   public tempoCpu: number = 0;
 
+  /** Algoritmos básicos (FIFO, SJF, Prioridade NP e P): fila de aptos animada durante a simulação. */
+  readonly animandoFilaBasica = signal(false);
+  /** Identifica a execução atual da animação; muda ao cancelar ou reiniciar para interromper a anterior. */
+  private execucaoAnimacao = 0;
+
   constructor(
     private simulationService: Comunicacao,
     private notifi: MatSnackBar,
@@ -90,6 +95,9 @@ export class AreaSimulacaoComponent implements OnInit {
   ngOnInit(): void {}
 
   cancelar() {
+    this.execucaoAnimacao++;
+    this.animandoFilaBasica.set(false);
+    this.fila1V.set([]);
     this.resultados.set([]);
     this.processoAtual = 0;
     this.processosVisiveis.set([]);
@@ -103,6 +111,9 @@ export class AreaSimulacaoComponent implements OnInit {
   }
 
   iniciaSimulacao(): void {
+    this.execucaoAnimacao++;
+    this.animandoFilaBasica.set(false);
+    this.fila1V.set([]);
     this.resultados.set([]);
     this.processoAtual = 0;
     this.processosVisiveis.set([]);
@@ -183,10 +194,71 @@ export class AreaSimulacaoComponent implements OnInit {
 
   async exibeProcessos(): Promise<void> {
     const res = this.resultados();
+    const execucao = this.execucaoAnimacao;
+    const escalonador = this.escalonador.valueOf();
+    // Nos quatro algoritmos básicos a fila de aptos também é animada (entradas e saídas).
+    const animarFila = escalonador < 4;
+    const filaPorTempo = animarFila ? this.filaAptosPorTempo(res) : [];
+    if (animarFila) this.animandoFilaBasica.set(true);
+
     for (this.processoAtual = 0; this.processoAtual < res.length; this.processoAtual++) {
       await this.sleep(1000);
+      if (execucao !== this.execucaoAnimacao) return; // simulação cancelada ou reiniciada
       this.processosVisiveis.update(v => [...v, res[this.processoAtual]]);
+      if (animarFila) this.fila1V.set(filaPorTempo[this.processoAtual]);
     }
+
+    if (animarFila && execucao === this.execucaoAnimacao) {
+      await this.sleep(1000);
+      if (execucao !== this.execucaoAnimacao) return;
+      // Ao final, a fila mostra todos os processos na ordem em que foram atendidos.
+      this.fila1V.set([]);
+      this.animandoFilaBasica.set(false);
+    }
+  }
+
+  /**
+   * Reconstrói a fila de aptos em cada instante a partir do diagrama da CPU:
+   * um processo está apto se já chegou, ainda tem execução restante e não está na CPU.
+   * A ordem é a de entrada na fila (chegada ou retorno após ser interrompido).
+   */
+  private filaAptosPorTempo(res: ResultadoCpu[]): { nome: string; cor: string }[][] {
+    const dados = new Map(this.listaProcessos.map(p => [p.nome, p]));
+    const executado = new Map<string, number>();
+    const ultimaExecucao = new Map<string, number>();
+    const filas: { nome: string; cor: string }[][] = [];
+
+    for (let t = 0; t < res.length; t++) {
+      const naCpu = res[t].nome;
+      const aptos: { nome: string; cor: string; entrada: number; retorno: boolean; chegada: number }[] = [];
+
+      for (const p of dados.values()) {
+        const restante = (p.execucao ?? 0) - (executado.get(p.nome) ?? 0);
+        if (p.chegada > t || restante <= 0 || p.nome === naCpu) continue;
+        const ultima = ultimaExecucao.get(p.nome);
+        const retorno = ultima !== undefined;
+        aptos.push({
+          nome: p.nome,
+          cor: p.cor,
+          entrada: retorno ? Math.max(p.chegada, ultima! + 1) : p.chegada,
+          retorno,
+          chegada: p.chegada,
+        });
+      }
+
+      aptos.sort((a, b) =>
+        a.entrada - b.entrada ||
+        Number(a.retorno) - Number(b.retorno) ||
+        a.chegada - b.chegada ||
+        a.nome.localeCompare(b.nome));
+      filas.push(aptos.map(a => ({ nome: a.nome, cor: a.cor })));
+
+      if (naCpu !== '-') {
+        executado.set(naCpu, (executado.get(naCpu) ?? 0) + 1);
+        ultimaExecucao.set(naCpu, t);
+      }
+    }
+    return filas;
   }
 
   aptos(resultado: ResultadoCpu[]): void {

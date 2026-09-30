@@ -60,7 +60,13 @@
     <div class="fila-row">
       <span class="fila-tag">Processos {{ escalonador.valueOf() > 4 ? 'Fila 1' : '' }}</span>
       <table class="fila-table">
-        @if (escalonador.valueOf() < 5) {
+        @if (escalonador.valueOf() < 5 && !animacao && animandoFilaBasica()) {
+          <tr id="fila1Animada">
+            @for (f of fila1V(); track f.nome) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
+            @if (fila1V().length === 0) { <td class="t-val fila-vazia">vazia</td> }
+          </tr>
+        }
+        @if (escalonador.valueOf() < 5 && (animacao || !animandoFilaBasica())) {
           <tr id="fila1Estatica">
             @for (f of fila1Estatica(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
           </tr>

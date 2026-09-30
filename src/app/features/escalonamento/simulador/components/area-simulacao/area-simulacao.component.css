@@ -149,3 +149,10 @@
   .viz-stats { grid-template-columns: 1fr; }
   .res-grid { grid-template-columns: 1fr; }
 }
+
+.fila-vazia {
+  font-family: var(--f-serif);
+  font-style: italic;
+  color: var(--text-3);
+  padding: 0 10px;
+}
