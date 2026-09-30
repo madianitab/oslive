@@ -1,0 +1,13 @@
+<os-sim-shell
+  title="Paginação Simples"
+  subtitle="Divida os processos em páginas, veja a tabela de páginas e traduza endereços."
+>
+  <ng-container slot="actions">
+    <os-button-group>
+      <button class="osbg-btn danger" type="button" aria-label="Reiniciar simulação" title="Reiniciar" (click)="lat.reiniciar()"><i class="fa-solid fa-rotate-right"></i></button>
+    </os-button-group>
+  </ng-container>
+
+  <app-lateral-simulador-paginacao-simples #lat slot="config"></app-lateral-simulador-paginacao-simples>
+  <app-area-simulador-paginacao-simples></app-area-simulador-paginacao-simples>
+</os-sim-shell>

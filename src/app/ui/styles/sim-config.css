@@ -1,3 +1,4 @@
+/* Estilos compartilhados da barra de configuração dos simuladores (design system). */
 :host { display: block; }
 
 .esc-config {
@@ -29,43 +30,6 @@
 .form-group { margin: 0; }
 .quantums { display: flex; flex-direction: column; gap: 10px; }
 .quantums:empty { display: none; }
-
-/* ───────── filas (multinível) ───────── */
-.hint {
-  font-family: var(--f-serif);
-  font-size: 12px;
-  font-style: italic;
-  color: var(--text-2);
-  line-height: 1.5;
-  margin: 0;
-}
-.fila {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 14px;
-  padding: 9px 12px;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--q, var(--a));
-  border-radius: var(--r-sm);
-}
-.fila-name {
-  width: 100%;
-  font-family: var(--f-mono);
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text);
-}
-.fila label {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-family: var(--f-mono);
-  font-size: 11.5px;
-  color: var(--text-2);
-  cursor: pointer;
-}
 
 /* ───────── checkboxes ───────── */
 .check-row {
@@ -153,10 +117,6 @@ input[type="checkbox"] {
 .p-act.edit:hover { color: var(--a); background: var(--a-soft); }
 .p-act.del:hover { color: var(--err); background: var(--err-soft); }
 
-@media (max-width: 1272px) {
-  .ptable th, .ptable td { padding: 6px 4px !important; }
-}
-
 .empty {
   font-family: var(--f-serif);
   font-style: italic;
@@ -165,10 +125,28 @@ input[type="checkbox"] {
   text-align: center;
   margin: 4px 0;
 }
-
-@media (max-width: 1272px) {
-  .table td { padding: 5px !important; }
+.hint {
+  font-family: var(--f-serif);
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text-2);
+  line-height: 1.5;
+  margin: 0;
 }
+.sim-config {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: var(--f-sans);
+  color: var(--text);
+}
+.info-livre {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  color: var(--text-3);
+  margin: 0;
+}
+.info-livre b { color: var(--text); }
 
 /* evita cortar o texto do select (altura fixa do Bootstrap) */
 select.form-control { height: auto; }

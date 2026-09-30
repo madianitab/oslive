@@ -37,14 +37,14 @@ export class LateralEscalonamentoComponent implements OnInit {
   public eBack: Number = 0;
   public listaProcessos = signal<Processo[]>([]);
   public algoritmoEscalonamento: Array<{ tipo: string, exec: number }> = [
-    { tipo: "FIFO (Fist In, Fist Out)", exec: 0 },
-    { tipo: "SJF (Shortest Job Fist)", exec: 1 },
+    { tipo: "FIFO (First In, First Out)", exec: 0 },
+    { tipo: "SJF (Shortest Job First)", exec: 1 },
     { tipo: "Prioridade (Não Preemptiva)", exec: 2 },
     { tipo: "Prioridade (Preemptiva)", exec: 3 },
     { tipo: "RR (Round Robin)", exec: 4 },
-    { tipo: "Mútiplas Filas (2 Filas)", exec: 5 },
-    { tipo: "Mútiplas Filas (3 Filas)", exec: 6 },
-    { tipo: "Mútiplas Filas (4 Filas)", exec: 7 },
+    { tipo: "Múltiplas Filas (2 Filas)", exec: 5 },
+    { tipo: "Múltiplas Filas (3 Filas)", exec: 6 },
+    { tipo: "Múltiplas Filas (4 Filas)", exec: 7 },
   ];
   public escalonador: { tipo: string, exec: number } = { tipo: "", exec: 0 };
 

@@ -34,6 +34,10 @@ export class GraficoComponent implements OnChanges {
   }
 
   loadAndDrawChart(): void {
+    // O Google Charts vem de CDN (index.html); se não carregar, apenas não desenha o gráfico.
+    if (typeof google === 'undefined' || !google.charts) {
+      return;
+    }
     google.charts.load('current', { 'packages': ['corechart'] });
     google.charts.setOnLoadCallback(this.drawChart.bind(this));
   }

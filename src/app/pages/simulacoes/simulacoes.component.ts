@@ -19,37 +19,65 @@ import { OsBadgeComponent } from '../../ui/badge/badge.component';
   </header>
 
   <section class="sim-group">
+    <h2 class="group-title">Escalonamento de Processos</h2>
     <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 sim-deck">
-
-      <os-card title="Paginação por Demanda">
-        <os-card-icon slot="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-        </os-card-icon>
+      <os-card title="Simulador">
+        <os-card-icon slot="icon" variant="info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h6l2-7 4 14 2-7h4"/></svg></os-card-icon>
+        <os-badge slot="badge" variant="a">simulador</os-badge>
+        FIFO, SJF, prioridades, Round Robin e múltiplas filas com a CPU em tempo real.
+        <div slot="footer"><os-button variant="p" size="sm" (click)="go('/escalonamento/simulador')">Abrir →</os-button></div>
+      </os-card>
+      <os-card title="Exercícios">
+        <os-card-icon slot="icon" variant="info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h6l2-7 4 14 2-7h4"/></svg></os-card-icon>
         <os-badge slot="badge" variant="s">exercícios</os-badge>
-        Substituição de páginas entre memória física e disco, com exercícios passo a passo.
-        <div slot="footer"><os-button variant="p" size="sm" (click)="go('/PaginacaoPorDemandaExercicios')">Abrir →</os-button></div>
+        Preencha a tabela de espera/turnaround ou o diagrama de CPU e corrija na hora.
+        <div slot="footer"><os-button variant="p" size="sm" (click)="go('/escalonamento/exercicios')">Abrir →</os-button></div>
       </os-card>
-
-      <os-card title="Segmentação">
-        <os-card-icon slot="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="11" width="18" height="4" rx="1"/><rect x="3" y="17" width="18" height="3" rx="1"/></svg>
-        </os-card-icon>
-        <os-badge slot="badge" variant="n">simulador</os-badge>
-        Segmentos mapeando memória lógica para a memória física.
-        <div slot="footer"><os-button variant="p" size="sm" (click)="go('/Segmentacao')">Abrir →</os-button></div>
-      </os-card>
-
-      <os-card title="Escalonamento de Processos">
-        <os-card-icon slot="icon" variant="info">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h6l2-7 4 14 2-7h4"/></svg>
-        </os-card-icon>
-        <os-badge slot="badge" variant="a">interativo</os-badge>
-        Round Robin, prioridades e filas de prontos em tempo real.
-        <div slot="footer"><os-button variant="p" size="sm" (click)="go('/EscalonamentoDeProcessos')">Abrir →</os-button></div>
-      </os-card>
-
     </div>
   </section>
+
+  <section class="sim-group">
+    <h2 class="group-title">Paginação</h2>
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 sim-deck">
+      <os-card title="Simulador de Paginação Simples">
+        <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></os-card-icon>
+        <os-badge slot="badge" variant="a">simulador</os-badge>
+        Páginas, quadros, tabela de páginas, fragmentação interna e tradução de endereços.
+        <div slot="footer"><os-button variant="p" size="sm" (click)="go('/paginacao/simulador-simples')">Abrir →</os-button></div>
+      </os-card>
+      <os-card title="Simulador de Paginação por Demanda">
+        <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></os-card-icon>
+        <os-badge slot="badge" variant="a">simulador</os-badge>
+        Carga sob demanda e substituição de páginas por FIFO ou Segunda Chance.
+        <div slot="footer"><os-button variant="p" size="sm" (click)="go('/paginacao/simulador-demanda')">Abrir →</os-button></div>
+      </os-card>
+      <os-card title="Exercícios de Paginação por Demanda">
+        <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></os-card-icon>
+        <os-badge slot="badge" variant="s">exercícios</os-badge>
+        Assista ou pratique a substituição de páginas passo a passo.
+        <div slot="footer"><os-button variant="p" size="sm" (click)="go('/paginacao/exercicios')">Abrir →</os-button></div>
+      </os-card>
+    </div>
+  </section>
+
+  <section class="sim-group">
+    <h2 class="group-title">Segmentação</h2>
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 sim-deck">
+      <os-card title="Simulador">
+        <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="11" width="18" height="4" rx="1"/><rect x="3" y="17" width="18" height="3" rx="1"/></svg></os-card-icon>
+        <os-badge slot="badge" variant="a">simulador</os-badge>
+        Segmentos de código, dados e pilha mapeados na memória física.
+        <div slot="footer"><os-button variant="p" size="sm" (click)="go('/segmentacao/simulador')">Abrir →</os-button></div>
+      </os-card>
+      <os-card title="Exercícios">
+        <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="11" width="18" height="4" rx="1"/><rect x="3" y="17" width="18" height="3" rx="1"/></svg></os-card-icon>
+        <os-badge slot="badge" variant="s">exercícios</os-badge>
+        Exercícios de alocação e tradução de endereços com segmentação.
+        <div slot="footer"><os-button variant="p" size="sm" (click)="go('/segmentacao/exercicios')">Abrir →</os-button></div>
+      </os-card>
+    </div>
+  </section>
+
 </div>
   `,
 })

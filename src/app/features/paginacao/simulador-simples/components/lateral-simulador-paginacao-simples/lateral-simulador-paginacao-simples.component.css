@@ -1,0 +1,3 @@
+.mt-campo { margin-top: 10px; }
+.linha-selecionada { background: var(--a-soft) !important; }
+.clicavel { cursor: pointer; }

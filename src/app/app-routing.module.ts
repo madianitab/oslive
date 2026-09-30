@@ -7,6 +7,9 @@ import { HomeEscalonamentoComponent } from 'src/app/features/escalonamento/simul
 import { HomeComponent as SegmentacaoHomeComponent } from 'src/app/features/segmentacao/simulador/components/home/home.component';
 import { HomeExercicioDeSegmentacaoComponent } from 'src/app/features/segmentacao/exercicios/components/home-exercicio-de-segmentacao/home-exercicio-de-segmentacao.component';
 import { BrandkitComponent } from './pages/brandkit/brandkit.component';
+import { HomeExercicioEscalonamentoComponent } from 'src/app/features/escalonamento/exercicios/components/home-exercicio-escalonamento/home-exercicio-escalonamento.component';
+import { HomeSimuladorPaginacaoSimplesComponent } from 'src/app/features/paginacao/simulador-simples/components/home-simulador-paginacao-simples/home-simulador-paginacao-simples.component';
+import { HomeSimuladorPaginacaoDemandaComponent } from 'src/app/features/paginacao/simulador-demanda/components/home-simulador-paginacao-demanda/home-simulador-paginacao-demanda.component';
 
 const routes: Routes = [
   { path: "", component: LandingComponent, pathMatch: 'full' },
@@ -15,8 +18,11 @@ const routes: Routes = [
 
   // Escalonamento de Processos
   { path: "escalonamento/simulador", component: HomeEscalonamentoComponent },
+  { path: "escalonamento/exercicios", component: HomeExercicioEscalonamentoComponent },
 
-  // Paginação por Demanda
+  // Paginação
+  { path: "paginacao/simulador-simples", component: HomeSimuladorPaginacaoSimplesComponent },
+  { path: "paginacao/simulador-demanda", component: HomeSimuladorPaginacaoDemandaComponent },
   { path: "paginacao/exercicios", component: HomePaginacaoPorDemandaExerciciosComponent },
 
   // Segmentação
@@ -33,7 +39,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

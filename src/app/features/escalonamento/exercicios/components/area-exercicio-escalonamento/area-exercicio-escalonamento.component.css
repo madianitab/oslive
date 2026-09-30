@@ -1,0 +1,65 @@
+:host { display: block; }
+
+.passos {
+  font-family: var(--f-serif);
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--text-2);
+  padding-left: 20px;
+  margin: 0;
+  max-width: 640px;
+}
+
+.tabela-card { max-width: 560px; }
+.mt-bloco { margin-top: 16px; }
+
+.nome-proc {
+  text-align: left !important;
+  color: var(--text) !important;
+  font-weight: 600;
+}
+
+.campo-resposta,
+.campo-diagrama {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  text-align: center;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  transition: border-color .14s var(--ease), box-shadow .14s var(--ease), background .14s var(--ease);
+}
+.campo-resposta { width: 110px; padding: 6px 8px; }
+.campo-diagrama { width: 32px; height: 30px; padding: 0; text-transform: uppercase; }
+.campo-resposta:focus,
+.campo-diagrama:focus { outline: none; border-color: var(--a); box-shadow: var(--ring); }
+
+.t-resp { padding: 0 !important; background: transparent; }
+
+.acerto {
+  border-color: var(--ok) !important;
+  background: var(--ok-soft) !important;
+  color: var(--ok-deep) !important;
+}
+.erro {
+  border-color: var(--err) !important;
+  background: var(--err-soft) !important;
+  color: var(--err-deep) !important;
+}
+
+.hint-diagrama {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-3);
+  margin: 8px 0 0;
+}
+
+.acoes { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.linha-media td {
+  font-weight: 600;
+  color: var(--text) !important;
+  background: var(--surface-2);
+}

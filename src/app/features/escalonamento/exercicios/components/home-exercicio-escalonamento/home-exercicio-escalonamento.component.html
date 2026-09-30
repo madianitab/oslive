@@ -1,0 +1,21 @@
+<os-sim-shell
+  title="Exercício de Escalonamento"
+  subtitle="Monte os processos, resolva o escalonamento e confira a correção."
+>
+  <ng-container slot="actions">
+    <os-button-group>
+      <button class="osbg-btn primary" type="button" aria-label="Tabela de resultado" title="Resolver: tabela de resultado" (click)="lat.responder('tabela')"><i class="fa-solid fa-table"></i></button>
+      <button class="osbg-btn primary" type="button" aria-label="Diagrama de CPU" title="Resolver: diagrama de CPU" (click)="lat.responder('diagrama')"><i class="fa-solid fa-chart-gantt"></i></button>
+      <button class="osbg-btn danger" type="button" aria-label="Reiniciar exercício" title="Reiniciar" (click)="lat.reiniciar()"><i class="fa-solid fa-rotate-right"></i></button>
+    </os-button-group>
+  </ng-container>
+
+  <app-lateral-exercicio-escalonamento
+    #lat
+    slot="config"
+    (iniciarExercicio)="configuracao.set($event)"
+    (limparExercicio)="configuracao.set(null)"
+  ></app-lateral-exercicio-escalonamento>
+
+  <app-area-exercicio-escalonamento [configuracao]="configuracao()"></app-area-exercicio-escalonamento>
+</os-sim-shell>

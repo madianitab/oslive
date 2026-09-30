@@ -1,0 +1,97 @@
+<div class="viz">
+
+  <section>
+    <div class="viz-stats">
+      <os-stat label="Tamanho da página" [value]="tamanhoPagina" unit="bytes"></os-stat>
+      <os-stat label="Memória física" [value]="quadros * tamanhoPagina" unit="bytes" [hint]="quadros + ' quadros'"></os-stat>
+      <os-stat label="Memória livre" [value]="sim.bytesLivres()" unit="bytes"></os-stat>
+      <os-stat label="Fragmentação interna" [value]="sim.fragmentacaoInterna()" unit="bytes" [accent]="true"></os-stat>
+    </div>
+  </section>
+
+  <div class="layout">
+    <section class="col-logica">
+      <div class="viz-label">Memória lógica</div>
+      @if (sim.processos().length === 0) {
+        <p class="empty-hint">Crie um processo na configuração para começar.</p>
+      } @else {
+        <div class="abas" role="tablist">
+          @for (p of sim.processos(); track p.nome) {
+            <button type="button" role="tab" class="aba" [class.ativa]="sim.selecionado() === p.nome"
+              [attr.aria-selected]="sim.selecionado() === p.nome" (click)="sim.selecionar(p.nome)">
+              <span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>Processo {{ p.nome }}
+            </button>
+          }
+        </div>
+
+        @if (sim.processoSelecionado(); as p) {
+          <div class="mem-grupo">
+            <table class="mem-table">
+              <caption>Mem. lógica</caption>
+              <tr><th>Página</th><th>Desloc.</th><th>End. lógico</th><th>Byte</th></tr>
+              @for (b of sim.memoriaLogica(p); track $index) {
+                <tr class="clicavel" [class.selecionado]="logicoSelecionado(p, b)" (click)="sim.traduzir(p, b)" title="Clique para traduzir o endereço">
+                  <td [ngStyle]="{ 'background-color': corPagina(p, b.pagina) }">{{ bin(b.pagina, sim.bitsPagina) }}</td>
+                  <td [ngStyle]="{ 'background-color': corPagina(p, b.pagina) }">{{ bin(b.deslocamento, sim.bitsDeslocamento) }}</td>
+                  <td [ngStyle]="{ 'background-color': corPagina(p, b.pagina) }">{{ enderecoLogico(b) }}</td>
+                  <td [ngStyle]="{ 'background-color': corPagina(p, b.pagina) }" [class.sobra]="b.conteudo === null"
+                    [title]="b.conteudo === null ? 'Fragmentação interna' : ''">{{ b.conteudo ?? 'sobra' }}</td>
+                </tr>
+              }
+            </table>
+
+            <table class="mem-table">
+              <caption>Tabela de páginas</caption>
+              <tr><th>Página</th><th>Quadro</th></tr>
+              @for (q of p.quadros; track $index; let pagina = $index) {
+                <tr>
+                  <td [ngStyle]="{ 'background-color': corPagina(p, pagina) }">{{ bin(pagina, sim.bitsPagina) }}</td>
+                  <td [ngStyle]="{ 'background-color': corPagina(p, pagina) }">{{ bin(q, sim.bitsQuadro) }} ({{ q }})</td>
+                </tr>
+              }
+            </table>
+          </div>
+
+          @if (sim.traducao(); as t) {
+            <div class="traducao">
+              <div class="traducao-h"><i class="fa-solid fa-right-left"></i> Tradução de endereço</div>
+              <p>End. lógico <b>{{ bin(t.pagina, sim.bitsPagina) }}|{{ bin(t.deslocamento, sim.bitsDeslocamento) }}</b>
+                → página <b>{{ t.pagina }}</b>, deslocamento <b>{{ t.deslocamento }}</b></p>
+              <p>Tabela de páginas: página {{ t.pagina }} → quadro <b>{{ t.quadro }}</b></p>
+              <p>End. físico <b>{{ bin(t.quadro, sim.bitsQuadro) }}|{{ bin(t.deslocamento, sim.bitsDeslocamento) }}</b>
+                = {{ t.quadro }} × {{ tamanhoPagina }} + {{ t.deslocamento }} = byte <b>{{ t.quadro * tamanhoPagina + t.deslocamento }}</b></p>
+            </div>
+          } @else {
+            <p class="empty-hint dica">Clique em um byte da memória lógica para ver a tradução do endereço.</p>
+          }
+        }
+      }
+    </section>
+
+    <section>
+      <div class="viz-label">Memória física</div>
+      <div class="mem-grupo">
+        @for (metade of metades(); track $index) {
+          <table class="mem-table">
+            <tr><th>Quadro</th><th>Desloc.</th><th>End. físico</th><th>Byte</th></tr>
+            @for (b of metade; track $index) {
+              <tr [class.inicio-quadro]="b.deslocamento === 0" [class.selecionado]="fisicoSelecionado(b)">
+                @if (b.processo) {
+                  <td [ngStyle]="{ 'background-color': corByteFisico(b) }">{{ bin(b.quadro, sim.bitsQuadro) }}</td>
+                  <td [ngStyle]="{ 'background-color': corByteFisico(b) }">{{ bin(b.deslocamento, sim.bitsDeslocamento) }}</td>
+                  <td [ngStyle]="{ 'background-color': corByteFisico(b) }">{{ enderecoFisico(b.quadro, b.deslocamento) }}</td>
+                  <td [ngStyle]="{ 'background-color': corByteFisico(b) }" [class.sobra]="b.conteudo === null">{{ b.conteudo ?? 'sobra' }}</td>
+                } @else {
+                  <td class="mem-livre">{{ bin(b.quadro, sim.bitsQuadro) }}</td>
+                  <td class="mem-livre">{{ bin(b.deslocamento, sim.bitsDeslocamento) }}</td>
+                  <td class="mem-livre">{{ enderecoFisico(b.quadro, b.deslocamento) }}</td>
+                  <td class="mem-livre"></td>
+                }
+              </tr>
+            }
+          </table>
+        }
+      </div>
+    </section>
+  </div>
+</div>

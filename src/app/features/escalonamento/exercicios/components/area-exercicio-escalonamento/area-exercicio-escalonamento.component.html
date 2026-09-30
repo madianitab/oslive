@@ -1,0 +1,133 @@
+<div class="viz">
+
+  @if (!configuracao || !gabarito()) {
+    <section>
+      <div class="viz-label">Como resolver</div>
+      <ol class="passos">
+        <li>Escolha o <b>algoritmo de escalonamento</b> na configuração.</li>
+        <li>Cadastre os processos ou gere valores aleatórios.</li>
+        <li>Clique em <b>Tabela de resultado</b> ou <b>Diagrama de CPU</b>.</li>
+        <li>Preencha as respostas e clique em <b>Corrigir</b>. Use <b>Ver resposta</b> para conferir o gabarito.</li>
+      </ol>
+    </section>
+  } @else {
+    <section>
+      <div class="viz-stats">
+        <os-stat label="Algoritmo" [value]="nomeAlgoritmoCurto"></os-stat>
+        <os-stat label="Processos" [value]="configuracao.processos.length"></os-stat>
+        @if (configuracao.algoritmo === 'RR') {
+          <os-stat label="Quantum" [value]="configuracao.quantum" unit="u"></os-stat>
+        }
+        @if (resultado(); as r) {
+          <os-stat label="Acertos" [value]="r.acertos + ' / ' + r.total" [hint]="percentual() + '%'" [accent]="true"></os-stat>
+        }
+      </div>
+    </section>
+
+    <!-- TABELA DE RESULTADO -->
+    @if (configuracao.tipo === 'tabela') {
+      <section>
+        <div class="viz-label">Tabela de resultado</div>
+        <div class="res-card tabela-card">
+          <table class="res-table">
+            <thead>
+              <tr><th>Processo</th><th>Tempo de espera</th><th>Turnaround</th></tr>
+            </thead>
+            <tbody>
+              @for (linha of gabarito()!.tabela; track linha.nome; let i = $index) {
+                <tr>
+                  <td class="nome-proc"><span class="p-dot" [ngStyle]="{ 'background-color': linha.cor }"></span>{{ linha.nome }}</td>
+                  <td>
+                    <input type="number" min="0" class="campo-resposta" [ngClass]="classeCorrecao(respostasTabela()[i].corretoEspera)"
+                      [ngModel]="respostasTabela()[i].espera" (ngModelChange)="atualizarTabela(i, 'espera', $event)" aria-label="Tempo de espera">
+                  </td>
+                  <td>
+                    <input type="number" min="0" class="campo-resposta" [ngClass]="classeCorrecao(respostasTabela()[i].corretoTurnaround)"
+                      [ngModel]="respostasTabela()[i].turnaround" (ngModelChange)="atualizarTabela(i, 'turnaround', $event)" aria-label="Turnaround">
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <!-- DIAGRAMA DE CPU -->
+    @if (configuracao.tipo === 'diagrama') {
+      <section>
+        <div class="viz-label">Diagrama de uso da CPU</div>
+        <div class="viz-scroll">
+          <table class="viz-table">
+            <tr>
+              <td class="t-lbl">Tempo</td>
+              @for (c of gabarito()!.diagrama; track $index) { <td class="t-val">{{ c.tempo }}</td> }
+            </tr>
+            <tr>
+              <td class="t-lbl">Processo</td>
+              @for (r of respostasDiagrama(); track $index; let i = $index) {
+                <td class="t-resp">
+                  <input type="text" maxlength="1" class="campo-diagrama" [ngClass]="classeCorrecao(r.correto)"
+                    [ngModel]="r.valor" (ngModelChange)="atualizarDiagrama(i, $event)" [attr.aria-label]="'Processo no tempo ' + i">
+                </td>
+              }
+            </tr>
+          </table>
+        </div>
+        <p class="hint-diagrama">Quando a CPU estiver ociosa em um tempo, use <b>-</b>.</p>
+      </section>
+    }
+
+    <div class="acoes">
+      <os-button variant="p" size="sm" (click)="corrigir()"><i class="fa-solid fa-check"></i> Corrigir</os-button>
+      <os-button variant="s" size="sm" (click)="alternarResposta()"><i class="fa-solid fa-eye"></i> {{ mostrarResposta() ? 'Ocultar resposta' : 'Ver resposta' }}</os-button>
+      <os-button variant="g" size="sm" (click)="limparRespostas()"><i class="fa-solid fa-eraser"></i> Limpar</os-button>
+    </div>
+
+    <!-- GABARITO -->
+    @if (mostrarResposta()) {
+      <section>
+        <div class="viz-label">Resposta</div>
+        <div class="viz-scroll">
+          <table class="viz-table">
+            <tr>
+              <td class="t-lbl">Tempo</td>
+              @for (c of gabarito()!.diagrama; track $index) { <td class="t-val">{{ c.tempo }}</td> }
+            </tr>
+            <tr>
+              <td class="t-lbl">Processo</td>
+              @for (c of gabarito()!.diagrama; track $index) {
+                @if (c.nome === '-') {
+                  <td class="t-val">–</td>
+                } @else {
+                  <td class="t-proc" [ngStyle]="{ 'background-color': c.cor }">{{ c.nome }}</td>
+                }
+              }
+            </tr>
+          </table>
+        </div>
+        @if (configuracao.tipo === 'tabela') {
+          <div class="res-card tabela-card mt-bloco">
+            <table class="res-table">
+              <thead><tr><th>Processo</th><th>Tempo de espera</th><th>Turnaround</th></tr></thead>
+              <tbody>
+                @for (linha of gabarito()!.tabela; track linha.nome) {
+                  <tr>
+                    <td class="nome-proc"><span class="p-dot" [ngStyle]="{ 'background-color': linha.cor }"></span>{{ linha.nome }}</td>
+                    <td>{{ linha.espera }}</td>
+                    <td>{{ linha.turnaround }}</td>
+                  </tr>
+                }
+                <tr class="linha-media">
+                  <td>Média</td>
+                  <td>{{ gabarito()!.mediaEspera }}</td>
+                  <td>{{ gabarito()!.mediaTurnaround }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    }
+  }
+</div>

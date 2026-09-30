@@ -1,0 +1,13 @@
+<os-sim-shell
+  title="Paginação por Demanda"
+  subtitle="Carregue páginas sob demanda e veja a substituição por FIFO ou Segunda Chance."
+>
+  <ng-container slot="actions">
+    <os-button-group>
+      <button class="osbg-btn danger" type="button" aria-label="Reiniciar simulação" title="Reiniciar" (click)="lat.reiniciar()"><i class="fa-solid fa-rotate-right"></i></button>
+    </os-button-group>
+  </ng-container>
+
+  <app-lateral-simulador-paginacao-demanda #lat slot="config"></app-lateral-simulador-paginacao-demanda>
+  <app-area-simulador-paginacao-demanda></app-area-simulador-paginacao-demanda>
+</os-sim-shell>

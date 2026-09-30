@@ -92,19 +92,19 @@ type SceneKind = 'zoom' | 'slideX' | 'slideUp';
           <div class="section-idx">02 — Simuladores em destaque</div>
           <h2 class="section-title">Aprenda fazendo</h2>
           <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 tw-mt-8 scene-deck">
-            <a class="deck-link" href="/PaginacaoPorDemandaExercicios" (click)="go('/PaginacaoPorDemandaExercicios'); $event.preventDefault()">
+            <a class="deck-link" href="#/PaginacaoPorDemandaExercicios" (click)="go('/PaginacaoPorDemandaExercicios'); $event.preventDefault()">
               <os-card title="Paginação por Demanda">
                 <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></os-card-icon>
                 Substituição de páginas entre memória física e disco.
               </os-card>
             </a>
-            <a class="deck-link" href="/EscalonamentoDeProcessos" (click)="go('/EscalonamentoDeProcessos'); $event.preventDefault()">
+            <a class="deck-link" href="#/EscalonamentoDeProcessos" (click)="go('/EscalonamentoDeProcessos'); $event.preventDefault()">
               <os-card title="Escalonamento">
                 <os-card-icon slot="icon" variant="info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h6l2-7 4 14 2-7h4"/></svg></os-card-icon>
                 Round Robin, prioridades e filas de prontos em tempo real.
               </os-card>
             </a>
-            <a class="deck-link" href="/Segmentacao" (click)="go('/Segmentacao'); $event.preventDefault()">
+            <a class="deck-link" href="#/Segmentacao" (click)="go('/Segmentacao'); $event.preventDefault()">
               <os-card title="Segmentação">
                 <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="11" width="18" height="4" rx="1"/><rect x="3" y="17" width="18" height="3" rx="1"/></svg></os-card-icon>
                 Segmentos mapeando memória lógica para física.

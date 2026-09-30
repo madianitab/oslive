@@ -1,0 +1,147 @@
+<div class="viz">
+
+  <section>
+    <div class="viz-stats">
+      <os-stat label="Algoritmo" [value]="sim.algoritmo() === 'FIFO' ? 'FIFO' : 'Segunda Chance'"></os-stat>
+      <os-stat label="Quadros livres" [value]="sim.quadrosLivres() + ' / ' + sim.quadros().length"></os-stat>
+      <os-stat label="Cargas" [value]="sim.totalCargas()"></os-stat>
+      <os-stat label="Substituições" [value]="sim.totalSubstituicoes()" [accent]="true"></os-stat>
+    </div>
+  </section>
+
+  <div class="layout">
+    <div class="col-principal">
+
+      <section>
+        <div class="viz-label">Memória lógica e tabela de páginas</div>
+        @if (sim.processos().length === 0) {
+          <p class="empty-hint">Crie um processo na configuração para começar.</p>
+        }
+        <div class="mem-grupo">
+          @for (p of sim.processos(); track p.nome) {
+            <div class="processo">
+              <div class="processo-h"><span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>Processo {{ p.nome }}</div>
+              <div class="mem-grupo">
+                <table class="mem-table">
+                  <caption>Mem. lógica</caption>
+                  <tr><th>Pág</th><th>Conteúdo</th></tr>
+                  @for (pg of p.paginas; track pg.indice) {
+                    <tr>
+                      <td [ngStyle]="{ 'background-color': p.cor }">{{ pg.indice }}</td>
+                      <td class="td-botao">
+                        <button type="button" class="btn-pagina" [class.carregada]="pg.quadro !== null"
+                          [ngStyle]="pg.quadro !== null ? { 'background-color': p.cor, 'border-color': p.cor } : { 'border-color': p.cor }"
+                          (click)="sim.alternarPagina(pg)"
+                          [title]="pg.quadro === null ? 'Carregar na memória física' : 'Retirar da memória física'">
+                          <i [class]="pg.quadro === null ? 'fa-solid fa-download' : 'fa-solid fa-check'"></i> {{ nomePagina(pg) }}
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </table>
+                <table class="mem-table">
+                  <caption>Tabela de páginas</caption>
+                  <tr><th>End. ML</th><th>End. MF</th><th>Bit</th></tr>
+                  @for (pg of p.paginas; track pg.indice) {
+                    <tr>
+                      <td [ngStyle]="{ 'background-color': p.cor }">{{ pg.indice }}</td>
+                      @if (pg.quadro !== null) {
+                        <td [ngStyle]="{ 'background-color': p.cor }">{{ pg.quadro }}</td>
+                        <td [ngStyle]="{ 'background-color': p.cor }">V</td>
+                      } @else {
+                        <td class="mem-livre">–</td>
+                        <td class="mem-livre bit-i">I</td>
+                      }
+                    </tr>
+                  }
+                </table>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section>
+        <div class="viz-label">Ordem de carga (fila por timestamp)</div>
+        @if (sim.fila().length === 0) {
+          <p class="empty-hint">Nenhuma página carregada.</p>
+        } @else {
+          <div class="viz-scroll">
+            <table class="viz-table">
+              <tr>
+                <td class="t-lbl">Timestamp</td>
+                @for (e of sim.fila(); track e.pagina) { <td class="t-val">{{ e.timestamp }}</td> }
+              </tr>
+              <tr>
+                <td class="t-lbl">Página</td>
+                @for (e of sim.fila(); track e.pagina; let i = $index) {
+                  <td class="t-proc" [class.proxima]="i === 0" [ngStyle]="{ 'background-color': e.pagina.cor }"
+                    [title]="i === 0 ? 'Próxima candidata à substituição' : ''">{{ nomePagina(e.pagina) }}</td>
+                }
+              </tr>
+              @if (sim.algoritmo() === 'SEGUNDA_CHANCE') {
+                <tr>
+                  <td class="t-lbl">Bit ref.</td>
+                  @for (e of sim.fila(); track e.pagina) {
+                    <td class="t-val" [class.bit-ligado]="e.bitRef === 1">{{ e.bitRef }}</td>
+                  }
+                </tr>
+                <tr>
+                  <td class="t-lbl">Acessar</td>
+                  @for (e of sim.fila(); track e.pagina) {
+                    <td class="t-resp">
+                      <button type="button" class="btn-acessar" (click)="sim.acessarPagina(e)"
+                        [attr.aria-label]="'Acessar página ' + nomePagina(e.pagina)" title="Acessar página (bit = 1)">
+                        <i class="fa-solid fa-hand-pointer"></i>
+                      </button>
+                    </td>
+                  }
+                </tr>
+              }
+            </table>
+          </div>
+        }
+      </section>
+    </div>
+
+    <div class="col-lateral">
+      <section>
+        <div class="viz-label">Memória física</div>
+        <table class="mem-table">
+          <tr><th>Quadro</th><th>Página</th></tr>
+          @for (q of sim.quadros(); track $index; let i = $index) {
+            <tr>
+              @if (q) {
+                <td [ngStyle]="{ 'background-color': q.cor }">{{ i }}</td>
+                <td class="td-conteudo" [ngStyle]="{ 'background-color': q.cor }">{{ nomePagina(q) }}</td>
+              } @else {
+                <td class="mem-livre">{{ i }}</td>
+                <td class="mem-livre td-conteudo">livre</td>
+              }
+            </tr>
+          }
+        </table>
+      </section>
+
+      <section>
+        <div class="viz-label">Disco</div>
+        @if (sim.processos().length === 0) {
+          <p class="empty-hint">Vazio.</p>
+        }
+        <div class="disco">
+          @for (p of sim.processos(); track p.nome) {
+            @for (pg of p.paginas; track pg.indice) {
+              <span class="disco-pag" [ngStyle]="{ 'background-color': p.cor }">{{ nomePagina(pg) }}</span>
+            }
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+
+  @if (diario().length > 0) {
+    <section class="diario">
+      <os-sim-log [itens]="diario()" [ativo]="0"></os-sim-log>
+    </section>
+  }
+</div>

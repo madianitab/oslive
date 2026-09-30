@@ -43,10 +43,10 @@
                                   [disabled]="exercicioSelecionado==2 || exercicioSelecionado==1">
                                   &nbsp;
                                   @if (!(paginaProcessoX.timeStamp==0)) {
-                                    <i class="glyphicon glyphicon-ok" style="color: black;" ></i>
+                                    <i class="fa-solid fa-check" style="color: black;" ></i>
                                   }
                                   @if (paginaProcessoX.timeStamp==0) {
-                                    <i class="glyphicon glyphicon-remove" style="color: black;" ></i>
+                                    <i class="fa-solid fa-xmark" style="color: black;" ></i>
                                   }
                                 {{p.nome+pag}} </button>
                               </td>

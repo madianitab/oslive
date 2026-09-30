@@ -1,0 +1,79 @@
+<div class="sim-config">
+
+  <os-panel title="Algoritmo de substituição">
+    <select class="form-control" name="selectAlgoritmo" [ngModel]="sim.algoritmo()" (ngModelChange)="alterarAlgoritmo($event)">
+      @for (a of algoritmos; track a.valor) {
+        <option [ngValue]="a.valor">{{ a.nome }}</option>
+      }
+    </select>
+    <p class="hint mt-campo">
+      @if (sim.algoritmo() === 'FIFO') {
+        Sai a página carregada há mais tempo (menor timestamp).
+      } @else {
+        Páginas com bit de referência 1 ganham uma segunda chance: o bit vira 0 e elas vão para o fim da fila.
+      }
+    </p>
+  </os-panel>
+
+  <os-panel title="Criar processos">
+    <label class="check-row">
+      <input type="checkbox" [ngModel]="aleatorio()" (ngModelChange)="aleatorio.set($event)">
+      <span>Gerar processos com valores aleatórios</span>
+    </label>
+    @if (aleatorio()) {
+      <os-button variant="s" size="sm" (click)="gerarAleatorio()"><i class="fa fa-cogs"></i> Gerar processos</os-button>
+    } @else {
+      <form class="proc-form" (ngSubmit)="criar()">
+        <select class="form-control" name="nome" [(ngModel)]="nome">
+          <option value="" disabled>Nome do processo</option>
+          @for (n of sim.nomesDisponiveis(); track n) {
+            <option [value]="n">{{ n }}</option>
+          }
+        </select>
+        <input type="number" min="1" [max]="maxPaginas" class="form-control" name="paginas"
+          [placeholder]="'Quantidade de páginas (1 a ' + maxPaginas + ')'" [(ngModel)]="quantidadePaginas">
+        <div class="proc-actions">
+          <os-button variant="p" size="sm" type="submit" [disabled]="sim.nomesDisponiveis().length === 0"><i class="fa-solid fa-circle-plus"></i> Criar</os-button>
+          <os-button variant="d" size="sm" type="button" (click)="limparForm()"><i class="fa-solid fa-circle-xmark"></i> Cancelar</os-button>
+        </div>
+      </form>
+    }
+    <p class="hint mt-campo">Ao ser criado, o processo tem as duas primeiras páginas carregadas; as demais ficam no disco.</p>
+  </os-panel>
+
+  <os-panel title="Tabela de processos">
+    <span slot="meta">{{ sim.processos().length }}</span>
+    @if (sim.processos().length > 0) {
+      <div class="tbl-scroll">
+        <table class="ptable">
+          <thead>
+            <tr><th class="th-name">Processo</th><th>Págs.</th><th>Na RAM</th><th class="th-acts"></th></tr>
+          </thead>
+          <tbody>
+            @for (p of sim.processos(); track p.nome) {
+              <tr>
+                <td class="p-name"><span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>{{ p.nome }}</td>
+                <td>{{ p.paginas.length }}</td>
+                <td>{{ naMemoria(p) }}</td>
+                <td class="p-acts">
+                  <button type="button" class="p-act del" (click)="sim.removerProcesso(p.nome)" aria-label="Remover processo" title="Remover"><i class="fas fa-times"></i></button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="empty">Nenhum processo cadastrado.</p>
+    }
+  </os-panel>
+
+  <os-panel title="Como usar">
+    <p class="hint">Clique em uma página da <b>memória lógica</b> para carregá-la na memória física (ou retirá-la).
+      @if (sim.algoritmo() === 'SEGUNDA_CHANCE') {
+        Na ordem de carga, use <b>Acessar</b> para ligar o bit de referência de uma página.
+      }
+    </p>
+  </os-panel>
+
+</div>

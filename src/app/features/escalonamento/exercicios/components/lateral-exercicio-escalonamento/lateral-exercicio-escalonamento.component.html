@@ -1,0 +1,96 @@
+<div class="sim-config">
+
+  <os-panel title="Algoritmo de escalonamento">
+    <select class="form-control" name="selectAlgoritmo" [(ngModel)]="algoritmo" (ngModelChange)="alterarAlgoritmo()">
+      <option [ngValue]="null" disabled>Selecione o algoritmo…</option>
+      @for (a of algoritmos; track a.valor) {
+        <option [ngValue]="a.valor">{{ a.nome }}</option>
+      }
+    </select>
+    @if (algoritmo === 'RR') {
+      <input type="number" min="1" class="form-control mt-campo" name="quantum" [(ngModel)]="quantum"
+        (ngModelChange)="alterarAlgoritmo()" placeholder="Fatia de tempo (quantum)" title="Fatia de tempo (quantum)">
+    }
+    @if (usaPrioridade) {
+      <p class="hint mt-campo">Quanto <b>menor</b> o número, <b>maior</b> a prioridade.</p>
+    }
+  </os-panel>
+
+  <os-panel title="Criar processos">
+    <label class="check-row">
+      <input type="checkbox" [ngModel]="aleatorio()" (ngModelChange)="aleatorio.set($event)">
+      <span>Gerar processos com valores aleatórios</span>
+    </label>
+
+    @if (aleatorio()) {
+      <os-button variant="s" size="sm" (click)="geradorAleatorio()"><i class="fa fa-cogs"></i> Gerar processos</os-button>
+    } @else {
+      <form class="proc-form" (ngSubmit)="salvarProcesso()">
+        <input type="text" class="form-control campo-nome" name="nome" maxlength="1" placeholder="Nome do processo"
+          [(ngModel)]="processo.nome" [disabled]="editando() !== null">
+        <input type="number" min="0" class="form-control" name="chegada" placeholder="Tempo de chegada"
+          [(ngModel)]="processo.chegada" [disabled]="primeiroProcesso"
+          [title]="primeiroProcesso ? 'O primeiro processo sempre chega no tempo 0' : 'Tempo de chegada'">
+        <input type="number" min="1" class="form-control" name="execucao" placeholder="Tempo de execução"
+          [(ngModel)]="processo.execucao">
+        @if (usaPrioridade) {
+          <input type="number" min="0" class="form-control" name="prioridade" placeholder="Prioridade"
+            [(ngModel)]="processo.prioridade">
+        }
+        <div class="proc-actions">
+          <os-button variant="p" size="sm" type="submit">
+            @if (editando() === null) {
+              <i class="fa-solid fa-circle-plus"></i> Cadastrar
+            } @else {
+              <i class="fa-solid fa-floppy-disk"></i> Salvar
+            }
+          </os-button>
+          <os-button variant="d" size="sm" type="button" (click)="limparForm()"><i class="fa-solid fa-circle-xmark"></i> Cancelar</os-button>
+        </div>
+      </form>
+    }
+  </os-panel>
+
+  <os-panel title="Tabela de processos">
+    <span slot="meta">{{ listaProcessos().length }}</span>
+    @if (listaProcessos().length > 0) {
+      <div class="tbl-scroll">
+        <table class="ptable">
+          <thead>
+            <tr>
+              <th class="th-name">Processo</th>
+              <th>Cheg.</th>
+              <th>Exec.</th>
+              @if (usaPrioridade) { <th>Prio.</th> }
+              <th class="th-acts"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of listaProcessos(); track p.nome; let i = $index) {
+              <tr>
+                <td class="p-name"><span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>{{ p.nome }}</td>
+                <td>{{ p.chegada }}</td>
+                <td>{{ p.execucao }}</td>
+                @if (usaPrioridade) { <td>{{ p.prioridade ?? '—' }}</td> }
+                <td class="p-acts">
+                  <button type="button" class="p-act edit" (click)="iniciarEdicao(i)" aria-label="Editar processo" title="Editar"><i class="fas fa-pencil-alt"></i></button>
+                  <button type="button" class="p-act del" (click)="excluir(i)" aria-label="Excluir processo" title="Excluir"><i class="fas fa-times"></i></button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="empty">Nenhum processo cadastrado.</p>
+    }
+  </os-panel>
+
+  <os-panel title="Resolver exercício">
+    <div class="proc-actions">
+      <os-button variant="p" size="sm" (click)="responder('tabela')"><i class="fa-solid fa-table"></i> Tabela de resultado</os-button>
+      <os-button variant="p" size="sm" (click)="responder('diagrama')"><i class="fa-solid fa-chart-gantt"></i> Diagrama de CPU</os-button>
+    </div>
+  </os-panel>
+
+</div>

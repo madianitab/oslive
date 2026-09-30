@@ -1,0 +1,61 @@
+<div class="sim-config">
+
+  <os-panel title="Criar processos">
+    <label class="check-row">
+      <input type="checkbox" [ngModel]="aleatorio()" (ngModelChange)="aleatorio.set($event)">
+      <span>Gerar processos com valores aleatórios</span>
+    </label>
+    @if (aleatorio()) {
+      <os-button variant="s" size="sm" (click)="gerarAleatorio()"><i class="fa fa-cogs"></i> Gerar processos</os-button>
+    } @else {
+      <form class="proc-form" (ngSubmit)="criar()">
+        <select class="form-control" name="nome" [(ngModel)]="nome">
+          <option value="" disabled>Nome do processo</option>
+          @for (n of sim.nomesDisponiveis(); track n) {
+            <option [value]="n">{{ n }}</option>
+          }
+        </select>
+        <input type="number" min="1" [max]="maxBytes" class="form-control" name="bytes"
+          [placeholder]="'Tamanho em bytes (1 a ' + maxBytes + ')'" [(ngModel)]="bytes">
+        <div class="proc-actions">
+          <os-button variant="p" size="sm" type="submit" [disabled]="sim.nomesDisponiveis().length === 0"><i class="fa-solid fa-circle-plus"></i> Criar</os-button>
+          <os-button variant="d" size="sm" type="button" (click)="limparForm()"><i class="fa-solid fa-circle-xmark"></i> Cancelar</os-button>
+        </div>
+      </form>
+    }
+    <p class="info-livre mt-campo">Memória livre: <b>{{ sim.bytesLivres() }} bytes</b> ({{ sim.quadrosLivres() }} quadros)</p>
+  </os-panel>
+
+  <os-panel title="Tabela de processos">
+    <span slot="meta">{{ sim.processos().length }}</span>
+    @if (sim.processos().length > 0) {
+      <div class="tbl-scroll">
+        <table class="ptable">
+          <thead>
+            <tr><th class="th-name">Processo</th><th>Bytes</th><th>Págs.</th><th class="th-acts"></th></tr>
+          </thead>
+          <tbody>
+            @for (p of sim.processos(); track p.nome) {
+              <tr class="clicavel" [class.linha-selecionada]="sim.selecionado() === p.nome" (click)="sim.selecionar(p.nome)" title="Ver memória lógica do processo">
+                <td class="p-name"><span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>{{ p.nome }}</td>
+                <td>{{ p.bytes }}</td>
+                <td>{{ p.quadros.length }}</td>
+                <td class="p-acts">
+                  <button type="button" class="p-act del" (click)="sim.removerProcesso(p.nome); $event.stopPropagation()" aria-label="Remover processo" title="Remover"><i class="fas fa-times"></i></button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="empty">Nenhum processo cadastrado.</p>
+    }
+  </os-panel>
+
+  <os-panel title="Como funciona">
+    <p class="hint">Cada página tem <b>4 bytes</b> e ocupa um quadro livre qualquer da memória física (8 quadros, 32 bytes).
+      O espaço que sobra na última página é a <b>fragmentação interna</b>.</p>
+  </os-panel>
+
+</div>
