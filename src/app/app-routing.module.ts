@@ -5,9 +5,11 @@ import { HomeProjectComponent } from './pages/home-project/home-project.componen
 import { HomeEscalonamentoComponent } from 'src/app/features/escalonamento/simulador/components/home-escalonamento/home-escalonamento.component';
 import { HomeComponent as SegmentacaoHomeComponent } from 'src/app/features/segmentacao/simulador/components/home/home.component';
 import { HomeExercicioDeSegmentacaoComponent } from 'src/app/features/segmentacao/exercicios/components/home-exercicio-de-segmentacao/home-exercicio-de-segmentacao.component';
+import { BrandkitComponent } from './pages/brandkit/brandkit.component';
 
 const routes: Routes = [
   { path: "", component: HomeProjectComponent, pathMatch: 'full' },
+  { path: "brandkit", component: BrandkitComponent },
 
   // Escalonamento de Processos
   { path: "escalonamento/simulador", component: HomeEscalonamentoComponent },
