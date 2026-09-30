@@ -57,12 +57,18 @@ describe('EscalonamentoService', () => {
   // ─── Prioridade ────────────────────────────────────────────────────────────
 
   describe('simulaPrio', () => {
-    it('deve executar processo de maior prioridade primeiro', () => {
+    it('deve executar processo de maior prioridade (menor número) primeiro', () => {
       const processos = [p('P1', 0, 2, 1), p('P2', 0, 2, 5), p('P3', 0, 2, 3)];
       const res = service.simulaPrio(processos);
-      expect(res[0].nome).toBe('P2'); // prioridade 5
+      expect(res[0].nome).toBe('P1'); // prioridade 1
       expect(res[2].nome).toBe('P3'); // prioridade 3
-      expect(res[4].nome).toBe('P1'); // prioridade 1
+      expect(res[4].nome).toBe('P2'); // prioridade 5
+    });
+
+    it('não deve interromper o processo em execução (não preemptivo)', () => {
+      const processos = [p('P1', 0, 3, 2), p('P2', 1, 1, 0)];
+      const res = service.simulaPrio(processos);
+      expect(res.map(r => r.nome).join('')).toBe('P1P1P1P2');
     });
 
     it('deve retornar lista vazia para lista de processos vazia', () => {

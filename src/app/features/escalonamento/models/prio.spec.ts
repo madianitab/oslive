@@ -12,16 +12,32 @@ describe('Prio (nao-preemptivo)', () => {
     expect(prio.vazio()).toBeTrue();
   });
 
-  it('escolherProcesso deve retornar o de maior prioridade', () => {
+  it('escolherProcesso deve retornar o de maior prioridade (menor número)', () => {
     const p1 = new Processo('P1', 0, 3, 1, '#fff');
     const p2 = new Processo('P2', 0, 3, 5, '#fff');
     const p3 = new Processo('P3', 0, 3, 3, '#fff');
     prio.addProcesso(p1);
     prio.addProcesso(p2);
     prio.addProcesso(p3);
-    expect(prio.escolherProcesso()).toBe(p2); // maior prioridade (5)
-    expect(prio.escolherProcesso()).toBe(p3); // segunda maior (3)
-    expect(prio.escolherProcesso()).toBe(p1); // menor (1)
+    expect(prio.escolherProcesso()).toBe(p1); // prioridade 1 (maior)
+    expect(prio.escolherProcesso()).toBe(p3); // prioridade 3
+    expect(prio.escolherProcesso()).toBe(p2); // prioridade 5 (menor)
+  });
+
+  it('prioridade 0 deve vir antes da prioridade 1', () => {
+    const p1 = new Processo('P1', 0, 3, 1, '#fff');
+    const p0 = new Processo('P0', 0, 3, 0, '#fff');
+    prio.addProcesso(p1);
+    prio.addProcesso(p0);
+    expect(prio.escolherProcesso()).toBe(p0);
+  });
+
+  it('empate de prioridade deve respeitar a ordem de chegada', () => {
+    const p1 = new Processo('P1', 0, 3, 2, '#fff');
+    const p2 = new Processo('P2', 0, 3, 2, '#fff');
+    prio.addProcesso(p1);
+    prio.addProcesso(p2);
+    expect(prio.escolherProcesso()).toBe(p1);
   });
 
   it('escolherProcesso em fila vazia deve retornar undefined', () => {

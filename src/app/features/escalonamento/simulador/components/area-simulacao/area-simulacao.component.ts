@@ -78,7 +78,7 @@ export class AreaSimulacaoComponent implements OnInit {
   public processoAtual = 0;
   public tempoCpu: number = 0;
 
-  /** Algoritmos básicos (FIFO, SJF, Prioridade NP e P): fila de aptos animada durante a simulação. */
+  /** Algoritmos básicos (FIFO, SJF, Prioridade NP e P, RR): fila de aptos animada durante a simulação. */
   readonly animandoFilaBasica = signal(false);
   /** Identifica a execução atual da animação; muda ao cancelar ou reiniciar para interromper a anterior. */
   private execucaoAnimacao = 0;
@@ -196,8 +196,8 @@ export class AreaSimulacaoComponent implements OnInit {
     const res = this.resultados();
     const execucao = this.execucaoAnimacao;
     const escalonador = this.escalonador.valueOf();
-    // Nos quatro algoritmos básicos a fila de aptos também é animada (entradas e saídas).
-    const animarFila = escalonador < 4;
+    // Nos algoritmos básicos (FIFO, SJF, Prioridades e RR) a fila de aptos também é animada.
+    const animarFila = escalonador < 5;
     const filaPorTempo = animarFila ? this.filaAptosPorTempo(res) : [];
     if (animarFila) this.animandoFilaBasica.set(true);
 
@@ -220,9 +220,14 @@ export class AreaSimulacaoComponent implements OnInit {
   /**
    * Reconstrói a fila de aptos em cada instante a partir do diagrama da CPU:
    * um processo está apto se já chegou, ainda tem execução restante e não está na CPU.
-   * A ordem é a de entrada na fila (chegada ou retorno após ser interrompido).
+   * O início da fila fica sempre à esquerda:
+   * - FIFO e RR: ordem de entrada (chegada ou retorno após ser interrompido);
+   * - SJF: menor tempo de execução primeiro;
+   * - Prioridades: menor número (maior prioridade) primeiro.
+   * Empates seguem a ordem de entrada.
    */
   private filaAptosPorTempo(res: ResultadoCpu[]): { nome: string; cor: string }[][] {
+    const escalonador = this.escalonador.valueOf();
     const dados = new Map(this.listaProcessos.map(p => [p.nome, p]));
     const executado = new Map<string, number>();
     const ultimaExecucao = new Map<string, number>();
@@ -230,7 +235,7 @@ export class AreaSimulacaoComponent implements OnInit {
 
     for (let t = 0; t < res.length; t++) {
       const naCpu = res[t].nome;
-      const aptos: { nome: string; cor: string; entrada: number; retorno: boolean; chegada: number }[] = [];
+      const aptos: { nome: string; cor: string; entrada: number; retorno: boolean; chegada: number; criterio: number }[] = [];
 
       for (const p of dados.values()) {
         const restante = (p.execucao ?? 0) - (executado.get(p.nome) ?? 0);
@@ -243,10 +248,14 @@ export class AreaSimulacaoComponent implements OnInit {
           entrada: retorno ? Math.max(p.chegada, ultima! + 1) : p.chegada,
           retorno,
           chegada: p.chegada,
+          criterio: escalonador === 1 ? restante
+            : (escalonador === 2 || escalonador === 3) ? (p.prioridade ?? 0)
+            : 0,
         });
       }
 
       aptos.sort((a, b) =>
+        a.criterio - b.criterio ||
         a.entrada - b.entrada ||
         Number(a.retorno) - Number(b.retorno) ||
         a.chegada - b.chegada ||
