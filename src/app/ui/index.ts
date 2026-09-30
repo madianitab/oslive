@@ -12,3 +12,5 @@ export { OsPanelComponent } from './panel/panel.component';
 export { OsStatComponent } from './stat/stat.component';
 export { OsButtonGroupComponent } from './button-group/button-group.component';
 export { OsSimPlayerComponent } from './sim-player/sim-player.component';
+export * from './sim-log/sim-log.component';
+export * from './sim-callout/sim-callout.component';
