@@ -1,36 +1,22 @@
-<os-sim-shell
-  title="Paginação por Demanda"
-  subtitle="Substituição de páginas entre memória física e disco."
->
-  <app-menu-lateral
-    slot="config"
-    (enviarDados)="setDadosProcesso($event)"
-    (enviarTipoAlgoritmo)="setTipoAlgoritmo($event)"
-    (enviarTipoExercicio)="setTipoExercicio($event)"
-    (enviarRespostaMemoriaLogica)="setRespostaMemoriaLogica($event)"
-    (enviarRecursoTecnico)="setRecursoTecnico($event)"
-    [back]="getBack"
-  ></app-menu-lateral>
+<os-sim-shell title="Paginação por Demanda" subtitle="Assista o SO substituir páginas entre memória física e disco">
+  <ng-container slot="actions">
+    <os-sim-player
+      [total]="trilha.length" [atual]="indice" [tocando]="tocando" [velocidade]="velocidade"
+      (play)="tocar()" (pause)="pausar()" (passo)="avancar($event)" (seek)="irPara($event)"
+      (velocidadeChange)="mudarVelocidade($event)">
+    </os-sim-player>
+  </ng-container>
 
-  @if (getTipoExercicio != 3) {
-    <app-area-exercicio
-      [listaProcessos]="getDadosProcesso"
-      [exercicioSelecionado]="getTipoExercicio"
-      [respostaMemoriaLogica]="getRespostaMemoriaLogica"
-      [gambiarra]="getRecursoTecnico"
-      (enviarDadosMemoria)="setDadosMemoriaFisica($event)"
-      (enviarBack)="setBack($event)"
-    ></app-area-exercicio>
-  }
-  @if (getTipoExercicio == 3 && qtdPaginas > 7) {
-    <app-pagina-vitima
-      [algoritmoSelecionado]="getTipoAlgoritmo"
-      [listaProcessos]="getDadosProcesso"
-      [recursoTecnico]="getRecursoTecnico"
-      (enviarBack)="setBack($event)"
-    ></app-pagina-vitima>
-  }
-  @if (getTipoExercicio == 3 && qtdPaginas < 8) {
-    <app-infortivo></app-infortivo>
-  }
+  <ng-container slot="config">
+    <button type="button" class="os-btn" (click)="gerarCenario()">Gerar processos</button>
+    <!-- controles de config adicionais reaproveitados do menu-lateral entram aqui -->
+  </ng-container>
+
+  <div class="sim-layout" *ngIf="trilha.length; else vazio">
+    <app-palco-paginacao class="sim-palco" [passo]="passoAtual"></app-palco-paginacao>
+    <os-sim-log class="sim-diario" [itens]="itensLog" [ativo]="indice"></os-sim-log>
+  </div>
+  <ng-template #vazio>
+    <p class="sim-hint">Clique em "Gerar processos" e depois em ▶ para assistir a paginação acontecer.</p>
+  </ng-template>
 </os-sim-shell>

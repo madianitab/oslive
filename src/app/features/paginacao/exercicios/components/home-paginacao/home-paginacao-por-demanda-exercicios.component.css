@@ -1,0 +1,2 @@
+.sim-layout { display: grid; grid-template-columns: 1fr 220px; gap: 12px; }
+.sim-hint { font: 300 15px/1.6 var(--f-serif); color: var(--text-2); padding: 24px; }
