@@ -1,0 +1,247 @@
+<div class="viz">
+
+  @if (!ex.gerado()) {
+    <section>
+      <div class="viz-label">Como resolver</div>
+      <ol class="passos">
+        <li>Escolha o <b>tipo de exercício</b> na configuração.</li>
+        <li>Clique em <b>Gerar exercício</b>.</li>
+        <li>Preencha as respostas e clique em <b>Corrigir</b>. Use <b>Ver resposta</b> para conferir o gabarito.</li>
+      </ol>
+      <p class="descricao">{{ descricaoTipo() }}</p>
+    </section>
+  } @else {
+
+    <section>
+      <div class="viz-stats">
+        <os-stat label="Exercício" [value]="nomeTipo()"></os-stat>
+        <os-stat label="Processos" [value]="ex.processos().length"></os-stat>
+        <os-stat label="Páginas" [value]="ex.todasPaginas().length" [hint]="'8 quadros na memória física'"></os-stat>
+        @if (ex.placar(); as r) {
+          <os-stat label="Acertos" [value]="r.acertos + ' / ' + r.total" [hint]="percentual() + '%'" [accent]="true"></os-stat>
+        }
+      </div>
+    </section>
+
+    @if (ex.tipo() !== 'VITIMA') {
+      <p class="descricao">{{ descricaoTipo() }}</p>
+
+      <div class="layout">
+        <!-- MEMÓRIA LÓGICA + TABELA DE PÁGINAS -->
+        <section class="col-principal">
+          <div class="viz-label">Memória lógica e tabela de páginas</div>
+          <div class="mem-grupo">
+            @for (p of ex.processos(); track p.nome) {
+              <div class="processo">
+                <div class="processo-h"><span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>Processo {{ p.nome }}</div>
+                <div class="mem-grupo">
+                  <table class="mem-table">
+                    <caption>Mem. lógica</caption>
+                    <tr><th>Pág</th><th>Conteúdo</th></tr>
+                    @for (pg of p.paginas; track pg.indice) {
+                      <tr>
+                        <td [ngStyle]="{ 'background-color': p.cor }">{{ pg.indice }}</td>
+                        <td [ngStyle]="{ 'background-color': p.cor }">{{ nomePagina(pg) }}</td>
+                      </tr>
+                    }
+                  </table>
+
+                  <table class="mem-table">
+                    <caption>Tabela de páginas</caption>
+                    <tr><th>End. ML</th><th>End. MF</th><th>Bit</th></tr>
+                    @for (pg of p.paginas; track pg.indice) {
+                      <tr>
+                        <td [ngStyle]="{ 'background-color': p.cor }">{{ pg.indice }}</td>
+                        @if (ex.tipo() === 'LOGICA' && !ex.mostrarResposta()) {
+                          <td class="td-campo">
+                            <select class="campo" [ngClass]="classe(ex.corretoQuadro(pg))" [ngModel]="resposta(pg).quadro"
+                              (ngModelChange)="ex.responderLogica(pg, 'quadro', $event)" [attr.aria-label]="'Quadro da página ' + nomePagina(pg)">
+                              <option value="">?</option>
+                              <option value="-">–</option>
+                              @for (q of quadrosIdx; track q) { <option [value]="'' + q">{{ q }}</option> }
+                            </select>
+                          </td>
+                          <td class="td-campo">
+                            <select class="campo" [ngClass]="classe(ex.corretoBit(pg))" [ngModel]="resposta(pg).bit"
+                              (ngModelChange)="ex.responderLogica(pg, 'bit', $event)" [attr.aria-label]="'Bit da página ' + nomePagina(pg)">
+                              <option value="">?</option>
+                              <option value="V">V</option>
+                              <option value="I">I</option>
+                            </select>
+                          </td>
+                        } @else if (pg.quadro !== null) {
+                          <td [ngStyle]="{ 'background-color': p.cor }" [class.revelado]="ex.mostrarResposta()">{{ pg.quadro }}</td>
+                          <td [ngStyle]="{ 'background-color': p.cor }" [class.revelado]="ex.mostrarResposta()">V</td>
+                        } @else {
+                          <td class="mem-livre" [class.revelado]="ex.mostrarResposta()">–</td>
+                          <td class="mem-livre bit-i" [class.revelado]="ex.mostrarResposta()">I</td>
+                        }
+                      </tr>
+                    }
+                  </table>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+
+        <!-- MEMÓRIA FÍSICA + DISCO -->
+        <div class="col-lateral">
+          <section>
+            <div class="viz-label">Memória física</div>
+            <table class="mem-table">
+              <tr><th>Quadro</th><th>Página</th></tr>
+              @for (q of ex.quadros(); track $index; let i = $index) {
+                <tr>
+                  @if (ex.tipo() === 'FISICA' && !ex.mostrarResposta()) {
+                    <td class="mem-livre">{{ i }}</td>
+                    <td class="td-campo">
+                      <select class="campo campo-largo" [ngClass]="classe(ex.corretoFrame(i))" [ngModel]="ex.respostasFisica()[i]"
+                        (ngModelChange)="ex.responderFisica(i, $event)" [attr.aria-label]="'Página no quadro ' + i">
+                        <option value="">?</option>
+                        <option value="-">livre</option>
+                        @for (pg of ex.todasPaginas(); track nomePagina(pg)) {
+                          <option [value]="nomePagina(pg)">{{ nomePagina(pg) }}</option>
+                        }
+                      </select>
+                    </td>
+                  } @else if (q) {
+                    <td [ngStyle]="{ 'background-color': q.cor }">{{ i }}</td>
+                    <td class="td-conteudo" [ngStyle]="{ 'background-color': q.cor }" [class.revelado]="ex.mostrarResposta() && ex.tipo() === 'FISICA'">{{ nomePagina(q) }}</td>
+                  } @else {
+                    <td class="mem-livre">{{ i }}</td>
+                    <td class="mem-livre td-conteudo" [class.revelado]="ex.mostrarResposta() && ex.tipo() === 'FISICA'">livre</td>
+                  }
+                </tr>
+              }
+            </table>
+          </section>
+
+          <section>
+            <div class="viz-label">Disco</div>
+            <div class="disco">
+              @for (pg of ex.todasPaginas(); track nomePagina(pg)) {
+                <span class="disco-pag" [ngStyle]="{ 'background-color': pg.cor }">{{ nomePagina(pg) }}</span>
+              }
+            </div>
+          </section>
+        </div>
+      </div>
+    }
+
+    @if (ex.tipo() === 'VITIMA') {
+      <section>
+        <div class="alerta-falta">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          A memória física está cheia e a página
+          @if (ex.paginaSolicitada(); as s) {
+            <span class="chip" [ngStyle]="{ 'background-color': s.cor }">{{ nomePagina(s) }}</span>
+          }
+          precisa ser carregada. <b>Qual página será a vítima?</b>
+        </div>
+      </section>
+
+      <div class="layout">
+        <section class="col-principal">
+          <div class="viz-label">Memória física</div>
+          <div class="viz-scroll">
+            <table class="mem-table tabela-vitima">
+              <tr>
+                <th>Quadro</th>
+                <th>Página</th>
+                <th>Timestamp</th>
+                @if (ex.algoritmo() === 'HISTORICO') {
+                  @for (c of colunasHistorico; track c) { <th [title]="c === 't-1' ? 'Acesso mais recente' : ''">{{ c }}</th> }
+                }
+                @if (ex.algoritmo() === 'SEGUNDA_CHANCE') { <th>Bit ref.</th> }
+                <th>Vítima?</th>
+              </tr>
+              @for (q of ex.quadros(); track $index; let i = $index) {
+                @if (q) {
+                  <tr [ngClass]="{
+                        'linha-acerto': ex.corrigido() && ex.respostaVitima() === i && ex.corretoVitima(),
+                        'linha-erro': ex.corrigido() && ex.respostaVitima() === i && !ex.corretoVitima(),
+                        'linha-gabarito': ex.mostrarResposta() && ex.vitima() === q }">
+                    <td [ngStyle]="{ 'background-color': q.cor }">{{ i }}</td>
+                    <td [ngStyle]="{ 'background-color': q.cor }">{{ nomePagina(q) }}</td>
+                    <td class="t-neutro">{{ q.timestamp }}</td>
+                    @if (ex.algoritmo() === 'HISTORICO') {
+                      @for (b of q.historico; track $index) { <td class="t-neutro" [class.bit-ligado]="b === 1">{{ b }}</td> }
+                    }
+                    @if (ex.algoritmo() === 'SEGUNDA_CHANCE') {
+                      <td class="td-campo">
+                        <button type="button" class="btn-bit" [class.bit-ligado]="q.bitRef === 1" (click)="ex.alternarBitReferencia(q)"
+                          [attr.aria-label]="'Alternar bit de referência de ' + nomePagina(q)" title="Clique para simular um acesso">{{ q.bitRef }}</button>
+                      </td>
+                    }
+                    <td class="td-campo">
+                      <label class="radio-vitima">
+                        <input type="radio" name="vitima" [checked]="ex.respostaVitima() === i" (change)="ex.responderVitima(i)"
+                          [attr.aria-label]="'Escolher ' + nomePagina(q) + ' como vítima'">
+                      </label>
+                    </td>
+                  </tr>
+                }
+              }
+            </table>
+          </div>
+          @if (ex.algoritmo() === 'HISTORICO') {
+            <p class="hint-tabela">t-1 é o acesso mais recente. Leia os bits como um número binário.</p>
+          }
+        </section>
+
+        <div class="col-lateral">
+          <section>
+            <div class="viz-label">Disco</div>
+            <div class="disco">
+              @for (pg of ex.todasPaginas(); track nomePagina(pg)) {
+                <span class="disco-pag" [ngStyle]="{ 'background-color': pg.cor }">{{ nomePagina(pg) }}</span>
+              }
+            </div>
+          </section>
+        </div>
+      </div>
+
+      @if (ex.algoritmo() === 'SEGUNDA_CHANCE') {
+        <section>
+          <div class="viz-label">Registro de carga (ordem de timestamp)</div>
+          <div class="viz-scroll">
+            <table class="viz-table">
+              <tr>
+                <td class="t-lbl">Timestamp</td>
+                @for (p of ex.filaCarga(); track nomePagina(p)) { <td class="t-val">{{ p.timestamp }}</td> }
+              </tr>
+              <tr>
+                <td class="t-lbl">Página</td>
+                @for (p of ex.filaCarga(); track nomePagina(p)) { <td class="t-proc" [ngStyle]="{ 'background-color': p.cor }">{{ nomePagina(p) }}</td> }
+              </tr>
+              <tr>
+                <td class="t-lbl">Bit ref.</td>
+                @for (p of ex.filaCarga(); track nomePagina(p)) { <td class="t-val" [class.bit-ligado]="p.bitRef === 1">{{ p.bitRef }}</td> }
+              </tr>
+            </table>
+          </div>
+        </section>
+      }
+
+      @if (ex.corrigido() || ex.mostrarResposta()) {
+        <div class="explicacao" [class.ok]="ex.corretoVitima()" [class.nok]="ex.corrigido() && !ex.corretoVitima() && !ex.mostrarResposta()">
+          @if (ex.corrigido() && ex.respostaVitima() === null && !ex.mostrarResposta()) {
+            Escolha uma página na coluna "Vítima?".
+          } @else if (ex.corretoVitima() || ex.mostrarResposta()) {
+            {{ ex.corretoVitima() ? 'Correto! ' : '' }}{{ explicacaoVitima() }}
+          } @else {
+            Não é essa. Revise o critério do algoritmo e tente de novo.
+          }
+        </div>
+      }
+    }
+
+    <div class="acoes">
+      <os-button variant="p" size="sm" (click)="ex.corrigir()"><i class="fa-solid fa-check"></i> Corrigir</os-button>
+      <os-button variant="s" size="sm" (click)="ex.alternarResposta()"><i class="fa-solid fa-eye"></i> {{ ex.mostrarResposta() ? 'Ocultar resposta' : 'Ver resposta' }}</os-button>
+      <os-button variant="g" size="sm" (click)="ex.limparRespostas()"><i class="fa-solid fa-eraser"></i> Limpar</os-button>
+      <os-button variant="g" size="sm" (click)="ex.gerar()"><i class="fa-solid fa-shuffle"></i> Novo exercício</os-button>
+    </div>
+  }
+</div>

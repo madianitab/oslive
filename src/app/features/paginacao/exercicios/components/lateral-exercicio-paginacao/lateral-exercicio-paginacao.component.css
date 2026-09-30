@@ -1,0 +1,11 @@
+.mt-campo { margin-top: 10px; }
+.rotulo {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin: 0 0 6px;
+}

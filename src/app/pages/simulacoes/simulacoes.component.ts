@@ -54,7 +54,7 @@ import { OsBadgeComponent } from '../../ui/badge/badge.component';
       <os-card title="Exercícios de Paginação por Demanda">
         <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></os-card-icon>
         <os-badge slot="badge" variant="s">exercícios</os-badge>
-        Assista ou pratique a substituição de páginas passo a passo.
+        Complete as memórias lógica e física e descubra a página vítima (FIFO, histórico de bits, segunda chance).
         <div slot="footer"><os-button variant="p" size="sm" (click)="go('/paginacao/exercicios')">Abrir →</os-button></div>
       </os-card>
     </div>
