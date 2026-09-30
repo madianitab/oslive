@@ -3,6 +3,7 @@ import { NgIf } from '@angular/common';
 import { OsSimShellComponent } from 'src/app/ui/sim-shell/sim-shell.component';
 import { OsSimPlayerComponent } from 'src/app/ui/sim-player/sim-player.component';
 import { OsSimLogComponent } from 'src/app/ui/sim-log/sim-log.component';
+import { OsButtonComponent } from 'src/app/ui/button/button.component';
 import { PalcoPaginacaoComponent } from '../palco-paginacao/palco-paginacao.component';
 import { TrilhaPaginacaoService } from '../../services/trilha-paginacao.service';
 import { PassoPaginacao } from '../../models/passo-paginacao';
@@ -13,7 +14,7 @@ import { Utils } from 'src/app/core/utils';
 @Component({
   selector: 'app-home-paginacao-por-demanda-exercicios',
   standalone: true,
-  imports: [NgIf, OsSimShellComponent, OsSimPlayerComponent, OsSimLogComponent, PalcoPaginacaoComponent],
+  imports: [NgIf, OsSimShellComponent, OsSimPlayerComponent, OsSimLogComponent, OsButtonComponent, PalcoPaginacaoComponent],
   templateUrl: './home-paginacao-por-demanda-exercicios.component.html',
   styleUrls: ['./home-paginacao-por-demanda-exercicios.component.css'],
 })
@@ -44,6 +45,7 @@ export class HomePaginacaoPorDemandaExerciciosComponent implements OnDestroy {
 
   irPara(i: number): void {
     this.indice = Math.max(0, Math.min(this.trilha.length - 1, i));
+    this.feedback = undefined;
   }
   avancar(d: 1 | -1): void { this.irPara(this.indice + d); }
 

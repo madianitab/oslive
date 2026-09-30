@@ -1,10 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'os-sim-player',
   standalone: true,
-  imports: [NgIf],
+  imports: [],
   styleUrls: ['./sim-player.component.css'],
   template: `
     <div class="os-player">
