@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HomePaginacaoPorDemandaExerciciosComponent } from './home-paginacao-por-demanda-exercicios.component';
-import { TrilhaPaginacaoService } from '../../services/trilha-paginacao.service';
-import { Pagina } from '../../models/pagina';
+import { TrilhaPaginacaoService } from '../../../services/trilha-paginacao.service';
+import { Pagina } from '../../../models/pagina';
 
 describe('HomePaginacao (Assistir)', () => {
   beforeEach(() => TestBed.configureTestingModule({

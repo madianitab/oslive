@@ -5,10 +5,10 @@ import { OsSimPlayerComponent } from 'src/app/ui/sim-player/sim-player.component
 import { OsSimLogComponent } from 'src/app/ui/sim-log/sim-log.component';
 import { OsButtonComponent } from 'src/app/ui/button/button.component';
 import { PalcoPaginacaoComponent } from '../palco-paginacao/palco-paginacao.component';
-import { TrilhaPaginacaoService } from '../../services/trilha-paginacao.service';
-import { PassoPaginacao } from '../../models/passo-paginacao';
-import { Pagina } from '../../models/pagina';
-import { Processo } from '../../models/processo';
+import { TrilhaPaginacaoService } from '../../../services/trilha-paginacao.service';
+import { PassoPaginacao } from '../../../models/passo-paginacao';
+import { Pagina } from '../../../models/pagina';
+import { Processo } from '../../../models/processo';
 import { Utils } from 'src/app/core/utils';
 
 @Component({

@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { PalcoPaginacaoComponent } from './palco-paginacao.component';
-import { MemoriaFisica } from '../../models/memoria-fisica';
-import { Pagina } from '../../models/pagina';
-import { PassoPaginacao } from '../../models/passo-paginacao';
+import { MemoriaFisica } from '../../../models/memoria-fisica';
+import { Pagina } from '../../../models/pagina';
+import { PassoPaginacao } from '../../../models/passo-paginacao';
 
 function mem(nomes: string[]): MemoriaFisica[] {
   return nomes.map((n, i) => new MemoriaFisica(i, n, '#111', 0));

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgFor, NgIf, NgClass } from '@angular/common';
 import { OsSimCalloutComponent } from 'src/app/ui/sim-callout/sim-callout.component';
-import { PassoPaginacao } from '../../models/passo-paginacao';
+import { PassoPaginacao } from '../../../models/passo-paginacao';
 
 @Component({
   selector: 'app-palco-paginacao',
