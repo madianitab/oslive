@@ -1,0 +1,48 @@
+
+h4{
+      text-align: center;
+      align-items: center;
+      }
+    caption {
+    caption-side: top;
+    font-size: 15px;
+    
+    }
+    
+    thead{
+    font-size: 12px ;
+     background: #383838; 
+     color: #fff;
+     text-align:center;
+    }
+    h5{
+    text-align: center;
+    align-items: center;
+    }
+    thead td{
+    font-size: 11px ;
+     background: #383838; 
+     color: #fff;
+     text-align:center;
+    }
+    .tabela>tbody>tr>td{
+      padding:8px;
+      line-height: 1.42857143;
+      vertical-align: top;
+      border-top: 1px solid #ddd;
+      
+    }
+    
+  .cbTesteBorder{
+    border: solid black 1px;
+  }
+  #tabelaExec{
+      align-items: center;
+      padding: 10px 0px 10px 0px; 
+      font-size: 20px;
+      column-span: 3px;
+      width: auto;    
+    }
+    .leveSombreado{
+      box-shadow: inset 10em 1em rgba(0, 0, 0, 0.25);
+    }

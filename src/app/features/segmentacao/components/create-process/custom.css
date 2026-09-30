@@ -1,0 +1,221 @@
+.nav-side-menu{
+    height: 100vh;
+    width: 25%;
+  }
+  .content{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+  }
+  
+  .center{
+    width: 75%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-content: flex-start;
+    margin-left: 30px;
+}
+  .tables{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: center;
+  }
+  .shoubtn, .process{
+    width: 100%;
+  }
+  .process{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    min-height: 40px;
+  }
+  .tablesL, .tablesR{
+    padding-right: 30px;
+    width: 50%;
+    
+  }
+  
+  .left-page{display: none;}
+  .table0 {
+    display: flex;
+  }
+  
+  .card{
+    min-height: 80px;
+    background-color: #f0f0f0;;
+  }
+  
+  .center-l{
+    width: 45%;
+  } 
+  .center-r{
+    width: 55%;
+    max-width: 600px;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .btn.open-process{
+    color: var(--bs-btn-active-color);
+    background-color: var(--bs-btn-active-bg);
+    border-color: var(--bs-btn-active-border-color);
+  }
+  
+  #criarProcessos b, #menu-content .active b, #ListaProcessos b{
+    margin-left: 15px;
+    font-size: 25px;
+  }
+  #menu-content .active > b{
+    font-size: 18px;
+  }
+  
+  #add1 label{
+    font-size: 16px;
+  }
+  
+  #botoes{
+    display: flex;
+    justify-content: flex-start;
+    & .btn.btn-success{
+      margin-right: 10px;
+    }
+  }
+  
+  .card-body {
+    padding: 10px 16px 10px 16px;
+  }
+  
+  .proces .btn, .card-body .btn{
+    padding: 5px 10px;
+    margin: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+  
+  .proces .btn{
+    margin-right: 10px;
+  }
+  .card-body .btn.distancia-botao-processos{
+    margin-right: 10px;
+  }
+  
+  .card{
+    border: unset;
+  }
+  
+  .center-l, .center-r, .center{
+    margin-top: 25px;
+  }
+  
+  
+  .title-center-b{
+    text-align: center !important;
+    font-weight: 700;
+  }
+  
+  th {
+    height: 25px;
+    font-size: 20px;
+  }
+  
+  th {
+    height: 30px;
+    font-size: 20px;
+  }
+  
+  tr{
+    border: 1px solid;
+  }
+  
+  td {
+    height: 30px;
+    font-size: 18px;
+    background-color: #6b977b;
+    border: 1px solid;
+  }
+  
+  .htitle{
+    font-weight: bold;
+  }
+  
+  .title-pag{
+    display: flex;
+    justify-content: center;
+  }
+  
+  div#popup {
+    position: absolute;
+    top: 0;
+    z-index: 100;
+    display: none;
+  }
+  
+  .back {
+    height: 100vh;
+    width: 100vw;
+    background-color: #000000cc;
+    display: block;
+  }
+  
+  .pop-body {
+    background-color: #f0f0f0;
+    position: absolute;
+    top: 25%;
+    height: 50%;
+    width: 50%;
+    left: 25%;
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .spbtn{
+    position: absolute;
+    right: 0;
+    top: 20px;
+    margin-right: 20px;
+  }
+  
+  h1#popup-title {
+    font-weight: 700;
+    text-align: center;
+    padding: 10px 0 20px 0;
+  }
+  
+  #popup-message{
+    text-align: center;
+    font-size: x-large;
+    display: block;
+    width: 100%;
+    padding-bottom: 10px;
+  }
+  
+  .i.icon{
+    margin-left: 5px;
+  }
+@media screen and (max-width: 1919px) {
+  h1.htitle {
+    font-size: 30px;
+  }
+  h4.title-center-b {
+    font-size: 16px;
+  }
+  .tablesL h4, .tablesR h4 {
+    font-size: 16px;
+  }
+
+}
+
+.btn-secondary {
+  --bs-btn-hover-bg: #292e31;
+  --bs-btn-active-bg: #292e31;
+}

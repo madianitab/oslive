@@ -1,0 +1,136 @@
+h4{
+  text-align: center;
+  align-items: center;
+  }
+caption {
+caption-side: top;
+font-size: 15px;
+
+}
+
+thead{
+font-size: 12px ;
+ background: #383838; 
+ color: #fff;
+ text-align:center;
+}
+h5{
+text-align: center;
+align-items: center;
+}
+thead td{
+font-size: 11px ;
+ background: #383838; 
+ color: #fff;
+ text-align:center;
+}
+.tabela>tbody>tr>td{
+  padding:8px;
+  line-height: 1.42857143;
+  vertical-align: top;
+  border-top: 1px solid #ddd;
+  
+}
+.lar{
+      width: 35%;
+      justify-content: space-around;
+      margin: 5px;
+    }
+.tabela>tbody>tr>td{
+      padding:8px;
+      line-height: 1.42857143;
+      vertical-align: top;
+      border-top: 1px solid #ddd;
+  }
+  .col-sm-9{
+      height: 50%;
+      margin-left: 340px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+  
+  }
+  .col-sm-12 {
+    margin-left: 40px;
+  }
+  
+  .col-sm-offset-1{
+    margin-right: 20px;
+  }
+  .linha{
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+  }
+  .table>tbody>tr>td{
+    padding:8px;
+    line-height: 1.42857143;
+    vertical-align: top;
+    border-top: 1px solid #ddd;
+    font-size: 11px;
+  }
+  .table{
+    border:0px;
+    padding: 2px;
+    font-size: 10px;
+    align-items: center;
+    border: 2px;
+    vertical-align: middle;
+  }
+  .cbTesteBorder{
+    border: solid black 1px;
+  }
+
+  .selectOption{
+    text-align: center;
+}
+.selectOptionAcerto{
+    border:green 1px solid;
+}
+.selectOptionErro{
+    border:red 1px solid;
+}
+.tdAcerto{
+    background-color: rgba(0, 128, 0, 0.507);
+}
+.tdErro{
+    background-color: rgba(255, 0, 0, 0.473);
+}
+  #tabelaExec{
+      align-items: center;
+      padding: 10px 0px 10px 0px; 
+      width: 300px;
+      font-size: 20px;
+      column-span: 3px;
+      width: auto;
+        
+        
+    }
+    .leveSombreado{
+      box-shadow: inset 10em 1em rgba(0, 0, 0, 0.25);
+    }
+    .linhaExercicio{
+      padding-top: 15px;
+      padding-bottom: 15px;
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+    .posicionadoNoCentroDaDiv{
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .btnSolicitacaoResposta{
+      padding: 10px;
+      margin: 3px;
+    }
+    
+/* animation */
+
+@keyframes horizontal-shaking {
+  0% { transform: translateX(0) }
+  25% { transform: translateX(5px) }
+  50% { transform: translateX(-5px) }
+  75% { transform: translateX(5px) }
+  100% { transform: translateX(0)}
+ }

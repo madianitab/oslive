@@ -1,0 +1,376 @@
+<div class="nav-side-menu">
+  <div class="menu-list">
+
+    <ul id="menu-content" class="menu-content collapse out">
+
+      <li class="active" data-toggle="collapse" data-target="#config" class="active collapsed pointer">
+        <a>
+          <i class="fa fa-cog" aria-hidden="true"></i>
+          <b style="font-size: 17px">Á</b>rea de
+          <b style="font-size: 17px">C</b>onfiguração <span class="arrow"></span>
+        </a>
+      </li>
+      <ul class="sub-menu collapsed.show" id="config">
+
+        <li align="center">
+          <b style="font-size: 15px">S</b>elecionar
+          <b style="font-size: 15px">A</b>lgoritmo de
+          <b style="font-size: 15px">E</b>scalonamento
+          <i class="fa-solid fa-circle-info pointer" data-toggle="modal" data-target="#AlgoritmoDeEscalonamento"></i>
+        </li>
+
+        <ul class="sub-menu collapsed.show" id="algoritmo">
+          <select class="form-control" id="selectAlgoritmo" (change)="escalonadorSelecionado($event)"
+            [(ngModel)]="escalonador.exec" name="selectAlgoritmo">
+            <option value="info" disabled selected>Algoritmos de Escalonamento</option>
+            @for (idx of algoritmoEscalonamento; track idx; let x = $index) {
+              <option [value]="idx.exec">{{idx.tipo}}</option>
+            }
+          </select>
+
+          @if (escalonador.exec > 4) {
+            <div>
+              <p class="texto-negrito-justificado mx-2">O escalonamento entre as filas é feito pelo Algoritmo de Prioridade
+              Preemptiva.</p>
+              <p class="texto-negrito-justificado mx-2">Marque o Algoritmo de Escalonamento desejado para cada fila:</p>
+            </div>
+          }
+          @if (escalonador.exec > 4) {
+            <div id="inputFila1"
+              style="text-align: center; background: rgb(236, 66, 42, .5)">
+              <b>Fila 1 de Prioridade 0:</b>
+              <div style="display: contents;">
+                <label style="margin-left: 15px" for="checkRRFila1">RR ?</label>
+                <input type="checkbox" id="checkRRFila1" style="margin-left: 8px;" [(ngModel)]="fila1RR"
+                  (change)="fila1fifo = false" (change)="onCheckboxChange($event)">
+              </div>
+              <div style="display: contents;">
+                <label style="margin-left: 15px" for="checkFIFOFila1">FIFO ?</label>
+                <input type="checkbox" id="checkFIFOFila1" style="margin-left: 8px;" [(ngModel)]="fila1fifo"
+                  (change)="fila1RR = false" (change)="onCheckboxChange($event)">
+              </div>
+            </div>
+          }
+
+
+          @if (escalonador.exec > 4) {
+            <div style="text-align: center; background: rgb(241, 130, 47, .5)">
+              <b>Fila 2 de Prioridade 1:</b>
+              <div style="display: contents;">
+                <label style="margin-left: 15px" for="checkRRFila2">RR ?</label>
+                <input type="checkbox" id="checkRRFila2" style="margin-left: 8px;" [(ngModel)]="fila2RR"
+                  (change)="fila2fifo = false" (change)="onCheckboxChange($event)">
+              </div>
+              <div style="display: contents;">
+                <label style="margin-left: 15px" for="checkFIFOFila2">FIFO ?</label>
+                <input type="checkbox" id="checkFIFOFila2" style="margin-left: 8px;" [(ngModel)]="fila2fifo"
+                  (change)="fila2RR = false" (change)="onCheckboxChange($event)">
+              </div>
+            </div>
+          }
+
+
+          @if (escalonador.exec > 5) {
+            <div style="text-align: center; background: rgba(254, 238, 61, .5)">
+              <b>Fila 3 de Prioridade 2:</b>
+              <div style="display: contents;">
+                <label style="margin-left: 15px" for="checkRRFila3">RR ?</label>
+                <input type="checkbox" id="checkRRFila3" style="margin-left: 8px;" [(ngModel)]="fila3RR"
+                  (change)="fila3fifo = false" (change)="onCheckboxChange($event)">
+              </div>
+              <div style="display: contents;">
+                <label style="margin-left: 15px" for="checkFIFOFila3">FIFO ?</label>
+                <input type="checkbox" id="checkFIFOFila3" style="margin-left: 8px;" [(ngModel)]="fila3fifo"
+                  (change)="fila3RR = false" (change)="onCheckboxChange($event)">
+              </div>
+            </div>
+          }
+
+
+          @if (escalonador.exec > 6) {
+            <div style="text-align: center; background: rgb(99, 187, 70, .5)">
+              <b>Fila 4 de Prioridade 3:</b>
+              <div style="display: contents;">
+                <label style="margin-left: 15px" for="checkRRFila4">RR ?</label>
+                <input type="checkbox" id="checkRRFila4" style="margin-left: 8px;" [(ngModel)]="fila4RR"
+                  (change)="fila4fifo = false" (change)="onCheckboxChange($event)">
+              </div>
+              <div style="display: contents;">
+                <label style="margin-left: 15px" for="checkFIFOFila4">FIFO ?</label>
+                <input type="checkbox" id="checkFIFOFila4" style="margin-left: 8px;" [(ngModel)]="fila4fifo"
+                  (change)="fila4RR = false" (change)="onCheckboxChange($event)">
+              </div>
+            </div>
+          }
+
+        </ul>
+      </ul>
+
+      <ul class="sub-menu collapsed.show" id="config">
+
+        <li align="center">
+          <b style="font-size: 15px">C</b>riar
+          <b style="font-size: 15px">P</b>rocessos
+          <i class="fa-solid fa-circle-info pointer" data-toggle="modal" data-target="#CriarProcessos"></i>
+        </li>
+
+        <div style="background: rgb(218, 218, 218)">
+          <div style="text-align: center;">
+            <label for="checkGerador">
+              <input type="checkbox" id="checkGerador" [ngModel]="aleatorio()" (ngModelChange)="aleatorio.set($event)">
+              Gerar processos com valores aleatórios ?
+
+              @if (aleatorio()) {
+                <button
+                  style="float: right; margin-right: 25px; margin-bottom: 15px; border-color: rgb(92, 184, 92); color: rgb(92, 184, 92)"
+                  class="btn btn-outline-success mx-4" id="btnCad" (click)="geradorAleatorio()">
+                  <i class="fa fa-cogs" aria-hidden="true"></i> <b> Gerar Processos </b>
+                </button>
+              }
+            </label>
+          </div>
+        </div>
+
+        <form class="form-group">
+          @if (escalonador.tipo == 'RR (Round Robin)' || fila1RR) {
+            <div>
+              <input type="number" id="quantum" class="form-control mt-3" [(ngModel)]="quantum"
+                [placeholder]="'Fatia de Tempo' + (escalonador.exec > 4 ? ' Fila 1' : '')"
+                [value]="listaProcessos().length == 0? '' : quantum" (input)="onQuantumChange($event)" name="checkRRFila1">
+            </div>
+          }
+          @if (fila2RR) {
+            <div>
+              <input type="number" id="quantum" min="0" class="form-control mt-2" [(ngModel)]="quantum1"
+                data-toggle="tooltip" data-placement="top" data-html="true" title="Tempo do quantum fila 2!"
+                [placeholder]="'Fatia de Tempo Fila 2'" [value]="listaProcessos().length == 0? '' : quantum1"
+                (input)="onQuantumChange1($event)" name="checkRRFila2">
+            </div>
+          }
+          @if (fila3RR) {
+            <div>
+              <input type="number" id="quantum" min="0" class="form-control mt-2" [(ngModel)]="quantum2"
+                [placeholder]="'Fatia de Tempo Fila 3'" [value]="listaProcessos().length == 0? '' : quantum2"
+                (input)="onQuantumChange2($event)" name="checkRRFila3">
+            </div>
+          }
+          @if (fila4RR) {
+            <div>
+              <input type="number" id="quantum" min="0" class="form-control mt-2" [(ngModel)]="quantum3"
+                [placeholder]="'Fatia de Tempo Fila 4'" [value]="listaProcessos().length == 0? '' : quantum3"
+                (input)="onQuantumChange3($event)" name="checkRRFila4">
+            </div>
+          }
+          @if (escalonador.tipo === 'RR (Round Robin)' || fila1RR || fila2RR || fila3RR || fila4RR) {
+            <hr>
+            }
+          </form>
+
+          <form (ngSubmit)="salvarProcesso()" #processoForm="ngForm">
+            @if (!aleatorio) {
+              <div>
+                @if (!editar()) {
+                  <input type="text" id="processo" name="nome" class="form-control mb-2"
+                    [(ngModel)]="processo.nome" required [placeholder]="'Nome Do Processo'" maxlength="1"
+                    style="text-transform: capitalize" #nome="ngModel">
+                }
+                @if (editar()) {
+                  <input type="text" id="processo" name="nome" class="form-control mb-2"
+                    [(ngModel)]="processo.nome" required [placeholder]="'Nome Do Processo'" maxlength="1"
+                    style="text-transform: capitalize" #nome="ngModel" disabled>
+                }
+              </div>
+            }
+            @if (!aleatorio) {
+              <div>
+                @if (listaProcessos().length == 0) {
+                  <input type="number" id="chegada" min="0" class="form-control mb-2"
+                    name="chegada" data-toggle="tooltip" data-placement="top" data-html="true"
+                    title="Tempo de Chegada do primeiro processo deve ser 0 !" [(ngModel)]="processo.chegada"
+                    [placeholder]="'Tempo De Chegada'" (value)="listaProcessos().length == 0? processo.chegada = 0 : ''"
+                    disabled>
+                }
+                @if (listaProcessos().length > 0) {
+                  <input type="number" id="chegada" name="chegada" min="1"
+                    class="form-control mb-2" [(ngModel)]="processo.chegada" [placeholder]="'Tempo De Chegada '" required>
+                }
+              </div>
+            }
+            @if (!aleatorio) {
+              <div>
+                <input type="number" id="execucao" min="1" name="execucao" class="form-control mb-2"
+                  [(ngModel)]="processo.execucao" [placeholder]="'Tempo De Execução'" required>
+              </div>
+            }
+            @if ((escalonador.tipo === 'Prioridade (Não Preemptiva)' || escalonador.tipo === 'Prioridade (Preemptiva)' || (escalonador.exec > 4 && editar())) && !aleatorio()) {
+              <div
+                >
+                <input type="number" id="prioridade" min="0" name="prioridade" class="form-control mb-2"
+                  [(ngModel)]="processo.prioridade" [placeholder]="'Prioridade'" required>
+              </div>
+            }
+            @if (escalonador.exec > 4 && !aleatorio && !editar) {
+              <div style="text-align: center">
+                <select id="selectFila" class="form-control mt-2" name="selectFila" [(ngModel)]="processo.prioridade"
+                  required>
+                  <option value=info disabled selected>Selecione a Prioridade</option>
+                  @if (escalonador.exec > 4) {
+                    <option value="0">Prioridade 0 (Fila 1)</option>
+                  }
+                  @if (escalonador.exec > 4) {
+                    <option value="1">Prioridade 1 (Fila 2)</option>
+                  }
+                  @if (escalonador.exec > 5) {
+                    <option value="2">Prioridade 2 (Fila 3)</option>
+                  }
+                  @if (escalonador.exec > 6) {
+                    <option value="3">Prioridade 3 (Fila 4) </option>
+                  }
+                </select>
+              </div>
+            }
+            @if (!aleatorio) {
+              <div id="botoes" style="text-align: center;">
+                @if (!editar  ) {
+                  <button type="submit" class="btn btn-success mt-3 mr-3 " [disabled]="!processoForm.valid">
+                    <i class="fa-solid fa-circle-plus fa-lg"></i> Cadastrar
+                  </button>
+                }
+                @if (editar()) {
+                  <button type="submit" class="btn btn-success mt-3 mr-3">
+                    <i class="fa-solid fa-floppy-disk"></i> Salvar
+                  </button>
+                }
+                <button type="button" class="btn btn-danger mt-3" (click)="limparForm()">
+                  <i class="fa-solid fa-circle-xmark fa-lg"></i> Cancelar
+                </button>
+              </div>
+            }
+          </form>
+        </ul>
+        <ul class="sub-menu collapsed.show mt-2" id="config">
+          <li align="center">
+            <b style="font-size: 15px;">T</b>abela de
+            <b style="font-size: 15px;">P</b>rocessos
+            <i class="fa-solid fa-circle-info pointer" data-toggle="modal" data-target="#TabelaDeProcessos"></i>
+          </li>
+          <div aria-expanded="true" id="tabela" style="height: auto !important;">
+            @if (listaProcessos().length > 0) {
+              <table class="table table-borded" id="tabelaProcesso" style="font-size: 11.6px"
+                >
+                <tr style="text-align: center">
+                  <td>Processo</td>
+                  <td>T Chegada</td>
+                  <td>T Execução</td>
+                  @if (escalonador.tipo === 'Prioridade (Preemptiva)' || escalonador.tipo === 'Prioridade (Não Preemptiva)' || escalonador.exec > 4) {
+                    <td
+                      >
+                    Prioridade</td>
+                  }
+                  <td>Ação</td>
+                </tr>
+                @for (processo of listaProcessos(); track processo; let i = $index) {
+                  <tr style="text-align: center">
+                    <td [ngStyle]="{'color': processo.cor, 'width': '5px'}"><i class="fa fa-square" aria-hidden="true"></i>
+                    &nbsp;<b style="color: black">{{processo.nome}}</b></td>
+                    <td>{{processo.chegada}}</td>
+                    <td>{{processo.execucao}}</td>
+                    @if (escalonador.tipo === 'Prioridade (Preemptiva)' || escalonador.tipo === 'Prioridade (Não Preemptiva)' || escalonador.exec > 4  ) {
+                      <td
+                        >
+                      {{processo.prioridade}}</td>
+                    }
+                    <td>
+                      <button type="button" class="btn btn-danger btn-sm mr-1 btn-extra-small" (click)="excluir(i)">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                      </button>
+                      <button type="button" class="btn btn-success btn-sm btn-extra-small"
+                        (click)="iniciarEdicao(processo, i)">
+                        <i class="fas fa-pencil-alt fa-sm" aria-hidden="true"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </table>
+            }
+            @if (listaProcessos().length == 0) {
+              <h6 style="text-align: center" class="mt-3">Não há processo cadastrado.
+              </h6>
+            }
+          </div>
+
+        </ul>
+        <li class="active collapsed pointer" data-toggle="collapse" aria-expanded="false" data-target="#simular"
+          style="border-top: 1px solid; border-bottom: 1px solid;">
+          <a>
+            <b style="font-size: 17px; margin-left: 10px;">Á</b>rea de
+            <b style="font-size: 17px">S</b>imulação<span class="arrow"></span>
+          </a>
+        </li>
+        <ul class="active collapsed " aria-expanded="true" id="simular">
+
+          <div style="text-align: center">
+            <b style="font-size: 17px">S</b>em
+            <b style="font-size: 17px">A</b>nimação:
+            <input type="checkbox" [ngModel]="animacao()" (ngModelChange)="animacao.set($event)" (change)="enviaAnimacao()">
+          </div>
+          <div id="botoes" style="text-align: center">
+            <button class="btn btn-primary mr-2" id="btnSimular" (click)="simular()"><i
+            class="fa-regular fa-circle-play"></i> Iniciar</button>
+            <button class="btn btn-secondary mr-2 " id="btnCanSimu" (click)="cancel_simulacao()"><i
+            class="fa-regular fa-circle-stop"></i> Cancelar</button>
+            <button class="btn btn-danger" id="btnCanSimu" (click)="reiniciar_simulacao()"><i
+            class="fa-solid fa-rotate-right"></i> Reiniciar</button>
+          </div>
+        </ul>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modal fade" id="AlgoritmoDeEscalonamento" tabindex="-1" role="dialog"
+    aria-labelledby="AlgoritmoDeEscalonamentoLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="AlgoritmoDeEscalonamentoLabel">Algoritmo de Escalonamento</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="CriarProcessos" tabindex="-1" role="dialog" aria-labelledby="CriarProcessosLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="CriarProcessosLabel">Processos</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="TabelaDeProcessos" tabindex="-1" role="dialog" aria-labelledby="TabelaDeProcessosLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="TabelaDeProcessosLabel">Tabela de Processos</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+        </div>
+      </div>
+    </div>
+  </div>

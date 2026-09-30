@@ -1,0 +1,57 @@
+/* Layout principal das três colunas */
+.area-tabelas {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+/* Tabelas de Memória Lógica e Segmentos */
+.coluna-logica table,
+.coluna-segmentos table {
+  width: 200px;
+  max-width: 100%;
+  font-size: 0.75rem;
+}
+
+/* Tabela de Memória Física */
+.coluna-fisica {
+  flex: 1;
+}
+
+/* Estilização geral das tabelas */
+.table {
+  width: 100%;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+/* Estilização específica da tabela de memória física */
+.tabela-memoria {
+  width: 200px;
+  border-collapse: collapse;
+  background: #2e8b57;
+  color: white;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.tabela-memoria th,
+.tabela-memoria td {
+  border: 1px solid white;
+  padding: 8px;
+  text-align: center;
+}
+
+.tabela-memoria thead {
+  background-color: #000;
+}
+
+/* Organização das duas colunas da memória física */
+.duas-colunas {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}

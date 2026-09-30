@@ -1,0 +1,436 @@
+<div class="row align-items-start">
+
+  <!-- fim da barra de menu vertical class="nav-side-menu"-->
+  <div class="col-12"
+    style="font-size: 10px; height: 50px;" >
+    <h3 style="text-align: center"><b>{{title}}</b></h3>
+  </div>
+
+  <!-- Lista de páginas FIFO -->
+  <div class="fifo">
+  </div>
+
+  <!-- TABELAS DA MEMÓRIA LÓGICA DOS PROCESSOS------------------------------------------------------------------------------------------------------------------------------------>
+  <div class="col-12 ">
+    @if (exercicioSelecionado!=-1) {
+      <div class="row">
+        <div class="col-7">
+          <h5> Processo/Páginas
+            <a href="" data-toggle="modal" data-target="#tb_memoria_logica"> <img src="assets/info_ico.png" width="13px" alt=""> </a>
+          </h5>
+          <div class="row">
+            @for (p of listaProcessos; track p; let proc = $index) {
+              <div
+                class="col-6 col-sm-6">
+                <div class="row">
+                  <!-- TABELA MEMÓRIA LÓGICA DO PROCESSO-------------------------------------------------------------------->
+                  <div class="col-6">
+                    @if (((exercicioSelecionado!=1 || visualizarResposta())?listaProcessos.length :respostaMemoriaLogica.length) > 0) {
+                      <table  align="center" class="table " id="tabelaExec">
+                        <caption>Mem. Lógica</caption>
+                        <thead >
+                          <td height="30.5">Pág</td>
+                          <td height="30.5">Conteúdo</td>
+                        </thead>
+                        <tbody  class="tbody">
+                          @for ( paginaProcessoX of p.pagina; track  paginaProcessoX; let pag = $index) {
+                            <tr
+                              height="33" align="center"style="font-size: 10px">
+                              <td class="leveSombreado align-middle text-center" style="background-color:{{p.cor}}; color: #fff; font-size: 12px">
+                              {{paginaProcessoX.indiceMemoriaLogicaProc}}</td>
+                              <td class="leveSombreado align-middle text-center" style="background-color:{{p.cor}}; color: #fff; font-size: 10px">
+                                <button alt="Página fora da memóroria física" class="btn btn-light"
+                                  [disabled]="exercicioSelecionado==2 || exercicioSelecionado==1">
+                                  &nbsp;
+                                  @if (!(paginaProcessoX.timeStamp==0)) {
+                                    <i class="glyphicon glyphicon-ok" style="color: black;" ></i>
+                                  }
+                                  @if (paginaProcessoX.timeStamp==0) {
+                                    <i class="glyphicon glyphicon-remove" style="color: black;" ></i>
+                                  }
+                                {{p.nome+pag}} </button>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    }
+                  </div>
+                  <!-- TABELA DE PAGINAS DO PROCESSO-->
+                  <div class="col-6">
+                    @if (listaProcessos.length >0) {
+                      <table align="center" class="table align-middle" id="tabelaExec" border="2">
+                        <caption>Tabela de Páginas</caption>
+                        <thead>
+                          <td >End.ML</td>
+                          <td>End.MF</td>
+                          <td >bit</td>
+                        </thead>
+                        <tbody>
+                          @for ( paginaProcessoX of p.pagina; track  paginaProcessoX; let pag = $index) {
+                            <tr height="33"  style="font-size: 10px">
+                              <td class="leveSombreado align-middle text-center" style="background-color: {{p.cor}}; color: #FFFFFF; font-size: 12px" >
+                                {{paginaProcessoX.indiceMemoriaLogicaProc}}
+                              </td>
+                              <td class="leveSombreado align-middle text-center"
+                                                                        style="background-color: {{(exercicioSelecionado==1 && !corrigir())?p.cor+'69':paginaProcessoX.timeStamp!=0? p.cor: p.cor+'69'}}; 
+                                                                        color: #FFFFFF; font-size: 12px;">
+                                <!--Trabalhar aqui-->
+                                {{(exercicioSelecionado!=1  || visualizarResposta())? paginaProcessoX.indiceMemoriaFisica==-1? strMemoVazia :paginaProcessoX.indiceMemoriaFisica:''}}
+                                @if (exercicioSelecionado==1 && !visualizarResposta()) {
+                                  <select
+                                    class="form-control selectOption"
+                                    id="resposta" name="resposta"
+                                    style="text-align: center;"
+                                                                                    [ngClass]="corrigir()? 
+                                                                                                      (respostaMemoriaLogica[proc].pagina[pag].indiceMemoriaFisica == 
+                                                                                                      listaProcessos[proc].pagina[pag].indiceMemoriaFisica)
+                                                                                                      ?'selectOptionAcerto':'selectOptionErro'
+                                                                                                      :''
+                                                                                                " 
+                                    (change)="calcularNivelAcerto()"
+                                    [(ngModel)]="respostaMemoriaLogica[proc].pagina[pag].indiceMemoriaFisica">
+                                    <option [value]='-1'  selected> {{strMemoVazia}} </option>
+                                    @for (pr of memoriaF(); track pr; let nMemoFisica = $index) {
+                                      <option [value]="[nMemoFisica]">
+                                        {{pr.endereco}}
+                                      </option>
+                                    }
+                                  </select>
+                                }
+                                @if (exercicioSelecionado==1 && corrigir() && (respostaMemoriaLogica[proc].pagina[pag].indiceMemoriaFisica == listaProcessos[proc].pagina[pag].indiceMemoriaFisica)) {
+                                  <i
+                                  class="fa fa-check" style="color: lightgreen;"></i>
+                                }
+                                @if (exercicioSelecionado==1 && corrigir() && !(respostaMemoriaLogica[proc].pagina[pag].indiceMemoriaFisica == listaProcessos[proc].pagina[pag].indiceMemoriaFisica)) {
+                                  <i
+                                  class="fa fa-times" style="color: rgb(201, 8, 8); "></i>
+                                }
+                              </td>
+                              <td class="leveSombreado align-middle text-center"
+                                                                  style="background-color: {{(exercicioSelecionado==1 && !corrigir())?p.cor+'69':paginaProcessoX.timeStamp!=0? p.cor: p.cor+'69'}}; 
+                                                                  color: #fff; font-size: 12px" >
+                                @if (exercicioSelecionado!=1 || visualizarResposta()) {
+                                  <button
+                                    class="btn btn-light" disabled>
+                                    <b style="color: #000;">
+                                      {{exercicioSelecionado==1 && !visualizarResposta()
+                                      ? strMemoVazia
+                                      :paginaProcessoX.timeStamp !=0
+                                      ? arrBitEstado[2]
+                                      : arrBitEstado[1]
+                                    }}</b></button>
+                                  }
+                                  @if (exercicioSelecionado==1 && !visualizarResposta()) {
+                                    <select
+                                      class="form-control selectOption"
+                                      id="resposta" name="resposta"
+                                      style="text-align: center;"
+                                      (change)="calcularNivelAcerto()"
+                                                                                                      [ngClass]="corrigir()?  respostaMemoriaLogica[proc].pagina[pag].timeStamp != -1 &&
+                                                                                                      ((respostaMemoriaLogica[proc].pagina[pag].timeStamp !=0) == 
+                                                                                                      (listaProcessos[proc].pagina[pag].timeStamp !=0))
+                                                                                                                        ?'selectOptionAcerto':'selectOptionErro'
+                                                                                                                        :''
+                                                                                                                  " 
+                                      [(ngModel)]="respostaMemoriaLogica[proc].pagina[pag].timeStamp"
+                                      disabled="{{exercicioSelecionado !=1}}">
+                                      @for (valEstado of arrBitEstado; track valEstado; let valRespostaEstado = $index) {
+                                        <option [value]="[valRespostaEstado]">
+                                          {{valEstado}}
+                                        </option>
+                                      }
+                                    </select>
+                                  }
+                                  @if (exercicioSelecionado==1 && !visualizarResposta() && corrigir() && respostaMemoriaLogica[proc].pagina[pag].timeStamp != 0 &&
+                                    ((respostaMemoriaLogica[proc].pagina[pag].timeStamp != 1) == (listaProcessos[proc].pagina[pag].timeStamp !=0))) {
+                                    <i
+                                    class="fa fa-check" style="color: lightgreen;"></i>
+                                  }
+                                  @if (exercicioSelecionado==1 && corrigir() && (respostaMemoriaLogica[proc].pagina[pag].timeStamp == 0 ||
+                                    !((respostaMemoriaLogica[proc].pagina[pag].timeStamp !=1) == (listaProcessos[proc].pagina[pag].timeStamp !=0)))) {
+                                    <i
+                                    class="fa fa-times" style="color: rgb(201, 8, 8); "></i>
+                                  }
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+          <!-- TABELA DA MEMÓRIA FISICA ---------------------------------------------------------------------------------------------------------------->
+          <div class="col-2 text-center">
+            <h5 class="alerta">Memória Física
+              <a href="" data-toggle="modal" data-target="#tb_memoria_fisica"> <img src="assets/info_ico.png" width="13px" alt=""> </a>
+            </h5>
+            <table align="center" class="table" id="tabelaExec" border="2">
+              <thead >
+                <td>Página</td>
+                <td>Conteúdo</td>
+              </thead>
+              <!--Exercicio Preencher Memoria Fisica-->
+              @for (m of visualizarResposta() ? memoriaF():(exercicioSelecionado==2) ? respostaMemoriaFisica():memoriaF(); track m; let k = $index) {
+                <tr align="center" height="33"
+                  style="-webkit-transition-delay:{{1 * 500}}ms; background-color:{{m.cor}}; color: #FFFFFF; font-size: 12px" >
+                  <td class="leveSombreado ">{{m.endereco}}
+                    @if (exercicioSelecionado==2 && !visualizarResposta() && corrigir() && opcaoSelecionadaCorrecao()[k]) {
+                      <i class="fa fa-check" aria-hidden="true" style="color: lightgreen; width: 27px; height: 27px;"></i>
+                    }
+                    @if (exercicioSelecionado==2 && !visualizarResposta() && corrigir() && !opcaoSelecionadaCorrecao()[k]) {
+                      <i  class="fa fa-times" aria-hidden="true" style="color: rgb(201, 8, 8); width: 27px; height: 27px;"></i>
+                    }
+                  </td>
+                  <td class="leveSombreado align-middle text-center">
+                    @if (exercicioSelecionado==2 && !visualizarResposta() ) {
+                      <select class="form-control selectOption"  id="resposta" name="resposta" style="text-align: center;"
+                        [ngClass]="corrigir()? (opcaoSelecionadaCorrecao()[k])?'selectOptionAcerto':'selectOptionErro':''"
+                        (change)="onSelecionarPagina($event)" [(ngModel)]="opcaoSelecionada()[k]">
+                        <option [value]='[k, -1]' selected> {{strMemoVazia}} </option>
+                        @for (pr of filaDePaginas(); track pr; let l = $index) {
+                          <option [value]="[k, l]">
+                            {{pr.toString()}}
+                          </option>
+                        }
+                      </select>
+                    }
+                    {{exercicioSelecionado!=2 || visualizarResposta() ? m.nome:''}}
+                    @if ((exercicioSelecionado!=2 || visualizarResposta()) && (m.horaCarga!=0)) {
+                      <i class="fa fa-check" aria-hidden="true" style="color: lightgreen; width: 27px; height: 27px;"></i>
+                    }
+                  </td>
+                </tr>
+              }
+            </table>
+            <div><p class="alertamf"></p></div>
+          </div>
+          <!--DISCO COM PÁGINAS DOS PROCESSOS------------------------------------------------------------------------------------------------------------->
+          <div class="col-2" style="background-color: rgb(230, 228, 228);" align="center" >
+            <h5>Disco <a href="#" data-toggle="modal" data-target="#tb_disco">
+              <img src="assets/info_ico.png" width="13px" alt=""> </a> </h5>
+              <div class="row align-items-start" >
+                @for (p of listaProcessos; track p) {
+                  <div class="col-6 col-sm-6">
+                    <div class="row align-items-start">
+                      <table  align="center" class="table" id="tabelaExec">
+                        <thead >
+                          <td >Processo {{p.nome}}</td>
+                        </thead>
+                        @for ( i of counter(p.pagina.length); track  i; let f = $index) {
+                          <tr align="center" height="33"  style="font-size: 10px">
+                            <td class="leveSombreado align-middle text-center" style="-webkit-transition-delay:{{1 * 100}}ms; background-color:{{p.cor}}; color: #FFFFFF; font-size: 12px">
+                            {{p.nome + f}}</td>
+                          </tr>
+                        }
+                      </table>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="col-12">
+        <p>&nbsp;</p>
+      </div>
+      @if (listaProcessos.length) {
+        <div class="col-12" >
+          <div class="row justify-content-center">
+            <div class="col-11">
+              @if (nivelAcerto()==100) {
+                <button class="btn btn-success btn-lg btnSolicitacaoResposta" (click)="correcao()"
+                  data-toggle="modal" data-target="#acerto">
+                  <i class="fa fa-play" aria-hidden="true"></i>
+                  Corrigir Resposta
+                </button>
+              }
+              @if (!(nivelAcerto()==100)) {
+                <button class="btn btn-success btn-lg btnSolicitacaoResposta" (click)="correcao()"
+                  data-toggle="modal" data-target="#erro">
+                  <i class="fa fa-play" aria-hidden="true"></i>
+                  Corrigir Resposta
+                </button>
+              }
+              <button class="btn btn-primary btn-lg btnSolicitacaoResposta" (click)="visualizarRespostaExercicio()">
+                <i class="fa fa-play" aria-hidden="true"></i>
+                Visualizar Resposta
+              </button>
+              <button class="btn btn-danger btn-lg btnSolicitacaoResposta" (click)="reiniciar()">
+                <i class="fa fa-stop" aria-hidden="true"></i>
+                Limpar
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+
+
+    <!-- Início dos modal's -->
+    <!-- INFO Sobre tabela de memória lógica-->
+    <div class="modal fade" id="tb_memoria_logica" tabindex="-1" role="dialog" aria-labelledby="label_tb_memoria_logica" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="label_tb_memoria_logica">Memória lógica</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p style="line-height: 1.5; text-align: justify;" >
+              Quando um programa é executado, um processo é criado e seu espaço de endereçamento é alocado na memória lógica.
+              Cada processo possui uma memória lógica contígua, dividida em páginas lógicas de mesmo tamanho.
+              <br>
+                <br>
+                  O conteúdo referente às páginas lógicas são carregados em páginas físicas (ou quadros), não necessariamente contíguos.
+                  <br>
+                    <br>
+                      Uma tabela de páginas associa as páginas lógicas com as páginas físicas.
+                    </p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- INFO Sobre Memória Física-->
+            <div class="modal fade" id="tb_memoria_fisica" tabindex="-1" role="dialog" aria-labelledby="label_tb_memoria_fisica" aria-hidden="true">
+              <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="label_tb_memoria_fisica">Memória Física</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <p style="line-height: 1.8; text-align: justify;" >
+                      A memória RAM (Random Access Memory) é um componente físico acoplado à placa mãe.
+                      Nela, são armazenados os dados dos processos.
+                      <br>
+                        <br>
+                          Na paginação pode demanda,  a memória RAM é dividida em páginas físicas,
+                          representada aqui por uma tabela contendo 8 linhas, em que cada linha representa uma página física.
+                          O conteúdo referente às páginas lógicas são carregados nas páginas físicas.
+                          <br>
+                            <br>
+                              Considerando que espaço físico da memória é limitado, apenas páginas lógicas utilizadas são carregadas
+                              para a memória física, assim, o disco (HD) é utilizado como um mecanismo de memória virtual para armazenar
+                              todo o conteúdo do processo.
+                              <br>
+                                <br>
+                                  <img src="assets/memory_ram.png" width="75%" style="padding-left: 25%;" >
+                                </p>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- INFO Sobre Disco-->
+                        <div class="modal fade" id="tb_disco" tabindex="-1" role="dialog" aria-labelledby="label_tb_disco" aria-hidden="true">
+                          <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="label_tb_disco">Disco</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                              <div class="modal-body">
+                                <p style="line-height: 1.8; text-align: justify;" >
+                                  Mecanismos modernos de paginação, como a paginação por demanda, permitem que apenas as páginas que serão utilizadas
+                                  no momento da execução sejam carregadas para a memória principal quando um processo é criado.
+                                  <br>
+                                    As demais páginas, assim como todas as páginas do processo (inclusive as páginas na RAM), ficam armazenadas no disco.
+                                    Caso uma página que não esteja na RAM seja referenciada, uma cópia dela é feita para a memória principal
+                                    e a tabela de páginas é atualizada para que seu acesso seja disponibilizado.
+                                    <br>
+                                      <br>
+                                        <img src="assets/Moldar_disco.jpg" width="90%" height="90%" style="padding-left: 5.5%;">
+                                      </p>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <!-- INFO Correção-->
+                              <div class="modal fade" id="tb_correcao" tabindex="-1" role="dialog" aria-labelledby="label_tb_correcao" aria-hidden="true">
+                                <div class="modal-dialog modal-lg" role="document">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title" id="label_tb_disco">Disco</h5>
+                                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                      </button>
+                                    </div>
+                                    <div class="modal-body">
+                                      <p style="line-height: 1.8; text-align: justify;" >
+                                        Mecanismos modernos de paginação como a paginação por demanda, permitem que quando um processo for criado, apenas
+                                        as páginas que serão utilizadas no momento da execução sejam carregadas para a memória principal.
+                                        <br>
+                                          As demais páginas, assim como todas as páginas do processo (inclusive as páginas na RAM), ficam armazenadas no disco.
+                                          Caso uma página que não esteja na RAM seja referenciada, uma cópia dela é feita para a memória principal
+                                          e a tabela de páginas é atualizada para que seu acesso seja disponibilizado.
+                                          <br>
+                                            <br>
+                                              <img src="assets/Moldar_disco.jpg" width="90%" height="90%" style="padding-left: 5.5%;">
+                                            </p>
+                                          </div>
+                                          <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+
+                                    <!-- INFO ACERTO-->
+                                    <div class="modal fade center" id="acerto" tabindex="1" role="dialog" aria-labelledby="label_acerto" aria-hidden="true">
+                                      <div class="modal-dialog modal-lg  alert-success" role="document">
+                                        <div class="modal-content  alert-success">
+                                          <div class="modal-header  alert-success">
+                                            <h4 class="alert-heading">
+                                              <i class="fa fa-star" aria-hidden="true"></i>
+                                            Muito bem! Você obteve {{nivelAcerto()}}% de Acerto.</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                              <span aria-hidden="true">&times;</span>
+                                            </button>
+                                          </div>
+                                          <div class="modal-footer alert-success">
+                                            <button type="button" class="btn btn-outline-success" data-dismiss="modal">Fechar</button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <!-- INFO ERRO-->
+                                    <div class="modal fade center" id="erro" tabindex="1" role="dialog" aria-labelledby="label_acerto" aria-hidden="true">
+                                      <div class="modal-dialog modal-lg  alert-danger" role="document">
+                                        <div class="modal-content  alert-danger">
+                                          <div class="modal-header  alert-danger">
+                                            <h4 class="alert-heading">
+                                              <i class="fa fa-exclamation-triangle" aria-hidden="true"> </i>
+                                              Que pena! Você obteve {{nivelAcerto()}}% de Acerto.<br> Tente Novamente!!!</h4>
+                                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                              </button>
+                                            </div>
+                                            <div class="modal-footer alert-danger">
+                                              <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Fechar</button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>

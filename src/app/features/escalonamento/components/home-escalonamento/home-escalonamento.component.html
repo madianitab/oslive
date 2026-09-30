@@ -1,0 +1,34 @@
+<div class="container-fluid pt-2">
+<div class="row">
+    <div class="col-5 col-lg-3 border-right border-dark">
+        <app-lateral-escalonamento
+        (enviarProcessos)="setDadosProcesso($event)"
+        (enviarTipoAlgoritmo)="setTipoAlgoritmo($event)"
+        (temAnimacao)="setAnimcao($event)"
+        (enviarQuantum)="setQuantum($event)"
+        (enviarQuantum1)="setQuantum1($event)"
+        (enviarQuantum2)="setQuantum2($event)"
+        (enviarQuantum3)="setQuantum3($event)"
+        (enviarFilaRR1)="setFilaRR1($event)"
+        (enviarFilaRR2)="setFilaRR2($event)"
+        (enviarFilaRR3)="setFilaRR3($event)"
+        (enviarFilaRR4)="setFilaRR4($event)"
+        ></app-lateral-escalonamento>
+    </div>
+    <div class="col-7 col-lg-9 ">
+        <app-area-simulacao
+        [listaProcessos]="getDadosProcesso"
+        [escalonador]="getTipoAlgoritmo"
+        [animacao]="getTemAnimacao"
+        [quantum]="getQuantum"
+        [quantum1]="getQuantum1"
+        [quantum2]="getQuantum2"
+        [quantum3]="getQuantum3"
+        [filaRR1]="getFilaRR1"
+        [filaRR2]="getFilaRR2"
+        [filaRR3]="getFilaRR3"
+        [filaRR4]="getFilaRR4"
+        ></app-area-simulacao>
+    </div>
+</div>
+</div>

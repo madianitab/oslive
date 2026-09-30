@@ -1,0 +1,17 @@
+/* You can add global styles to this file, and also import other style files */
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
+@import '~@primer/octicons/build/build.css';
+
+.mat-snack-bar-container {
+    position: fixed !important;
+    top: 89% !important;
+    left: 50% !important;
+    border: 1px solid red;
+    color:red !important;
+    background-color: #f2dede;
+}
+
+.mat-button{
+background-color: #c82333!important;
+color: white !important;
+}

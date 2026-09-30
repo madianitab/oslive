@@ -1,0 +1,41 @@
+.sidebar {
+  width: 100%;
+  padding: 1rem;
+  background-color: #f7f7f7;
+  border-right: 1px solid #ccc;
+  font-family: Arial, sans-serif;
+}
+
+.section-header {
+  background-color: #cce0f5;
+  padding: 0.4rem;
+  font-weight: bold;
+  margin-top: 1rem;
+  border: 1px solid #b0c4de;
+}
+
+.form-group {
+  margin-top: 0.5rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn-group {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.lista-de-processos {
+  width: 100%;
+  padding: 1rem;
+  background-color: #f7f7f7;
+  border-right: 1px solid #ccc;
+  font-family: Arial, sans-serif;
+
+}

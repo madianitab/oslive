@@ -1,0 +1,90 @@
+<div class="area-tabelas">
+  <!-- Memória Lógica -->
+  <div class="coluna-logica">
+    <h4>Memória Lógica</h4>
+    @for (segmento of memoriaLogica; track segmento) {
+      <div>
+        <h5>Segmento {{ segmento.segmento }} - {{ segmento.nome }}</h5>
+        <table class="table table-bordered table-sm table-primary">
+          <thead>
+            <tr>
+              <th>Deslocamento</th>
+              <th>Bytes</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (linha of segmento.linhas; track linha) {
+              <tr>
+                <td>{{ linha.deslocamento }}</td>
+                <td>{{ linha.byte }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <!-- Tabela de Segmentos -->
+  <div class="coluna-segmentos">
+    <h4>Tabela de Segmentos</h4>
+    <table class="table table-bordered table-sm table-dark">
+      <thead>
+        <tr>
+          <th>Segmento</th>
+          <th>Base</th>
+          <th>Limite</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (seg of tabelaSegmentos; track seg) {
+          <tr>
+            <td>{{ seg.segmento }}</td>
+            <td>{{ seg.base }}</td>
+            <td>{{ seg.limite }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Memória Física -->
+  <div class="coluna-fisica">
+    <h4>Memória Física</h4>
+    <div class="duas-colunas">
+      <table class="tabela-memoria">
+        <thead>
+          <tr>
+            <th>Endereço</th>
+            <th>Byte</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of tableMemory.slice(0, 16); track item) {
+            <tr>
+              <td>{{ item[0] }}</td>
+              <td [style.background-color]="whatColor(item[2])">{{ item[1] }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <table class="tabela-memoria">
+        <thead>
+          <tr>
+            <th>Endereço</th>
+            <th>Byte</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of tableMemory.slice(16, 32); track item) {
+            <tr>
+              <td>{{ item[0] }}</td>
+              <td [style.background-color]="whatColor(item[2])">{{ item[1] }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

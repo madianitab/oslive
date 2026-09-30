@@ -1,0 +1,241 @@
+<div class="row align-items-start">
+
+  <!-- fim da barra de menu vertical class="nav-side-menu"-->
+  <div class="col-12 " style="font-size: 10px; height: 50px" >
+    <h3 style="text-align: center"><b>{{title}}</b></h3>
+  </div>
+
+
+  <!-- TABELAS DA MEMÓRIA LÓGICA DOS PROCESSOS------------------------------------------------------------------------------------------------------------------------------------>
+  <div class="col-12" >
+    <div class="row">
+
+      <div class="col-7 col-sm-7  align-self-center ">
+
+        <div class="row">
+          <div class="col-9 align-self-center ">
+            <h4> &nbsp;
+            </h4>
+          </div>
+        </div>
+
+        <div class="row  align-self-center">
+          <div class="col-9 linhaExercicio">
+            <p style="text-align: center; font-size:18px">Para usar esse módulo, é preciso que o total de páginas dos processos seja igual a quantidade
+              de páginas da memória fisica<b>({{TAM}} Bytes)</b>, clique em gerar processos novamente!
+            </p>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- TABELA DA MEMÓRIA FISICA ---------------------------------------------------------------------------------------------------------------->
+      <div class="col-2">
+        <h5 class="alerta">Memória Física
+          <a href="" data-toggle="modal" data-target="#tb_memoria_fisica">
+            <img src="assets/info_ico.png" width="13px" alt=""></a>
+          </h5>
+          <table align="center" class="table" id="tabelaExec" border="2">
+            <thead >
+              <td>Página</td>
+              <td>Conteúdo</td>
+            </thead>
+            <!--Exercicio Preencher Memoria Fisica-->
+            @for (m of [0,1,2,3,4,5,6,7]; track m; let k = $index) {
+              <tr align="center" height="33"
+                style="background-color:#7FB174; color: #FFFFFF; font-size: 12px" >
+                <td class="leveSombreado">{{m}}
+                </td>
+                <td class="leveSombreado">
+                  -
+                </td>
+              </tr>
+            }
+          </table>
+        </div>
+
+        <!--DISCO COM PÁGINAS DOS PROCESSOS------------------------------------------------------------------------------------------------------------->
+        <div class="col-2" style="background-color: rgb(230, 228, 228);">
+          <h5>Disco <a href="#" data-toggle="modal" data-target="#tb_disco">
+            <img src="assets/info_ico.png" width="13px" alt=""> </a> </h5>
+
+            <div class="row align-items-start" >
+              @for (p of [0,1,2,3]; track p) {
+                <div class="col-6 col-sm-6">
+                  <div class="row align-items-start">
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Início dos modal's -->
+
+    <!-- INFO Sobre o Algoritmo FCFS-->
+    <div class="modal fade" id="fcfs" tabindex="-1" role="dialog" aria-labelledby="label_sc_modal" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="label_sc_modal">Algoritmo FCFS ( First-Come-First-Serced)</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p style="line-height: 1.5; text-align: justify;" >
+              No algoritmo FCFS (First Come First Served), o processo que chega primeiro é enviado primeiro para execução pela CPU quando a CPU está livre.<br>
+              Desta forma há uma fila ordenada por Timestamp, assim, quando um novo processo requer memória, aquele que tiver o Timestamp menor( ou seja está a mais tempo na Mémoria) é escolhida como vítima. <br>
+              <br><img src="assets/FCFS.png" width="98%" >
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- INFO Sobre o Algoritmo de Histórico de Referência-->
+    <div class="modal fade" id="historico_bit_referencia" tabindex="-1" role="dialog" aria-labelledby="label_sc_modal" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="label_sc_modal">Algoritmo de Histórico de Referência</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p style="line-height: 1.5; text-align: justify;" >
+              No algoritmo de Histórico de Referência verifica-se se houve solicitação àquela página nos últimos momentos representados pelo histórico de bits de referência, assim, antes de realizar a substituição da página. <br>
+              Toda a lista de páginas é percorridas de forma a se verificar se a página foi acessada no último momento, caso haja empate, usa-se o HISTÓRICO para retroceder no tempo de interações a fim de determinar qual página foi menos acessada.<br>
+              Desta forma as páginas que tem o bit de referência 1 (indica que foram acessadas recentemente) já o bit de referência 0 (não foi acessada recentemente), dentre as páginas não foram acessadas caso haja mais de uma, verifica-se o acesso entre elas no tempo i-1, e assim persiste até que se encontre uma página menos acessada em relação a outra, em caso de empate, aquela que tiver o TimeStamp menor (aquela que está a mais tempo na memória) será a página vítima escolhida . <br>
+              <br><img src="assets/historicoReferencia.png" width="98%" >
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- INFO Sobre o Segunda Chance-->
+    <div class="modal fade" id="segunda_chance" tabindex="-1" role="dialog" aria-labelledby="label_sc_modal" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="label_sc_modal">Algoritmo de Segunda Chance</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p style="line-height: 1.5; text-align: justify;" >
+              No algoritmo de Segunda Chance verifica-se o bit de referência antes de realizar a substituição da página. <br>
+              Todas as páginas são percorridas de forma circular em uma fila ordenada por Timestamp, de forma que as páginas que tem o bit de referência 1 (indica que foram acessadas recentemente) recebem uma segunda chance e vão para o final da fila (timestamp atualizado e bit de referência alterado para 0). A primeira página que tem o bit de referência 0 (não foi acessada recentemente) é escolhida como vítima. <br>
+              <br><img src="assets/second_chance_chart.jpg" width="98%" >
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFO Sobre tabela de memória lógica-->
+    <div class="modal fade" id="tb_memoria_logica" tabindex="-1" role="dialog" aria-labelledby="label_tb_memoria_logica" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="label_tb_memoria_logica">Memória lógica</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p style="line-height: 1.5; text-align: justify;" >
+              Quando um programa é executado, um processo é criado e seu espaço de endereçamento é alocado na memória lógica.
+              Cada processo possui uma memória lógica contígua, dividida em páginas lógicas de mesmo tamanho.
+              <br>
+                <br>
+                  O conteúdo referente às páginas lógicas são carregados em páginas físicas (ou quadros), não necessariamente contíguos.
+                  <br>
+                    <br>
+                      Uma tabela de páginas associa as páginas lógicas com as páginas físicas.
+                    </p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- INFO Sobre Memória Física-->
+            <div class="modal fade" id="tb_memoria_fisica" tabindex="-1" role="dialog" aria-labelledby="label_tb_memoria_fisica" aria-hidden="true">
+              <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="label_tb_memoria_fisica">Memória Física</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <p style="line-height: 1.8; text-align: justify;" >
+                      A memória RAM (Random Access Memory) é um componente físico acoplado à placa mãe.
+                      Nela, são armazenados os dados dos processos.
+                      <br>
+                        <br>
+                          Na paginação pode demanda,  a memória RAM é dividida em páginas físicas,
+                          representada aqui por uma tabela contendo 8 linhas, em que cada linha representa uma página física.
+                          O conteúdo referente às páginas lógicas são carregados nas páginas físicas.
+                          <br>
+                            <br>
+                              Considerando que espaço físico da memória é limitado, apenas páginas lógicas utilizadas são carregadas
+                              para a memória física, assim, o disco (HD) é utilizado como um mecanismo de memória virtual para armazenar
+                              todo o conteúdo do processo.
+                              <br>
+                                <br>
+                                  <img src="assets/memory_ram.png" width="75%" style="padding-left: 25%;" >
+                                </p>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- INFO Sobre Disco-->
+                        <div class="modal fade" id="tb_disco" tabindex="-1" role="dialog" aria-labelledby="label_tb_disco" aria-hidden="true">
+                          <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="label_tb_disco">Disco</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                              <div class="modal-body">
+                                <p style="line-height: 1.8; text-align: justify;" >
+                                  Mecanismos modernos de paginação como a paginação por demanda, permitem que quando um processo for criado, apenas
+                                  as páginas que serão utilizadas no momento da execução sejam carregadas para a memória principal.
+                                  <br>
+                                    As demais páginas, assim como todas as páginas do processo (inclusive as páginas na RAM), ficam armazenadas no disco.
+                                    Caso uma página que não esteja na RAM seja referenciada, uma cópia dela é feita para a memória principal
+                                    e a tabela de páginas é atualizada para que seu acesso seja disponibilizado.
+                                    <br>
+                                      <br>
+                                        <img src="assets/Moldar_disco.jpg" width="90%" height="90%" style="padding-left: 5.5%;">
+                                      </p>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
