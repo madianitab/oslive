@@ -13,11 +13,15 @@ import { HomeExercicioPaginacaoSimplesComponent } from 'src/app/features/paginac
 import { HomeSimuladorPaginacaoDemandaComponent } from 'src/app/features/paginacao/simulador-demanda/components/home-simulador-paginacao-demanda/home-simulador-paginacao-demanda.component';
 import { HomeParticoesFixasComponent } from 'src/app/features/particoes/fixas/components/home-particoes-fixas/home-particoes-fixas.component';
 import { HomeParticoesVariaveisComponent } from 'src/app/features/particoes/variaveis/components/home-particoes-variaveis/home-particoes-variaveis.component';
+import { HomeEstadosComponent } from 'src/app/features/processos/estados/components/home-estados/home-estados.component';
 
 const routes: Routes = [
   { path: "", component: LandingComponent, pathMatch: 'full' },
   { path: "simulacoes", component: SimulacoesComponent },
   { path: "brandkit", component: BrandkitComponent },
+
+  // Processos
+  { path: "processos/estados", component: HomeEstadosComponent },
 
   // Escalonamento de Processos
   { path: "escalonamento/simulador", component: HomeEscalonamentoComponent },

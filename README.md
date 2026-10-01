@@ -4,6 +4,7 @@ Simulador didático de Sistemas Operacionais.
 
 | Assunto | Modo | Rota | Pasta |
 |---|---|---|---|
+| Processos | Estados do Processo | `#/processos/estados` | `src/app/features/processos/estados` |
 | Escalonamento de Processos | Simulador | `#/escalonamento/simulador` | `src/app/features/escalonamento/simulador` |
 | Escalonamento de Processos | Exercícios | `#/escalonamento/exercicios` | `src/app/features/escalonamento/exercicios` |
 | Partições | Partições Fixas | `#/particoes/fixas` | `src/app/features/particoes/fixas` |

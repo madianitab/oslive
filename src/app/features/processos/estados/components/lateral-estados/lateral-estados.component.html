@@ -1,0 +1,55 @@
+<div class="sim-config">
+  <os-panel title="Cenário">
+    <label class="rotulo" for="qtd">Processos</label>
+    <select id="qtd" class="form-control" [ngModel]="sim.opcoes().quantidade" (ngModelChange)="sim.novoCenario({ quantidade: +$event })">
+      @for (n of [3, 4, 5]; track n) { <option [ngValue]="n">{{ n }}</option> }
+    </select>
+    <label class="rotulo" for="quantum">Quantum (fatia de tempo)</label>
+    <select id="quantum" class="form-control" [ngModel]="sim.opcoes().quantum" (ngModelChange)="sim.novoCenario({ quantum: +$event })">
+      @for (n of [1, 2, 3]; track n) { <option [ngValue]="n">{{ n }} u</option> }
+    </select>
+    <label class="check-row mt-campo">
+      <input type="checkbox" [ngModel]="sim.opcoes().especiais" (ngModelChange)="sim.novoCenario({ especiais: $event })">
+      <span>Incluir situações especiais (retorno imediato e kill/exceção em um processo)</span>
+    </label>
+    <div class="proc-actions mt-campo">
+      <os-button variant="p" size="sm" (click)="sim.novoCenario()"><i class="fa-solid fa-shuffle"></i> Novo cenário</os-button>
+    </div>
+    <label class="rotulo" for="vel">Velocidade da animação</label>
+    <select id="vel" class="form-control" [ngModel]="sim.velocidade()" (ngModelChange)="sim.definirVelocidade(+$event)">
+      @for (v of velocidades; track v.ms) { <option [ngValue]="v.ms">{{ v.nome }}</option> }
+    </select>
+  </os-panel>
+
+  <os-panel title="Dados dos processos">
+    @for (p of sim.cenario().processos; track p.nome) {
+      <div class="proc-linha">
+        <div class="proc-cab">
+          <span><span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span><b>{{ p.nome }}</b> · chega em t={{ p.chegada }}</span>
+          <span class="estado">{{ estadoAtual(p) }}</span>
+        </div>
+        <div class="programa">
+          @for (ps of p.passos; track $index; let i = $index) {
+            @if (p.encerramento && i > p.encerramento.passo) { } @else {
+              <span class="passo" [class.cpu]="ps.tipo === 'CPU'" [class.es]="ps.tipo === 'ES'">{{ rotuloPasso(ps) }}</span>
+            }
+          }
+          <span class="passo fim">{{ p.encerramento ? (p.encerramento.motivo === 'kill' ? 'kill' : 'exceção') : 'exit' }}</span>
+        </div>
+      </div>
+    }
+    <p class="hint mt-campo">Ciclo de cada processo: <b>criação → CPU → CPU → E/S → CPU → fim</b>. A 1ª fase de CPU é maior que o quantum
+      ({{ sim.opcoes().quantum }} u), então o processo usa a CPU duas vezes, voltando à fila de aptos entre elas (preempção).
+      Os valores são sorteados a cada novo cenário.</p>
+  </os-panel>
+
+  <os-panel title="Estados (Figura 4.2)">
+    <ul class="legenda">
+      <li><span class="bola" style="background:#2e7d32"></span><span><b>Criação:</b> processo está sendo criado</span></li>
+      <li><span class="bola" style="background:#1e88e5"></span><span><b>Apto:</b> pronto, na fila esperando a CPU</span></li>
+      <li><span class="bola" style="background:#fb8c00"></span><span><b>Executando:</b> usando a CPU</span></li>
+      <li><span class="bola" style="background:#6a1b9a"></span><span><b>Bloqueado:</b> esperando um evento (ex.: E/S)</span></li>
+      <li><span class="bola" style="background:#e53935"></span><span><b>Destruição:</b> processo finalizado</span></li>
+    </ul>
+  </os-panel>
+</div>

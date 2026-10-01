@@ -19,6 +19,18 @@ import { OsBadgeComponent } from '../../ui/badge/badge.component';
   </header>
 
   <section class="sim-group">
+    <h2 class="group-title">Processos</h2>
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 sim-deck">
+      <os-card title="Estados do Processo">
+        <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="6" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="19" cy="6" r="2.5"/><circle cx="12" cy="20" r="2.5"/><path d="M7 7.5l3 3M14 10.5l3-3M12 14.5v3"/></svg></os-card-icon>
+        <os-badge slot="badge" variant="a">simulador</os-badge>
+        Animação do diagrama de estados: criação, apto, executando, bloqueado e destruição, com cenários aleatórios.
+        <div slot="footer"><os-button variant="p" size="sm" (click)="go('/processos/estados')">Abrir →</os-button></div>
+      </os-card>
+    </div>
+  </section>
+
+  <section class="sim-group">
     <h2 class="group-title">Escalonamento de Processos</h2>
     <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 sim-deck">
       <os-card title="Simulador">

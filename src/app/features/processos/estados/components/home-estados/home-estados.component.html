@@ -1,0 +1,18 @@
+<os-sim-shell
+  title="Estados do Processo"
+  subtitle="Acompanhe os processos passando por criação, apto, executando, bloqueado e destruição."
+>
+  <ng-container slot="actions">
+    <os-button-group>
+      <button class="osbg-btn" type="button" aria-label="Voltar um evento" title="Voltar" [disabled]="sim.indice() < 0" (click)="sim.voltar()"><i class="fa-solid fa-backward-step"></i></button>
+      <button class="osbg-btn primary" type="button" [attr.aria-label]="sim.tocando() ? 'Pausar' : 'Reproduzir'" [title]="sim.tocando() ? 'Pausar' : 'Reproduzir'" (click)="sim.alternar()">
+        <i [class]="sim.tocando() ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
+      </button>
+      <button class="osbg-btn" type="button" aria-label="Avançar um evento" title="Próximo evento" [disabled]="sim.fim()" (click)="sim.avancar()"><i class="fa-solid fa-forward-step"></i></button>
+      <button class="osbg-btn" type="button" aria-label="Novo cenário aleatório" title="Novo cenário" (click)="sim.novoCenario()"><i class="fa-solid fa-shuffle"></i></button>
+      <button class="osbg-btn danger" type="button" aria-label="Reiniciar" title="Reiniciar" (click)="sim.reiniciar()"><i class="fa-solid fa-rotate-right"></i></button>
+    </os-button-group>
+  </ng-container>
+  <app-lateral-estados slot="config"></app-lateral-estados>
+  <app-area-estados></app-area-estados>
+</os-sim-shell>

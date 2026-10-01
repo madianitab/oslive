@@ -1,0 +1,141 @@
+<div class="viz">
+
+  <!-- NARRAÇÃO DO EVENTO ATUAL -->
+  <section class="narracao" aria-live="polite">
+    @if (sim.evento(); as e) {
+      <div class="narr-topo">
+        <span class="tempo">t = {{ e.t }}</span>
+        <span class="chip-trans" [ngStyle]="{ 'border-color': nos[e.para].cor, color: nos[e.para].cor }">{{ rotulos[e.transicao] }}</span>
+        <span class="mudanca"><b>{{ e.processo }}</b>: {{ e.de ? nomes[e.de] : '—' }} → {{ nomes[e.para] }}</span>
+        <span class="contador">evento {{ sim.indice() + 1 }} de {{ sim.total() }}</span>
+      </div>
+      <p class="narr-texto">{{ e.detalhe }}</p>
+    } @else {
+      <div class="narr-topo"><span class="tempo">t = 0</span><span class="contador">{{ sim.total() }} eventos</span></div>
+      <p class="narr-texto">Clique em <b>▶</b> para assistir ou em <b>⏭</b> para avançar um evento por vez. Cada processo é uma bolinha
+        colorida que percorre o diagrama de estados; a seta da transição que acontece fica em destaque.</p>
+    }
+  </section>
+
+  <!-- DIAGRAMA -->
+  <section>
+    <div class="viz-scroll">
+      <svg class="diagrama" viewBox="0 0 900 470" role="img" aria-label="Diagrama de estados do processo">
+        <defs>
+          <marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" class="ponta"></path>
+          </marker>
+          <marker id="seta-ativa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" class="ponta-ativa"></path>
+          </marker>
+          <marker id="seta-esp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#e53935"></path>
+          </marker>
+        </defs>
+
+        <!-- setas -->
+        <path class="seta" [class.ativa]="ativa('ADMISSAO')" d="M172,106 L228,150" [attr.marker-end]="ativa('ADMISSAO') ? 'url(#seta-ativa)' : 'url(#seta)'"></path>
+        <path class="seta" [class.ativa]="ativa('SELECAO')" d="M368,175 L500,175" [attr.marker-end]="ativa('SELECAO') ? 'url(#seta-ativa)' : 'url(#seta)'"></path>
+        <path class="seta" [class.ativa]="ativa('PREEMPCAO')" d="M500,207 L368,207" [attr.marker-end]="ativa('PREEMPCAO') ? 'url(#seta-ativa)' : 'url(#seta)'"></path>
+        <path class="seta" [class.ativa]="ativa('SOLICITA_ES')" d="M556,234 L472,352" [attr.marker-end]="ativa('SOLICITA_ES') ? 'url(#seta-ativa)' : 'url(#seta)'"></path>
+        <path class="seta" [class.ativa]="ativa('ES_CONCLUIDA')" d="M403,352 L313,234" [attr.marker-end]="ativa('ES_CONCLUIDA') ? 'url(#seta-ativa)' : 'url(#seta)'"></path>
+        <path class="seta" [class.ativa]="ativa('TERMINO')" d="M650,158 L728,104" [attr.marker-end]="ativa('TERMINO') ? 'url(#seta-ativa)' : 'url(#seta)'"></path>
+        <path class="seta pontilhada" [class.ativa]="ativa('RETORNO_IMEDIATO')" d="M640,222 C705,262 712,196 664,194" [attr.marker-end]="ativa('RETORNO_IMEDIATO') ? 'url(#seta-ativa)' : 'url(#seta)'"></path>
+        <path class="seta especial" [class.ativa]="ativa('ENCERRAMENTO_BLOQUEADO')" d="M513,398 C690,398 790,300 790,124" [attr.marker-end]="ativa('ENCERRAMENTO_BLOQUEADO') ? 'url(#seta-ativa)' : 'url(#seta-esp)'"></path>
+
+        <!-- rótulos das transições -->
+        <text class="rot" [class.rot-ativo]="ativa('ADMISSAO')" x="215" y="60"><tspan font-weight="700">Admissão</tspan><tspan x="215" dy="15">(processo carregado)</tspan></text>
+        <text class="rot meio" [class.rot-ativo]="ativa('SELECAO')" x="434" y="146"><tspan font-weight="700">Seleção</tspan><tspan x="434" dy="15">(escalonador)</tspan></text>
+        <text class="rot meio" [class.rot-ativo]="ativa('PREEMPCAO')" x="434" y="228"><tspan font-weight="700">Interrupção de HW</tspan><tspan x="434" dy="15">(preempção)</tspan></text>
+        <text class="rot meio" [class.rot-ativo]="ativa('SOLICITA_ES')" x="437" y="290"><tspan font-weight="700">Interrupção de SW</tspan><tspan x="437" dy="15">(solicitação de E/S)</tspan></text>
+        <text class="rot fim" [class.rot-ativo]="ativa('ES_CONCLUIDA')" x="338" y="300"><tspan font-weight="700">Interrupção de HW</tspan><tspan x="338" dy="15">(E/S concluída, timer)</tspan></text>
+        <text class="rot" [class.rot-ativo]="ativa('TERMINO')" x="694" y="150"><tspan font-weight="700">Término normal</tspan><tspan x="694" dy="15">(exit())</tspan></text>
+        <text class="rot" [class.rot-ativo]="ativa('RETORNO_IMEDIATO')" x="655" y="272"><tspan font-weight="700">Retorno imediato</tspan></text>
+        <text class="rot" [class.rot-ativo]="ativa('ENCERRAMENTO_BLOQUEADO')" x="742" y="336"><tspan font-weight="700">kill / exceção</tspan><tspan x="742" dy="15">(Interrupção de SW)</tspan></text>
+
+        <!-- estados -->
+        @for (e of estados; track e) {
+          <g class="no" [class.no-ativo]="sim.evento()?.para === e">
+            <ellipse [attr.cx]="nos[e].x" [attr.cy]="nos[e].y" rx="80" ry="47" [attr.fill]="nos[e].cor"></ellipse>
+            <text class="no-rot" [attr.x]="nos[e].x" [attr.y]="nos[e].y - 10">{{ nomes[e] }}</text>
+          </g>
+        }
+
+        <!-- processos -->
+        @for (t of tokens(); track t.nome) {
+          <g class="token" [class.token-ativo]="t.ativo" [style.opacity]="t.visivel ? 1 : 0"
+             [style.transform]="'translate(' + t.x + 'px,' + t.y + 'px)'">
+            <circle r="13" [attr.fill]="t.cor"></circle>
+            <text class="token-rot" y="4">{{ t.nome }}</text>
+          </g>
+        }
+      </svg>
+    </div>
+  </section>
+
+  <!-- RECURSOS -->
+  <section>
+    <div class="viz-label">CPU, fila de aptos e bloqueados (t = {{ sim.tempo() }})</div>
+    <div class="recursos">
+      <div class="rec">
+        <div class="rec-h">CPU</div>
+        @if (sim.foto().cpu; as c) {
+          <span class="chip-proc grande" [ngStyle]="{ 'background-color': sim.cenario().processos[+c.slice(1) - 1].cor }">{{ c }}</span>
+        } @else { <span class="vazio">ociosa</span> }
+      </div>
+      <div class="rec">
+        <div class="rec-h">Fila de aptos <span class="dica">(início à esquerda)</span></div>
+        @for (n of sim.foto().fila; track n) {
+          <span class="chip-proc" [ngStyle]="{ 'background-color': sim.cenario().processos[+n.slice(1) - 1].cor }">{{ n }}</span>
+        } @empty { <span class="vazio">vazia</span> }
+      </div>
+      <div class="rec">
+        <div class="rec-h">Bloqueados <span class="dica">(dispositivo · falta)</span></div>
+        @for (b of sim.foto().bloqueados; track b.nome) {
+          <span class="chip-proc" [ngStyle]="{ 'background-color': sim.cenario().processos[+b.nome.slice(1) - 1].cor }">{{ b.nome }} · {{ b.dispositivo }} · {{ b.restante }} u</span>
+        } @empty { <span class="vazio">nenhum</span> }
+      </div>
+    </div>
+  </section>
+
+  <!-- LINHA DO TEMPO -->
+  <section>
+    <div class="viz-label">Linha do tempo dos estados</div>
+    <div class="viz-scroll">
+      <table class="linha-tempo">
+        <tr>
+          <th></th>
+          @for (t of duracao(); track t) { <th>{{ t }}</th> }
+        </tr>
+        @for (p of sim.cenario().processos; track p.nome) {
+          <tr>
+            <th class="nome"><span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>{{ p.nome }}</th>
+            @for (t of duracao(); track t) {
+              <td [ngStyle]="{ 'background-color': corEstado(celula(p.nome, t)) }" [title]="celula(p.nome, t) ? nomes[celula(p.nome, t)!] : ''"></td>
+            }
+          </tr>
+        }
+      </table>
+    </div>
+    <p class="legenda-tempo">
+      <span><i style="background:#1e88e5"></i>Apto</span>
+      <span><i style="background:#fb8c00"></i>Executando</span>
+      <span><i style="background:#6a1b9a"></i>Bloqueado</span>
+      <span class="dica">vazio = ainda não criado ou já destruído</span>
+    </p>
+  </section>
+
+  <!-- HISTÓRICO -->
+  @if (sim.indice() >= 0) {
+    <section>
+      <div class="viz-label">Eventos (clique para voltar a um momento)</div>
+      <ul class="historico">
+        @for (h of sim.historico(); track h.i) {
+          <li [class.atual]="h.i === sim.indice()" (click)="sim.irPara(h.i)">
+            <span class="h-t">t={{ h.e.t }}</span> <b>{{ h.e.processo }}</b> {{ rotuloEvento(h.i) }} · <span class="h-r">{{ rotulos[h.e.transicao] }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+</div>

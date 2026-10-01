@@ -1,0 +1,60 @@
+:host { display: block; }
+
+.narracao {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--a);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  min-height: 92px;
+}
+.narr-topo { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 13px; }
+.tempo { font-family: var(--f-mono); font-weight: 700; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-xs); padding: 2px 8px; }
+.chip-trans { font-family: var(--f-mono); font-size: 11.5px; font-weight: 700; border: 2px solid; border-radius: 999px; padding: 2px 10px; }
+.mudanca { color: var(--text); }
+.contador { margin-left: auto; font-family: var(--f-mono); font-size: 11px; color: var(--text-3); }
+.narr-texto { margin: 8px 0 0; font-size: 14.5px; line-height: 1.55; color: var(--text); }
+
+.diagrama { width: 100%; min-width: 640px; max-width: 980px; height: auto; display: block; }
+.seta { fill: none; stroke: var(--text-2); stroke-width: 2.2; transition: stroke .3s, stroke-width .3s; }
+.seta.pontilhada { stroke-dasharray: 5 5; }
+.seta.especial { stroke: #e53935; stroke-dasharray: 5 5; }
+.seta.ativa { stroke: var(--a); stroke-width: 4.5; stroke-dasharray: 10 6; animation: fluxo .7s linear infinite; }
+@keyframes fluxo { to { stroke-dashoffset: -16; } }
+.ponta { fill: var(--text-2); }
+.ponta-ativa { fill: var(--a); }
+.rot { font-family: var(--f-sans); font-size: 12.5px; fill: var(--text-2); }
+.rot.meio { text-anchor: middle; }
+.rot.fim { text-anchor: end; }
+.rot-ativo { fill: var(--a); font-size: 13.5px; }
+.no ellipse { stroke: #fff; stroke-width: 3; filter: drop-shadow(0 2px 4px rgba(0,0,0,.18)); transition: stroke .3s; }
+.no-ativo ellipse { stroke: var(--a); stroke-width: 5; }
+.no-rot { fill: #fff; font-family: var(--f-sans); font-size: 17px; font-weight: 700; text-anchor: middle; }
+.token { transition: transform .9s cubic-bezier(.4, 0, .2, 1), opacity .5s; }
+.token circle { stroke: #fff; stroke-width: 2.5; }
+.token-ativo circle { stroke: #ffeb3b; stroke-width: 4; }
+.token-rot { fill: #fff; font-family: var(--f-mono); font-size: 11px; font-weight: 700; text-anchor: middle; }
+
+.recursos { display: grid; grid-template-columns: 150px 1fr 1fr; gap: 12px; }
+.rec { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px 12px; min-height: 68px; }
+.rec-h { font-family: var(--f-mono); font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; }
+.dica { text-transform: none; letter-spacing: 0; font-weight: 400; font-style: italic; }
+.chip-proc { display: inline-block; font-family: var(--f-mono); font-size: 11.5px; color: #fff; padding: 3px 9px; margin: 2px; border-radius: var(--r-xs); }
+.chip-proc.grande { font-size: 14px; padding: 5px 14px; }
+.vazio { font-family: var(--f-serif); font-style: italic; color: var(--text-3); font-size: 13px; }
+
+.linha-tempo { border-collapse: separate; border-spacing: 2px; font-family: var(--f-mono); font-size: 10px; }
+.linha-tempo th { color: var(--text-3); font-weight: 500; min-width: 22px; text-align: center; }
+.linha-tempo th.nome { text-align: left; color: var(--text); font-size: 12px; padding-right: 6px; white-space: nowrap; }
+.linha-tempo td { width: 22px; height: 20px; border-radius: 3px; border: 1px solid var(--line-soft); transition: background-color .4s; }
+.legenda-tempo { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--text-2); margin: 8px 0 0; }
+.legenda-tempo i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; transform: translateY(2px); }
+
+.historico { list-style: none; padding: 0; margin: 0; max-height: 240px; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); font-size: 12.5px; }
+.historico li { padding: 6px 12px; border-bottom: 1px solid var(--line-soft); cursor: pointer; color: var(--text-2); }
+.historico li:hover { background: var(--surface-2); }
+.historico li.atual { background: var(--a-soft); color: var(--text); }
+.h-t { font-family: var(--f-mono); color: var(--text-3); }
+.h-r { font-style: italic; }
+
+@media (max-width: 900px) { .recursos { grid-template-columns: 1fr; } }
