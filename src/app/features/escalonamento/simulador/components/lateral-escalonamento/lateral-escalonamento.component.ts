@@ -122,13 +122,18 @@ export class LateralEscalonamentoComponent implements OnInit {
   salvarProcesso(): void {
     const nomeProcesso = this.processo.nome.toUpperCase();
     const nomeJaExiste = this.listaProcessos().some(processo => processo.nome === nomeProcesso);
-    const tempoChegada = this.processo.chegada;
-    const tempoJaExiste = this.listaProcessos().some(processo => processo.chegada === tempoChegada);
+    // Múltiplas Filas: a fila escolhida vem do <select> como texto; guarda como número.
+    if (this.escalonador.exec > 4 && this.processo.prioridade != null) {
+      this.processo.prioridade = Number(this.processo.prioridade);
+    }
+    const prioridadeInvalida = this.escalonador.exec > 4 &&
+      (this.processo.prioridade == null || isNaN(this.processo.prioridade) || this.processo.prioridade > this.qtFilas.valueOf() - 1);
+    if (this.processo.chegada == null || this.processo.chegada < 0) this.processo.chegada = 0;
     if (this.processo.nome !== '' && this.processo.execucao != null) {
       if (nomeJaExiste && !this.editar()) {
         this.mostrarNotificacao('Um processo com esse nome já existe!');
-      } else if (this.processoSelecionado() !== null && this.listaProcessos()[this.processoSelecionado()!].chegada != this.processo.chegada || (tempoJaExiste && !this.editar())) {
-        this.mostrarNotificacao('Já existe um processo com esse tempo de chegada!');
+      } else if (prioridadeInvalida) {
+        this.mostrarNotificacao('Selecione a fila (prioridade) do processo!');
       } else {
         if (this.editar() && this.processoSelecionado() !== null) {
           this.processo.nome = this.processo.nome.toUpperCase();
@@ -210,9 +215,10 @@ export class LateralEscalonamentoComponent implements OnInit {
       if (!(this.qtFilas.valueOf() > 1))
         processo.prioridade = Math.round(Math.random() * 1);
       else {
-        processo.prioridade = Math.abs(Math.round(Math.random() * this.qtFilas.valueOf() - 1));
+        // sorteio uniforme entre as filas (antes a Fila 2 saía bem mais e a Fila 4 era rara)
+        processo.prioridade = Math.floor(Math.random() * this.qtFilas.valueOf());
         while (filas[processo.prioridade].length == 4) {
-          processo.prioridade = Math.abs(Math.round(Math.random() * this.qtFilas.valueOf() - 1));
+          processo.prioridade = Math.floor(Math.random() * this.qtFilas.valueOf());
         }
       }
       processo.execucao = Math.round(Math.random() * 7) + 1;

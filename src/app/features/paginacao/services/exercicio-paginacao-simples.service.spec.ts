@@ -42,15 +42,26 @@ describe('ExercicioPaginacaoSimplesService', () => {
     expect(r.acertos).toBe(r.total);
   });
 
-  it('memória física: só os bytes do processo-alvo são lacunas', () => {
+  it('memória física: respostas certas (maiúsculas ou não) somam 100%', () => {
     ex.definirTipo('MEMORIA_FISICA');
     ex.gerar();
     const alvo = ex.processos()[ex.alvoMemoria()];
     const lacunas = ex.memoria().filter(b => ex.ehLacuna(b));
     expect(lacunas.length).toBe(alvo.quadros.length * 4);
-    lacunas.forEach(b => ex.responderMemoria(b, ex.respostaEsperadaMemoria(b)));
+    lacunas.forEach(b => ex.responderMemoria(b, ex.respostaEsperadaMemoria(b).toLowerCase()));
     ex.corrigir();
     const r = ex.placar()!;
     expect(r.acertos).toBe(r.total);
+  });
+
+  it('memória física: escrever em endereço que deveria ficar livre conta como erro', () => {
+    ex.definirTipo('MEMORIA_FISICA');
+    ex.gerar();
+    const livre = ex.memoria().find(b => !ex.ehLacuna(b))!;
+    ex.responderMemoria(livre, 'A0');
+    ex.corrigir();
+    expect(ex.corretoMemoria(livre)).toBeFalse();
+    const r = ex.placar()!;
+    expect(r.total).toBe(ex.processos()[ex.alvoMemoria()].quadros.length * 4 + 1);
   });
 });

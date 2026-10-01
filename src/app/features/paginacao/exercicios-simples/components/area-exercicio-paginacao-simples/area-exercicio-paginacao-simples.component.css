@@ -60,6 +60,7 @@
 select.campo { width: 100%; cursor: pointer; }
 .campo-bin { width: 110px; }
 .campo-num { width: 80px; }
+.campo-byte { width: 72px; text-transform: uppercase; }
 .campo:focus { outline: none; border-color: var(--a); box-shadow: var(--ring); }
 .acerto { border-color: var(--ok) !important; background: var(--ok-soft) !important; color: var(--ok-deep) !important; }
 .erro { border-color: var(--err) !important; background: var(--err-soft) !important; color: var(--err-deep) !important; }

@@ -76,7 +76,7 @@
             @for (f of fila1V(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
           </tr>
         }
-        @if (escalonador.valueOf() > 4 && !animacao && tempoCpu >= resultados().length) {
+        @if (escalonador.valueOf() > 4 && (animacao || tempoCpu >= resultados().length)) {
           <tr>
             @for (f of fila1Estatica(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
           </tr>
@@ -88,12 +88,12 @@
       <div class="fila-row">
         <span class="fila-tag">Processos Fila 2</span>
         <table class="fila-table" id="tabelafila2">
-          @if (tempoCpu < resultados().length) {
+          @if (!animacao && tempoCpu < resultados().length) {
             <tr id="fila2Estatica">
               @for (f of fila2V(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
             </tr>
           }
-          @if (tempoCpu >= resultados().length) {
+          @if (animacao || tempoCpu >= resultados().length) {
             <tr>
               @for (f of fila2Estatica(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
             </tr>
@@ -105,12 +105,12 @@
       <div class="fila-row">
         <span class="fila-tag">Processos Fila 3</span>
         <table class="fila-table" id="tabelafila3">
-          @if (tempoCpu < resultados().length) {
+          @if (!animacao && tempoCpu < resultados().length) {
             <tr id="fila3Estatica">
               @for (f of fila3V(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
             </tr>
           }
-          @if (tempoCpu >= resultados().length) {
+          @if (animacao || tempoCpu >= resultados().length) {
             <tr>
               @for (f of fila3Estatica(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
             </tr>
@@ -122,12 +122,12 @@
       <div class="fila-row">
         <span class="fila-tag">Processos Fila 4</span>
         <table class="fila-table" id="tabelafila4">
-          @if (tempoCpu < resultados().length) {
+          @if (!animacao && tempoCpu < resultados().length) {
             <tr id="fila4Estatica">
               @for (f of fila4V(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
             </tr>
           }
-          @if (tempoCpu >= resultados().length) {
+          @if (animacao || tempoCpu >= resultados().length) {
             <tr>
               @for (f of fila4Estatica(); track f) { <td [@fade] class="t-proc" [ngStyle]="{'background-color': f.cor}">{{ f.nome }}</td> }
             </tr>

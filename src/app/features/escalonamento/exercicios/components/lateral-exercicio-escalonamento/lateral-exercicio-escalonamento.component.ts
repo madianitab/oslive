@@ -57,11 +57,6 @@ export class LateralExercicioEscalonamentoComponent {
     return this.exercicioService.usaPrioridade(this.algoritmo);
   }
 
-  get primeiroProcesso(): boolean {
-    const edit = this.editando();
-    return this.listaProcessos().length === 0 || edit === 0;
-  }
-
   alterarAlgoritmo(): void {
     this.limparExercicio.emit();
   }
@@ -69,7 +64,6 @@ export class LateralExercicioEscalonamentoComponent {
   salvarProcesso(): void {
     const nome = (this.processo.nome ?? '').trim().toUpperCase();
     const edit = this.editando();
-    if (this.primeiroProcesso) this.processo.chegada = 0;
 
     if (!nome) return this.mostrarNotificacao('Informe o nome do processo.');
     if (this.processo.chegada == null || this.processo.chegada < 0) return this.mostrarNotificacao('Informe o tempo de chegada.');
@@ -116,13 +110,9 @@ export class LateralExercicioEscalonamentoComponent {
 
   geradorAleatorio(): void {
     const lista: Processo[] = [];
-    const chegadas = new Set<number>([0]);
     for (let i = 0; i < 4; i++) {
-      let chegada = 0;
-      if (i > 0) {
-        do { chegada = Math.floor(Math.random() * 10) + 1; } while (chegadas.has(chegada));
-        chegadas.add(chegada);
-      }
+      // chegadas de 0 a 8; podem coincidir (chegadas simultâneas) e a CPU pode começar ociosa
+      const chegada = Math.floor(Math.random() * 9);
       const p = new Processo(NOMES[i], chegada, Math.floor(Math.random() * 7) + 1,
         Math.floor(Math.random() * 4), '');
       p.cor = gera_cor(lista);
@@ -138,7 +128,6 @@ export class LateralExercicioEscalonamentoComponent {
     const processos = this.listaProcessos();
     if (!this.algoritmo) return this.mostrarNotificacao('Selecione o algoritmo de escalonamento.');
     if (processos.length < 2) return this.mostrarNotificacao('Cadastre pelo menos 2 processos.');
-    if (processos[0].chegada !== 0) return this.mostrarNotificacao('O primeiro processo deve chegar no tempo 0.');
     if (this.usaPrioridade && processos.some(p => p.prioridade == null)) {
       return this.mostrarNotificacao('Há processos sem prioridade.');
     }

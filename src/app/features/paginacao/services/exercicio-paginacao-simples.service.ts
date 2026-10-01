@@ -20,7 +20,7 @@ export const TIPOS_EXERCICIO_SIMPLES: { valor: TipoExercicioSimples; nome: strin
   { valor: 'TRADUCAO', nome: 'Traduzir endereços',
     descricao: 'Use as tabelas de páginas para converter endereços lógicos em endereços físicos.' },
   { valor: 'MEMORIA_FISICA', nome: 'Preencher a memória física',
-    descricao: 'A partir da tabela de páginas de um processo, preencha as lacunas da memória física com os bytes desse processo.' },
+    descricao: 'A memória física está vazia. Use a tabela de páginas do processo para digitar cada byte (ou "sobra") no endereço físico correto.' },
   { valor: 'TABELA', nome: 'Preencher a tabela de páginas',
     descricao: 'Observe a memória física e as informações dos outros processos para completar a tabela de páginas do primeiro processo.' },
   { valor: 'CALCULOS', nome: 'Calcular páginas e fragmentação',
@@ -104,7 +104,7 @@ export class ExercicioPaginacaoSimplesService {
 
   // respostas
   readonly respostasTraducao = signal<string[]>([]);
-  readonly respostasMemoria = signal<Record<string, string>>({}); // chave "quadro-desloc"
+  readonly respostasMemoria = signal<Record<string, string>>({}); // chave "quadro-desloc", texto digitado
   readonly respostasTabela = signal<string[]>([]);                // quadro (binário) por página do 1º processo
   readonly respostasCalculo = signal<Record<string, string>>({});  // "A-paginas", "A-sobra", "livre", "quadros"
 
@@ -229,13 +229,25 @@ export class ExercicioPaginacaoSimplesService {
 
   // ───────────────────────── gabarito e correção ─────────────────────────
 
-  /** Byte da memória física que o aluno precisa preencher (exercício 2). */
+  /** Byte que pertence ao processo do exercício 2 (onde o aluno deve escrever algo). */
   ehLacuna(b: ByteMemoria): boolean {
     return this.tipo() === 'MEMORIA_FISICA' && b.processo === this.processos()[this.alvoMemoria()];
   }
 
+  /** Exercício 2: toda a memória física fica livre e editável; o aluno escolhe onde escrever. */
+  ehEditavel(): boolean {
+    return this.tipo() === 'MEMORIA_FISICA';
+  }
+
+  /** Resposta esperada em cada endereço: o byte (ou "sobra") do processo-alvo; vazio nos demais. */
   respostaEsperadaMemoria(b: ByteMemoria): string {
+    if (!this.ehLacuna(b)) return '';
     return b.conteudo ?? 'sobra';
+  }
+
+  private normalizarByte(valor: string | null | undefined): string {
+    const v = (valor ?? '').trim().toUpperCase();
+    return v === 'SOBRA' ? 'sobra' : v;
   }
 
   gabaritoTraducao(p: PerguntaTraducao): string {
@@ -249,7 +261,11 @@ export class ExercicioPaginacaoSimplesService {
 
   corretoMemoria(b: ByteMemoria): Correcao {
     if (!this.corrigido()) return null;
-    return (this.respostasMemoria()[`${b.quadro}-${b.deslocamento}`] ?? '') === this.respostaEsperadaMemoria(b);
+    const resposta = this.normalizarByte(this.respostasMemoria()[`${b.quadro}-${b.deslocamento}`]);
+    const esperado = this.respostaEsperadaMemoria(b);
+    // endereço que deve ficar livre: só é marcado se o aluno escreveu algo nele
+    if (esperado === '') return resposta === '' ? null : false;
+    return resposta === this.normalizarByte(esperado);
   }
 
   corretoTabela(pagina: number): Correcao {
@@ -288,7 +304,10 @@ export class ExercicioPaginacaoSimplesService {
         resultados = this.perguntas().map((_, i) => this.corretoTraducao(i));
         break;
       case 'MEMORIA_FISICA':
-        resultados = this.memoria().filter(b => this.ehLacuna(b)).map(b => this.corretoMemoria(b));
+        // conta os bytes do processo e, como erro, o que foi escrito em endereços que deveriam ficar livres
+        resultados = this.memoria()
+          .map(b => this.corretoMemoria(b))
+          .filter((c, i) => this.ehLacuna(this.memoria()[i]) || c === false);
         break;
       case 'TABELA':
         resultados = this.processos()[0].quadros.map((_, i) => this.corretoTabela(i));

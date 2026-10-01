@@ -86,9 +86,6 @@ export class AreaExercicioPaginacaoSimplesComponent {
     return out;
   }
 
-  opcoesMemoria(p: ProcessoExSimples): string[] {
-    return [...Array.from({ length: p.bytes }, (_, i) => `${p.nome}${i}`), 'sobra'];
-  }
 
   byteDaPergunta(q: PerguntaTraducao): string {
     return `${q.processo.nome}${q.pagina * 4 + q.deslocamento}`;

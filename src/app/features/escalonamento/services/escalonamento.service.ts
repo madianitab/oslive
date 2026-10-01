@@ -202,13 +202,20 @@ export class EscalonamentoService {
     let dadosTabelaResultados: Processo[] = [];
     const filaApto: Processo[] = [];
 
+    // A prioridade (fila) pode chegar como texto do formulário ("0"); o algoritmo trabalha com número.
+    processos.forEach(p => { if (p.prioridade != null) p.prioridade = Number(p.prioridade); });
     const processosOrdenados = [...processos].sort((a, b) => a.chegada - b.chegada);
+
+    // Limite de segurança proporcional à carga (antes era fixo em 100 unidades e cortava a simulação).
+    const limite = processos.reduce((t, p) => Math.max(t, p.chegada), 0)
+      + processos.reduce((t, p) => t + (p.execucao ?? 0), 0) + 2;
 
     for (let i = 0; ; i++) {
       if (processosOrdenados.length === 0 && filaAptos.length === 0 && processoAtual === null) break;
-      if (i > 100) return { resultado: diagramaCpu, filaApto, tabelaResultados: dadosTabelaResultados };
+      if (i > limite) return { resultado: diagramaCpu, filaApto, tabelaResultados: dadosTabelaResultados };
 
-      if (processosOrdenados.length > 0 && processosOrdenados[0].chegada === tempoCpu) {
+      // Todos os processos que chegam neste instante entram na fila (chegadas simultâneas).
+      while (processosOrdenados.length > 0 && processosOrdenados[0].chegada === tempoCpu) {
         processosOrdenados[0].entrouNaFila = tempoCpu;
         filaAptos = filaAptos.length > 0
           ? this.atualizarFilaAptos(filaAptos, processosOrdenados[0])
@@ -238,6 +245,9 @@ export class EscalonamentoService {
             filaAptos = this.atualizarFilaAptos(filaAptos, processoAtual);
             processoAtual = filaAptos[0];
             processoAtualAtualizado = true;
+          } else {
+            // Ninguém da mesma fila esperando: o processo continua com um novo quantum.
+            contQuantum = 0;
           }
         }
 

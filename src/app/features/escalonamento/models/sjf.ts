@@ -17,7 +17,7 @@ export class SJF {
   }
 
   addProcesso(processo: Processo): void {
-    this.listaProcessos.unshift(processo);
+    this.listaProcessos.push(processo); // empate: mantém a ordem de chegada
     this.listaProcessos.sort((a, b) => {
       if (a.execucao !== null && b.execucao !== null) {
         return a.execucao - b.execucao;

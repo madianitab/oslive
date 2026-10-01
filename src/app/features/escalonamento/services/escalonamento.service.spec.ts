@@ -187,4 +187,40 @@ describe('EscalonamentoService', () => {
       expect(lista[2].chegada).toBe(5);
     });
   });
+
+  // ─── Correções de conceito (revisão com o material da Aula 9) ─────────────
+
+  describe('revisão conceitual', () => {
+    const cfg = (o: any = {}) => ({ filaRR1: false, filaRR2: false, filaRR3: false, filaRR4: false,
+      quantum: 0, quantum1: 0, quantum2: 0, quantum3: 0, ...o });
+    const diag = (r: any[]) => r.map(x => x.nome).join('');
+
+    it('SJF: empate de execução segue a ordem de chegada', () => {
+      const res = service.simulaSJF([p('A', 0, 3), p('B', 1, 2), p('C', 2, 2)]);
+      expect(diag(res)).toBe('AAABBCC');
+    });
+
+    it('Múltiplas Filas: exercício A da Aula 9 (Fila 1 e Fila 2 com RR, quantum 3)', () => {
+      const r = service.simulaMF([p('A', 0, 10, 1), p('B', 4, 5, 1), p('C', 8, 5, 0), p('D', 11, 4, 0),
+        p('E', 15, 10, 1), p('F', 18, 5, 1), p('G', 30, 5, 0)], cfg({ filaRR1: true, filaRR2: true, quantum: 3, quantum1: 3 }));
+      expect(diag(r.resultado)).toBe('AAAAAABBCCCDDDCCDAAABBBEEEFFFAGGGGGEEEFFEEEE');
+    });
+
+    it('Múltiplas Filas: prioridade vinda do formulário como texto mantém o RR', () => {
+      const r = service.simulaMF([p('A', 0, 6, '0' as any), p('B', 1, 4, '0' as any)], cfg({ filaRR1: true, quantum: 2 }));
+      expect(diag(r.resultado)).toBe('AABBAABBAA');
+    });
+
+    it('Múltiplas Filas: quantum reinicia quando só há processos de filas inferiores', () => {
+      const r = service.simulaMF([p('A', 0, 10, 0), p('C', 1, 5, 1), p('B', 5, 3, 0)], cfg({ filaRR1: true, quantum: 2 }));
+      expect(diag(r.resultado)).toBe('AAAAAABBAABAACCCCC');
+    });
+
+    it('Múltiplas Filas: chegadas simultâneas e simulação com mais de 100 unidades', () => {
+      expect(diag(service.simulaMF([p('A', 0, 2, 0), p('B', 0, 2, 0), p('C', 0, 2, 1)], cfg()).resultado)).toBe('AABBCC');
+      const longo = service.simulaMF([p('A', 0, 60, 0), p('B', 1, 60, 0)], cfg());
+      expect(longo.resultado.length).toBe(120);
+      expect(longo.tabelaResultados.length).toBe(2);
+    });
+  });
 });

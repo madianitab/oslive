@@ -82,14 +82,8 @@
         <input type="text" id="processo" name="nome" class="form-control" [(ngModel)]="processo.nome" required
           placeholder="Nome do processo" maxlength="1" style="text-transform: capitalize" #nome="ngModel" [disabled]="editar()">
 
-        @if (listaProcessos().length == 0) {
-          <input type="number" id="chegada" min="0" class="form-control" name="chegada" [(ngModel)]="processo.chegada"
-            placeholder="Tempo de chegada" disabled>
-        }
-        @if (listaProcessos().length > 0) {
-          <input type="number" id="chegada" name="chegada" min="1" class="form-control" [(ngModel)]="processo.chegada"
-            placeholder="Tempo de chegada" required>
-        }
+        <input type="number" id="chegada" name="chegada" min="0" class="form-control" [(ngModel)]="processo.chegada"
+          placeholder="Tempo de chegada" required>
 
         <input type="number" id="execucao" min="1" name="execucao" class="form-control" [(ngModel)]="processo.execucao"
           placeholder="Tempo de execução" required>
@@ -97,6 +91,7 @@
         @if (escalonador.tipo === 'Prioridade (Não Preemptiva)' || escalonador.tipo === 'Prioridade (Preemptiva)' || (escalonador.exec > 4 && editar())) {
           <input type="number" id="prioridade" min="0" name="prioridade" class="form-control" [(ngModel)]="processo.prioridade"
             placeholder="Prioridade" required>
+          <p class="hint">Quanto <b>menor</b> o número, <b>maior</b> a prioridade (0 é a mais alta).</p>
         }
         @if (escalonador.exec > 4 && !editar()) {
           <select id="selectFila" class="form-control" name="selectFila" [(ngModel)]="processo.prioridade" required>

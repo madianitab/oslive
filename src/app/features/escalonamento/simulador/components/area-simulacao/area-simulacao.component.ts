@@ -51,7 +51,7 @@ export class AreaSimulacaoComponent implements OnInit {
   readonly processosVisiveis = signal<ResultadoCpu[]>([]);
 
   // Métricas agregadas para a faixa de stats
-  readonly nProcessos = computed(() => this.resultados2().length);
+  readonly nProcessos = computed(() => this.resultados2().filter(r => r.nome !== 'Média').length);
   readonly mediaEspera = computed(() => {
     const r = this.resultados2();
     return r.length ? (r.reduce((s, x) => s + x.espera, 0) / r.length).toFixed(1) : '—';
@@ -229,6 +229,8 @@ export class AreaSimulacaoComponent implements OnInit {
   private filaAptosPorTempo(res: ResultadoCpu[]): { nome: string; cor: string }[][] {
     const escalonador = this.escalonador.valueOf();
     const dados = new Map(this.listaProcessos.map(p => [p.nome, p]));
+    // empates de chegada seguem a ordem da lista de processos (a mesma usada pelos algoritmos)
+    const ordem = new Map(this.listaProcessos.map((p, i) => [p.nome, i]));
     const executado = new Map<string, number>();
     const ultimaExecucao = new Map<string, number>();
     const filas: { nome: string; cor: string }[][] = [];
@@ -259,7 +261,7 @@ export class AreaSimulacaoComponent implements OnInit {
         a.entrada - b.entrada ||
         Number(a.retorno) - Number(b.retorno) ||
         a.chegada - b.chegada ||
-        a.nome.localeCompare(b.nome));
+        ordem.get(a.nome)! - ordem.get(b.nome)!);
       filas.push(aptos.map(a => ({ nome: a.nome, cor: a.cor })));
 
       if (naCpu !== '-') {

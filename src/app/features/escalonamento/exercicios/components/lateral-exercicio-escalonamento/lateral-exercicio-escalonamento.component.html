@@ -29,8 +29,7 @@
         <input type="text" class="form-control campo-nome" name="nome" maxlength="1" placeholder="Nome do processo"
           [(ngModel)]="processo.nome" [disabled]="editando() !== null">
         <input type="number" min="0" class="form-control" name="chegada" placeholder="Tempo de chegada"
-          [(ngModel)]="processo.chegada" [disabled]="primeiroProcesso"
-          [title]="primeiroProcesso ? 'O primeiro processo sempre chega no tempo 0' : 'Tempo de chegada'">
+          [(ngModel)]="processo.chegada" title="Tempo de chegada">
         <input type="number" min="1" class="form-control" name="execucao" placeholder="Tempo de execução"
           [(ngModel)]="processo.execucao">
         @if (usaPrioridade) {
