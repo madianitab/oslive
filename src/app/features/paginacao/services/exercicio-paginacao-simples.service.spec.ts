@@ -54,10 +54,19 @@ describe('ExercicioPaginacaoSimplesService', () => {
     expect(r.acertos).toBe(r.total);
   });
 
+  it('memória física: quadros de outros processos ficam ocupados e os demais editáveis', () => {
+    ex.definirTipo('MEMORIA_FISICA');
+    ex.gerar();
+    const alvo = ex.processos()[ex.alvoMemoria()];
+    const ocupadosOutros = ex.processos().filter(p => p !== alvo).reduce((t, p) => t + p.quadros.length * 4, 0);
+    const editaveis = ex.memoria().filter(b => ex.ehEditavel(b)).length;
+    expect(editaveis).toBe(32 - ocupadosOutros);
+  });
+
   it('memória física: escrever em endereço que deveria ficar livre conta como erro', () => {
     ex.definirTipo('MEMORIA_FISICA');
     ex.gerar();
-    const livre = ex.memoria().find(b => !ex.ehLacuna(b))!;
+    const livre = ex.memoria().find(b => b.processo === null) ?? ex.memoria().find(b => !ex.ehLacuna(b))!;
     ex.responderMemoria(livre, 'A0');
     ex.corrigir();
     expect(ex.corretoMemoria(livre)).toBeFalse();

@@ -20,7 +20,7 @@ export const TIPOS_EXERCICIO_SIMPLES: { valor: TipoExercicioSimples; nome: strin
   { valor: 'TRADUCAO', nome: 'Traduzir endereços',
     descricao: 'Use as tabelas de páginas para converter endereços lógicos em endereços físicos.' },
   { valor: 'MEMORIA_FISICA', nome: 'Preencher a memória física',
-    descricao: 'A memória física está vazia. Use a tabela de páginas do processo para digitar cada byte (ou "sobra") no endereço físico correto.' },
+    descricao: 'Parte da memória física já está ocupada por outros processos. Use a tabela de páginas do processo para digitar cada byte (ou "sobra") no endereço físico correto, entre os quadros livres.' },
   { valor: 'TABELA', nome: 'Preencher a tabela de páginas',
     descricao: 'Observe a memória física e as informações dos outros processos para completar a tabela de páginas do primeiro processo.' },
   { valor: 'CALCULOS', nome: 'Calcular páginas e fragmentação',
@@ -153,6 +153,9 @@ export class ExercicioPaginacaoSimplesService {
       tamanhos.reduce((t, b) => t + paginasNecessarias(b), 0) > QUANTIDADE_QUADROS ||
       // o primeiro processo (exercício da tabela de páginas) tem pelo menos 2 páginas
       paginasNecessarias(tamanhos[0]) < 2 ||
+      // memória física: sobram pelo menos 2 quadros livres, para os quadros editáveis não entregarem a resposta
+      (this.tipo() === 'MEMORIA_FISICA' &&
+        tamanhos.reduce((t, b) => t + paginasNecessarias(b), 0) > QUANTIDADE_QUADROS - 2) ||
       // pelo menos um processo com sobra, para trabalhar a fragmentação interna
       tamanhos.every(b => fragmentacaoInterna(b) === 0)
     );
@@ -234,9 +237,13 @@ export class ExercicioPaginacaoSimplesService {
     return this.tipo() === 'MEMORIA_FISICA' && b.processo === this.processos()[this.alvoMemoria()];
   }
 
-  /** Exercício 2: toda a memória física fica livre e editável; o aluno escolhe onde escrever. */
-  ehEditavel(): boolean {
-    return this.tipo() === 'MEMORIA_FISICA';
+  /**
+   * Exercício 2: os quadros dos outros processos aparecem ocupados; todos os demais
+   * (os do processo a alocar e os realmente livres) ficam em branco e editáveis,
+   * para o aluno decidir onde escrever cada byte.
+   */
+  ehEditavel(b: ByteMemoria): boolean {
+    return this.tipo() === 'MEMORIA_FISICA' && (b.processo === null || this.ehLacuna(b));
   }
 
   /** Resposta esperada em cada endereço: o byte (ou "sobra") do processo-alvo; vazio nos demais. */

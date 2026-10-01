@@ -95,8 +95,8 @@
         <section>
           <div class="viz-label">Memória física</div>
           <ng-container [ngTemplateOutlet]="memoriaFisica"></ng-container>
-          <p class="hint-tabela">Toda a memória está livre. Digite cada byte do processo {{ p.nome }} (ex.: {{ p.nome }}0) no endereço físico certo
-            e escreva "sobra" no espaço não usado da última página. Deixe vazios os endereços que não são do processo.</p>
+          <p class="hint-tabela">Os quadros coloridos já estão ocupados por outros processos. Nos quadros livres, digite cada byte do processo {{ p.nome }}
+            (ex.: {{ p.nome }}0) no endereço físico certo e escreva "sobra" no espaço não usado da última página. Deixe vazios os endereços que não são do processo.</p>
         </section>
       </div>
     }
@@ -221,7 +221,7 @@
         <tr><th>Quadro</th><th>Desloc.</th><th>End. físico</th><th>Byte</th></tr>
         @for (b of metade; track $index) {
           <tr [class.inicio-quadro]="b.deslocamento === 0">
-            @if (ex.ehEditavel() && !ex.mostrarResposta()) {
+            @if (ex.ehEditavel(b) && !ex.mostrarResposta()) {
               <td class="mem-livre">{{ bin(b.quadro, bitsQuadro) }}</td>
               <td class="mem-livre">{{ bin(b.deslocamento, bitsDesloc) }}</td>
               <td class="mem-livre">{{ endFisico(b.quadro, b.deslocamento) }}</td>
@@ -229,7 +229,7 @@
                 <input type="text" maxlength="5" class="campo campo-byte" [ngClass]="classe(ex.corretoMemoria(b))" [ngModel]="respostaMemoria(b)"
                   (ngModelChange)="ex.responderMemoria(b, $event)" [attr.aria-label]="'Byte no endereço ' + endFisico(b.quadro, b.deslocamento)">
               </td>
-            } @else if (ex.ehEditavel() && !ex.ehLacuna(b)) {
+            } @else if (ex.ehEditavel(b) && !ex.ehLacuna(b)) {
               <td class="mem-livre">{{ bin(b.quadro, bitsQuadro) }}</td>
               <td class="mem-livre">{{ bin(b.deslocamento, bitsDesloc) }}</td>
               <td class="mem-livre">{{ endFisico(b.quadro, b.deslocamento) }}</td>
