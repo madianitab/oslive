@@ -1,0 +1,15 @@
+<os-sim-shell
+  title="Exercícios de Paginação Simples"
+  subtitle="Traduza endereços e complete a memória física e a tabela de páginas."
+>
+  <ng-container slot="actions">
+    <os-button-group>
+      <button class="osbg-btn primary" type="button" aria-label="Gerar novo exercício" title="Novo exercício" (click)="ex.gerar()"><i class="fa-solid fa-shuffle"></i></button>
+      <button class="osbg-btn" type="button" aria-label="Corrigir respostas" title="Corrigir" [disabled]="!ex.gerado()" (click)="ex.corrigir()"><i class="fa-solid fa-check"></i></button>
+      <button class="osbg-btn danger" type="button" aria-label="Limpar respostas" title="Limpar respostas" [disabled]="!ex.gerado()" (click)="ex.limparRespostas()"><i class="fa-solid fa-eraser"></i></button>
+    </os-button-group>
+  </ng-container>
+
+  <app-lateral-exercicio-paginacao-simples slot="config"></app-lateral-exercicio-paginacao-simples>
+  <app-area-exercicio-paginacao-simples></app-area-exercicio-paginacao-simples>
+</os-sim-shell>

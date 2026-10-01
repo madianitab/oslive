@@ -9,6 +9,7 @@ import { HomeExercicioDeSegmentacaoComponent } from 'src/app/features/segmentaca
 import { BrandkitComponent } from './pages/brandkit/brandkit.component';
 import { HomeExercicioEscalonamentoComponent } from 'src/app/features/escalonamento/exercicios/components/home-exercicio-escalonamento/home-exercicio-escalonamento.component';
 import { HomeSimuladorPaginacaoSimplesComponent } from 'src/app/features/paginacao/simulador-simples/components/home-simulador-paginacao-simples/home-simulador-paginacao-simples.component';
+import { HomeExercicioPaginacaoSimplesComponent } from 'src/app/features/paginacao/exercicios-simples/components/home-exercicio-paginacao-simples/home-exercicio-paginacao-simples.component';
 import { HomeSimuladorPaginacaoDemandaComponent } from 'src/app/features/paginacao/simulador-demanda/components/home-simulador-paginacao-demanda/home-simulador-paginacao-demanda.component';
 
 const routes: Routes = [
@@ -22,6 +23,7 @@ const routes: Routes = [
 
   // Paginação
   { path: "paginacao/simulador-simples", component: HomeSimuladorPaginacaoSimplesComponent },
+  { path: "paginacao/exercicios-simples", component: HomeExercicioPaginacaoSimplesComponent },
   { path: "paginacao/simulador-demanda", component: HomeSimuladorPaginacaoDemandaComponent },
   { path: "paginacao/exercicios", component: HomePaginacaoPorDemandaExerciciosComponent },
 

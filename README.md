@@ -5,7 +5,11 @@ Simulador didático de Sistemas Operacionais.
 | Assunto | Modo | Rota | Pasta |
 |---|---|---|---|
 | Escalonamento de Processos | Simulador | `#/escalonamento/simulador` | `src/app/features/escalonamento/simulador` |
-| Paginação por Demanda | Exercícios | `#/paginacao/exercicios` | `src/app/features/paginacao/exercicios` |
+| Escalonamento de Processos | Exercícios | `#/escalonamento/exercicios` | `src/app/features/escalonamento/exercicios` |
+| Paginação | Simulador de Paginação Simples | `#/paginacao/simulador-simples` | `src/app/features/paginacao/simulador-simples` |
+| Paginação | Exercícios de Paginação Simples | `#/paginacao/exercicios-simples` | `src/app/features/paginacao/exercicios-simples` |
+| Paginação | Simulador de Paginação por Demanda | `#/paginacao/simulador-demanda` | `src/app/features/paginacao/simulador-demanda` |
+| Paginação | Exercícios de Paginação por Demanda | `#/paginacao/exercicios` | `src/app/features/paginacao/exercicios` |
 | Segmentação | Simulador | `#/segmentacao/simulador` | `src/app/features/segmentacao/simulador` |
 | Segmentação | Exercícios | `#/segmentacao/exercicios` | `src/app/features/segmentacao/exercicios` |
 

@@ -1,0 +1,260 @@
+<div class="viz">
+
+  @if (!ex.gerado()) {
+    <section>
+      <div class="viz-label">Como resolver</div>
+      <ol class="passos">
+        <li>Escolha o <b>tipo de exercício</b> na configuração.</li>
+        <li>Clique em <b>Gerar exercício</b>: são criados 3 processos com tamanhos aleatórios.</li>
+        <li>Preencha as respostas e clique em <b>Corrigir</b>. Use <b>Ver resposta</b> para conferir o gabarito.</li>
+      </ol>
+      <p class="descricao">{{ descricao() }}</p>
+    </section>
+  } @else {
+
+    <section>
+      <div class="viz-stats">
+        <os-stat label="Exercício" [value]="nomeTipo()"></os-stat>
+        <os-stat label="Processos" [value]="ex.processos().length"></os-stat>
+        <os-stat label="Memória física" value="32" unit="bytes" hint="8 quadros de 4 bytes"></os-stat>
+        @if (ex.placar(); as r) {
+          <os-stat label="Acertos" [value]="r.acertos + ' / ' + r.total" [hint]="percentual() + '%'" [accent]="true"></os-stat>
+        }
+      </div>
+    </section>
+
+    <p class="descricao">{{ descricao() }}</p>
+
+    <!-- ═════════════ 1. TRADUZIR ENDEREÇOS ═════════════ -->
+    @if (ex.tipo() === 'TRADUCAO') {
+      <section>
+        <div class="viz-label">Tabelas de páginas</div>
+        <div class="mem-grupo">
+          @for (p of ex.processos(); track p.nome) {
+            <div class="processo">
+              <div class="processo-h"><span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>Processo {{ p.nome }} · {{ p.bytes }} bytes</div>
+              <ng-container [ngTemplateOutlet]="tabelaPaginas" [ngTemplateOutletContext]="{ $implicit: p }"></ng-container>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section>
+        <div class="viz-label">Traduza os endereços lógicos</div>
+        <div class="res-card perguntas-card">
+          <table class="res-table">
+            <thead><tr><th>Processo</th><th>Byte</th><th>End. lógico</th><th>End. físico (5 bits)</th></tr></thead>
+            <tbody>
+              @for (q of ex.perguntas(); track $index; let i = $index) {
+                <tr>
+                  <td class="nome-proc"><span class="p-dot" [ngStyle]="{ 'background-color': q.processo.cor }"></span>{{ q.processo.nome }}</td>
+                  <td>{{ byteDaPergunta(q) }}</td>
+                  <td class="mono">{{ bin(q.pagina, bitsPagina) }}|{{ bin(q.deslocamento, bitsDesloc) }}</td>
+                  <td>
+                    @if (ex.mostrarResposta()) {
+                      <span class="mono revelado-txt">{{ endFisico(q.processo.quadros[q.pagina], q.deslocamento) }}</span>
+                      <span class="explica">pág {{ q.pagina }} → quadro {{ q.processo.quadros[q.pagina] }}</span>
+                    } @else {
+                      <input type="text" maxlength="7" class="campo campo-bin" placeholder="ex.: 01011" [ngClass]="classe(ex.corretoTraducao(i))"
+                        [ngModel]="ex.respostasTraducao()[i]" (ngModelChange)="ex.responderTraducao(i, $event)"
+                        [attr.aria-label]="'Endereço físico de ' + byteDaPergunta(q)">
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <p class="hint-tabela">Procure a página na tabela do processo, troque pelo quadro (3 bits) e mantenha o deslocamento (2 bits).</p>
+      </section>
+    }
+
+    <!-- ═════════════ 2. PREENCHER A MEMÓRIA FÍSICA ═════════════ -->
+    @if (ex.tipo() === 'MEMORIA_FISICA' && alvo(); as p) {
+      <div class="layout">
+        <section>
+          <div class="viz-label">Processo {{ p.nome }}</div>
+          <div class="processo">
+            <div class="processo-h"><span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>Processo {{ p.nome }} · {{ p.bytes }} bytes</div>
+            <div class="mem-grupo">
+              <table class="mem-table">
+                <caption>Mem. lógica</caption>
+                <tr><th>Página</th><th>Desloc.</th><th>Byte</th></tr>
+                @for (b of bytesLogicos(p); track $index) {
+                  <tr [class.inicio-quadro]="b.desloc === 0">
+                    <td [ngStyle]="{ 'background-color': corPagina(p, b.pagina) }">{{ bin(b.pagina, bitsPagina) }}</td>
+                    <td [ngStyle]="{ 'background-color': corPagina(p, b.pagina) }">{{ bin(b.desloc, bitsDesloc) }}</td>
+                    <td [ngStyle]="{ 'background-color': corPagina(p, b.pagina) }" [class.sobra]="!b.conteudo">{{ b.conteudo ?? 'sobra' }}</td>
+                  </tr>
+                }
+              </table>
+              <ng-container [ngTemplateOutlet]="tabelaPaginas" [ngTemplateOutletContext]="{ $implicit: p }"></ng-container>
+            </div>
+          </div>
+        </section>
+        <section>
+          <div class="viz-label">Memória física</div>
+          <ng-container [ngTemplateOutlet]="memoriaFisica"></ng-container>
+          <p class="hint-tabela">Preencha os quadros do processo {{ p.nome }}. Use "sobra" para o espaço não usado da última página.</p>
+        </section>
+      </div>
+    }
+
+    <!-- ═════════════ 3. PREENCHER A TABELA DE PÁGINAS ═════════════ -->
+    @if (ex.tipo() === 'TABELA' && primeiro(); as p) {
+      <div class="layout">
+        <div class="col-tabelas">
+          <section>
+            <div class="viz-label">Complete: processo {{ p.nome }}</div>
+            <div class="processo destaque">
+              <div class="processo-h"><span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>Processo {{ p.nome }} · {{ p.bytes }} bytes · {{ nPaginas(p.bytes) }} páginas</div>
+              <table class="mem-table">
+                <caption>Tabela de páginas</caption>
+                <tr><th>Página</th><th>Quadro</th></tr>
+                @for (pg of paginasDo(p); track pg) {
+                  <tr>
+                    <td [ngStyle]="{ 'background-color': corPagina(p, pg) }">{{ bin(pg, bitsPagina) }}</td>
+                    @if (ex.mostrarResposta()) {
+                      <td [ngStyle]="{ 'background-color': corPagina(p, pg) }" class="revelado">{{ bin(p.quadros[pg], bitsQuadro) }} ({{ p.quadros[pg] }})</td>
+                    } @else {
+                      <td class="td-campo">
+                        <select class="campo" [ngClass]="classe(ex.corretoTabela(pg))" [ngModel]="ex.respostasTabela()[pg]"
+                          (ngModelChange)="ex.responderTabela(pg, $event)" [attr.aria-label]="'Quadro da página ' + pg">
+                          <option value="">?</option>
+                          @for (o of opcoesQuadro; track o) { <option [value]="o">{{ o }}</option> }
+                        </select>
+                      </td>
+                    }
+                  </tr>
+                }
+              </table>
+            </div>
+          </section>
+          <section>
+            <div class="viz-label">Outros processos</div>
+            <div class="mem-grupo">
+              @for (o of outros(); track o.nome) {
+                <div class="processo">
+                  <div class="processo-h"><span class="p-dot" [ngStyle]="{ 'background-color': o.cor }"></span>Processo {{ o.nome }} · {{ o.bytes }} bytes</div>
+                  <ng-container [ngTemplateOutlet]="tabelaPaginas" [ngTemplateOutletContext]="{ $implicit: o }"></ng-container>
+                </div>
+              }
+            </div>
+          </section>
+        </div>
+        <section>
+          <div class="viz-label">Memória física</div>
+          <ng-container [ngTemplateOutlet]="memoriaFisica"></ng-container>
+        </section>
+      </div>
+    }
+
+    <!-- ═════════════ 4. CÁLCULOS ═════════════ -->
+    @if (ex.tipo() === 'CALCULOS') {
+      <section>
+        <div class="viz-label">Páginas e fragmentação interna</div>
+        <div class="res-card perguntas-card">
+          <table class="res-table">
+            <thead><tr><th>Processo</th><th>Tamanho</th><th>Nº de páginas</th><th>Fragmentação interna (bytes)</th></tr></thead>
+            <tbody>
+              @for (p of ex.processos(); track p.nome) {
+                <tr>
+                  <td class="nome-proc"><span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>{{ p.nome }}</td>
+                  <td>{{ p.bytes }} bytes</td>
+                  <td><ng-container [ngTemplateOutlet]="campoNumero" [ngTemplateOutletContext]="{ $implicit: p.nome + '-paginas' }"></ng-container></td>
+                  <td><ng-container [ngTemplateOutlet]="campoNumero" [ngTemplateOutletContext]="{ $implicit: p.nome + '-sobra' }"></ng-container></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section>
+        <div class="viz-label">Memória física (8 quadros de 4 bytes)</div>
+        <div class="res-card perguntas-card">
+          <table class="res-table">
+            <thead><tr><th>Quadros ocupados pelos 3 processos</th><th>Bytes livres</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><ng-container [ngTemplateOutlet]="campoNumero" [ngTemplateOutletContext]="{ $implicit: 'quadros' }"></ng-container></td>
+                <td><ng-container [ngTemplateOutlet]="campoNumero" [ngTemplateOutletContext]="{ $implicit: 'livre' }"></ng-container></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        @if (ex.mostrarResposta()) {
+          <p class="hint-tabela">Nº de páginas = tamanho ÷ 4, arredondado para cima. Fragmentação = páginas × 4 − tamanho.
+            Bytes livres = (8 − quadros ocupados) × 4.</p>
+        }
+      </section>
+    }
+
+    <div class="acoes">
+      <os-button variant="p" size="sm" (click)="ex.corrigir()"><i class="fa-solid fa-check"></i> Corrigir</os-button>
+      <os-button variant="s" size="sm" (click)="ex.alternarResposta()"><i class="fa-solid fa-eye"></i> {{ ex.mostrarResposta() ? 'Ocultar resposta' : 'Ver resposta' }}</os-button>
+      <os-button variant="g" size="sm" (click)="ex.limparRespostas()"><i class="fa-solid fa-eraser"></i> Limpar</os-button>
+      <os-button variant="g" size="sm" (click)="ex.gerar()"><i class="fa-solid fa-shuffle"></i> Novo exercício</os-button>
+    </div>
+  }
+</div>
+
+<!-- tabela de páginas preenchida (somente leitura) -->
+<ng-template #tabelaPaginas let-p>
+  <table class="mem-table">
+    <caption>Tabela de páginas</caption>
+    <tr><th>Página</th><th>Quadro</th></tr>
+    @for (pg of paginasDo(p); track pg) {
+      <tr>
+        <td [ngStyle]="{ 'background-color': corPagina(p, pg) }">{{ bin(pg, bitsPagina) }}</td>
+        <td [ngStyle]="{ 'background-color': corPagina(p, pg) }">{{ bin(p.quadros[pg], bitsQuadro) }} ({{ p.quadros[pg] }})</td>
+      </tr>
+    }
+  </table>
+</ng-template>
+
+<!-- memória física; no exercício 2 os bytes do processo-alvo viram lacunas -->
+<ng-template #memoriaFisica>
+  <div class="mem-grupo">
+    @for (metade of metades(); track $index) {
+      <table class="mem-table">
+        <tr><th>Quadro</th><th>Desloc.</th><th>End. físico</th><th>Byte</th></tr>
+        @for (b of metade; track $index) {
+          <tr [class.inicio-quadro]="b.deslocamento === 0">
+            @if (b.processo && !(ex.ehLacuna(b) && !ex.mostrarResposta())) {
+              <td [ngStyle]="{ 'background-color': corByte(b) }">{{ bin(b.quadro, bitsQuadro) }}</td>
+              <td [ngStyle]="{ 'background-color': corByte(b) }">{{ bin(b.deslocamento, bitsDesloc) }}</td>
+              <td [ngStyle]="{ 'background-color': corByte(b) }">{{ endFisico(b.quadro, b.deslocamento) }}</td>
+              <td [ngStyle]="{ 'background-color': corByte(b) }" [class.sobra]="!b.conteudo" [class.revelado]="ex.ehLacuna(b)">{{ b.conteudo ?? 'sobra' }}</td>
+            } @else if (b.processo) {
+              <td class="mem-livre">{{ bin(b.quadro, bitsQuadro) }}</td>
+              <td class="mem-livre">{{ bin(b.deslocamento, bitsDesloc) }}</td>
+              <td class="mem-livre">{{ endFisico(b.quadro, b.deslocamento) }}</td>
+              <td class="td-campo">
+                <select class="campo" [ngClass]="classe(ex.corretoMemoria(b))" [ngModel]="respostaMemoria(b)"
+                  (ngModelChange)="ex.responderMemoria(b, $event)" [attr.aria-label]="'Byte no endereço ' + endFisico(b.quadro, b.deslocamento)">
+                  <option value="">?</option>
+                  @for (o of opcoesMemoria(b.processo); track o) { <option [value]="o">{{ o }}</option> }
+                </select>
+              </td>
+            } @else {
+              <td class="mem-livre">{{ bin(b.quadro, bitsQuadro) }}</td>
+              <td class="mem-livre">{{ bin(b.deslocamento, bitsDesloc) }}</td>
+              <td class="mem-livre">{{ endFisico(b.quadro, b.deslocamento) }}</td>
+              <td class="mem-livre"></td>
+            }
+          </tr>
+        }
+      </table>
+    }
+  </div>
+</ng-template>
+
+<!-- campo numérico do exercício de cálculos -->
+<ng-template #campoNumero let-chave>
+  @if (ex.mostrarResposta()) {
+    <span class="mono revelado-txt">{{ ex.gabaritoCalculo(chave) }}</span>
+  } @else {
+    <input type="number" min="0" class="campo campo-num" [ngClass]="classe(ex.corretoCalculo(chave))"
+      [ngModel]="respostaCalculo(chave)" (ngModelChange)="ex.responderCalculo(chave, '' + ($event ?? ''))" [attr.aria-label]="chave">
+  }
+</ng-template>

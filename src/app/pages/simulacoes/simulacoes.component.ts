@@ -38,12 +38,18 @@ import { OsBadgeComponent } from '../../ui/badge/badge.component';
 
   <section class="sim-group">
     <h2 class="group-title">Paginação</h2>
-    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 sim-deck">
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4 sim-deck">
       <os-card title="Simulador de Paginação Simples">
         <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></os-card-icon>
         <os-badge slot="badge" variant="a">simulador</os-badge>
         Páginas, quadros, tabela de páginas, fragmentação interna e tradução de endereços.
         <div slot="footer"><os-button variant="p" size="sm" (click)="go('/paginacao/simulador-simples')">Abrir →</os-button></div>
+      </os-card>
+      <os-card title="Exercícios de Paginação Simples">
+        <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></os-card-icon>
+        <os-badge slot="badge" variant="s">exercícios</os-badge>
+        Traduza endereços e complete a memória física, a tabela de páginas e os cálculos.
+        <div slot="footer"><os-button variant="p" size="sm" (click)="go('/paginacao/exercicios-simples')">Abrir →</os-button></div>
       </os-card>
       <os-card title="Simulador de Paginação por Demanda">
         <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></os-card-icon>

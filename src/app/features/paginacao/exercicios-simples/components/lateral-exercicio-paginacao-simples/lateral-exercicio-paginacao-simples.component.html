@@ -1,0 +1,49 @@
+<div class="sim-config">
+
+  <os-panel title="Tipo de exercício">
+    <select class="form-control" name="tipo" [ngModel]="ex.tipo()" (ngModelChange)="ex.definirTipo($event)">
+      @for (t of tipos; track t.valor) {
+        <option [ngValue]="t.valor">{{ t.nome }}</option>
+      }
+    </select>
+    <p class="hint mt-campo">{{ descricaoTipo }}</p>
+  </os-panel>
+
+  <os-panel title="Gerar exercício">
+    <div class="proc-actions">
+      <os-button variant="p" size="sm" (click)="ex.gerar()"><i class="fa-solid fa-shuffle"></i> {{ ex.gerado() ? 'Gerar outro' : 'Gerar exercício' }}</os-button>
+    </div>
+    <p class="hint mt-campo">Sempre 3 processos (A, B e C) com tamanhos aleatórios de 1 a 16 bytes, em quadros aleatórios.</p>
+  </os-panel>
+
+  <os-panel title="Processos">
+    <span slot="meta">{{ ex.processos().length }}</span>
+    @if (ex.processos().length > 0) {
+      <div class="tbl-scroll">
+        <table class="ptable">
+          <thead><tr><th class="th-name">Processo</th><th>Tamanho</th></tr></thead>
+          <tbody>
+            @for (p of ex.processos(); track p.nome) {
+              <tr>
+                <td class="p-name"><span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>{{ p.nome }}</td>
+                <td>{{ p.bytes }} bytes</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="empty">Nenhum exercício gerado.</p>
+    }
+  </os-panel>
+
+  <os-panel title="Regras">
+    <ul class="hint regras">
+      <li>Página e quadro têm <b>4 bytes</b>; a memória física tem <b>8 quadros</b> (32 bytes).</li>
+      <li>End. lógico (4 bits) = <b>página</b> (2 bits) + <b>deslocamento</b> (2 bits).</li>
+      <li>End. físico (5 bits) = <b>quadro</b> (3 bits) + o <b>mesmo deslocamento</b>.</li>
+      <li>O que sobra na última página é <b>fragmentação interna</b>.</li>
+    </ul>
+  </os-panel>
+
+</div>
