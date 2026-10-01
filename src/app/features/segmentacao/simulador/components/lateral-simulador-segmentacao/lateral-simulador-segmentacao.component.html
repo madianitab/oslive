@@ -53,7 +53,8 @@
       <li>Memória física de <b>32 bytes</b> (endereço físico de 5 bits).</li>
       <li>End. lógico = <b>segmento</b> (2 bits: 00 código, 01 dados, 10 pilha) + <b>deslocamento</b> (4 bits).</li>
       <li>Físico = <b>base + deslocamento</b>, se o deslocamento for menor que o <b>limite</b>.</li>
-      <li>Alocação <b>best-fit</b>: o menor segmento é alocado primeiro, na menor lacuna em que cabe.</li>
+      <li>Alocação <b>best-fit</b>, segmento a segmento (código, dados, pilha): a menor lacuna em que cabe.</li>
+      <li><b>Compactação</b> junta as lacunas para resolver a fragmentação externa.</li>
     </ul>
   </os-panel>
 

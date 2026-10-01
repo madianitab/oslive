@@ -124,7 +124,7 @@
   @if (sim.ultimaAlocacao(); as u) {
     <section>
       <div class="viz-label">Como o processo {{ u.nome }} foi alocado (best-fit)</div>
-      <p class="hint-tabela">O menor segmento é alocado primeiro. Para cada segmento, entre as lacunas onde ele cabe, escolhe-se a de <b>menor tamanho</b> (menor sobra); no empate, a de menor endereço.</p>
+      <p class="hint-tabela">Cada segmento é alocado na ordem do processo (código, dados, pilha). Entre as lacunas onde ele cabe, o best-fit escolhe a de <b>menor tamanho</b> (menor sobra); no empate, a de menor endereço.</p>
       <div class="res-card passos-card">
         <table class="res-table">
           <thead><tr><th>Ordem</th><th>Segmento</th><th>Tamanho</th><th>Lacunas disponíveis (início · tamanho)</th><th>Escolhida</th><th>Sobra</th></tr></thead>
@@ -154,6 +154,7 @@
           @if (u.resultado.motivo === 'fragmentacao') {
             <b>Fragmentação externa:</b> há {{ u.resultado.livreTotal }} bytes livres e o processo precisa de {{ u.resultado.necessario }},
             mas o espaço está dividido em lacunas pequenas demais. O processo não foi criado.
+            Nos livros, a solução é a <b>compactação</b>: use o botão de compactar no topo e tente de novo.
           } @else {
             <b>Memória insuficiente:</b> o processo precisa de {{ u.resultado.necessario }} bytes e só há {{ u.resultado.livreTotal }} livres. O processo não foi criado.
           }

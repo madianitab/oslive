@@ -48,3 +48,26 @@ select.campo { cursor: pointer; }
 .chip-lacuna.escolhida { border-color: var(--ok); background: var(--ok-soft); color: var(--ok-deep); font-weight: 700; }
 .falha { color: var(--err-deep); font-weight: 600; }
 .acoes { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.passo-ex { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 10px 0 0; font-size: 13px; color: var(--text); }
+.num-passo {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--a); color: #fff; font-family: var(--f-mono); font-size: 12px; font-weight: 700;
+}
+.aviso-base {
+  margin: 10px 0 12px;
+  padding: 10px 12px;
+  background: var(--warn-soft);
+  border: 1px solid var(--warn-line);
+  border-left: 4px solid var(--warn);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.aviso-base i { color: var(--warn-deep); margin-right: 4px; }
+.tabela-alocacao caption { color: var(--a) !important; }
+.th-base { background: var(--a-soft) !important; color: var(--a) !important; border-color: var(--a) !important; }
+.td-base { box-shadow: inset 0 0 0 2px var(--a); border-radius: var(--r-xs); }
+.campo-base { border-color: var(--a); background: var(--a-soft); font-weight: 600; }

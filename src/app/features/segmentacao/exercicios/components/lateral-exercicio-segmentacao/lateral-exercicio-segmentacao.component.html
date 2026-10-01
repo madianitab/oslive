@@ -22,7 +22,8 @@
       <li>End. lógico = <b>segmento</b> (2 bits: 00 código, 01 dados, 10 pilha) + <b>deslocamento</b> (4 bits).</li>
       <li>Se deslocamento &lt; <b>limite</b>: físico = <b>base + deslocamento</b>. Senão, <b>interrupção</b>.</li>
       <li>Bytes contados a partir de 1: C1 é o deslocamento 0000.</li>
-      <li><b>Best-fit</b>: menor segmento primeiro, na menor lacuna que o comporta (empate: menor endereço).</li>
+      <li><b>Best-fit</b>, segmento a segmento (código, dados, pilha): a menor lacuna que o comporta (empate: menor endereço).</li>
+      <li>Se a memória livre é suficiente, mas nenhuma lacuna comporta um segmento: <b>fragmentação externa</b>.</li>
     </ul>
   </os-panel>
 

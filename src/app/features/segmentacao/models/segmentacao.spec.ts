@@ -1,4 +1,4 @@
-import { ProcessoSegmentado, alocar, lacunasDe, traduzir, nomeByte } from './segmentacao';
+import { ProcessoSegmentado, alocar, compactar, lacunasDe, traduzir, nomeByte } from './segmentacao';
 
 function cria(processos: ProcessoSegmentado[], nome: string, C: number, D: number, P: number) {
   const r = alocar(processos, nome, '#000000', { C, D, P });
@@ -27,7 +27,7 @@ describe('motor da segmentação', () => {
     expect(p.segmentos.map(s => s.numero)).toEqual([0, 1, 2]);
   });
 
-  it('best-fit: menor segmento primeiro, na menor lacuna que comporta', () => {
+  it('best-fit na ordem do processo (código → dados → pilha), menor lacuna que comporta', () => {
     let ps = cria([], 'A', 4, 4, 4);   // 0..11
     ps = cria(ps, 'B', 1, 1, 1);       // 12..14
     ps = cria(ps, 'C', 4, 4, 4);       // 15..26  → livre 27..31 (5)
@@ -35,10 +35,34 @@ describe('motor da segmentação', () => {
     const r = alocar(ps, 'D', '#000', { C: 4, D: 2, P: 1 });
     expect(r.ok).toBeTrue();
     const base = (t: string) => r.processo!.segmentos.find(s => s.tipo === t)!.base;
-    expect(base('P')).toBe(12); // 1 byte → menor lacuna (3)
-    expect(base('D')).toBe(13); // 2 bytes → lacuna de 2 que sobrou em 13
-    expect(base('C')).toBe(27); // 4 bytes → só cabe na lacuna de 5
-    expect(r.passos.map(p => p.segmento)).toEqual(['P', 'D', 'C']);
+    expect(r.passos.map(p => p.segmento)).toEqual(['C', 'D', 'P']);
+    expect(base('C')).toBe(27); // 4 bytes: só cabe na lacuna de 5
+    expect(base('D')).toBe(12); // 2 bytes: menor lacuna que comporta (3)
+    expect(base('P')).toBe(14); // 1 byte: lacunas de 1 em 14 e em 31 → empate, menor endereço
+  });
+
+  it('caso do exercício: código de 3 bytes vai para a lacuna de 3 (encaixe exato)', () => {
+    // monta lacunas de 6 (em 8), 5 (em 20) e 3 (em 29)
+    const p = (nome: string, segs: [number, number][]): ProcessoSegmentado => ({
+      nome, cor: '#000', segmentos: segs.map(([base, tamanho], i) => ({
+        tipo: (['C', 'D', 'P'] as const)[i], numero: i, nome: '', tamanho, base })),
+    });
+    const ps = [p('A', [[0, 3], [3, 3], [6, 2]]), p('B', [[14, 1], [15, 1], [16, 4]]), p('C', [[25, 1], [26, 1], [27, 2]])];
+    expect(lacunasDe(ps)).toEqual([{ inicio: 8, tamanho: 6 }, { inicio: 20, tamanho: 5 }, { inicio: 29, tamanho: 3 }]);
+    const r = alocar(ps, 'D', '#000', { C: 3, D: 1, P: 4 });
+    const base = (t: string) => r.processo!.segmentos.find(s => s.tipo === t)!.base;
+    expect([base('C'), base('D'), base('P')]).toEqual([29, 20, 21]);
+  });
+
+  it('compactação junta as lacunas e só muda as bases', () => {
+    let ps = cria([], 'A', 2, 2, 2);
+    ps = cria(ps, 'B', 3, 3, 3);
+    ps = cria(ps, 'C', 2, 2, 2);
+    ps = ps.filter(p => p.nome !== 'B');
+    expect(lacunasDe(ps).length).toBe(2);
+    const comp = compactar(ps);
+    expect(lacunasDe(comp)).toEqual([{ inicio: 12, tamanho: 20 }]);
+    expect(comp.map(p => p.segmentos.map(s => s.tamanho))).toEqual(ps.map(p => p.segmentos.map(s => s.tamanho)));
   });
 
   it('fragmentação externa: memória livre suficiente, mas nenhuma lacuna comporta o segmento', () => {

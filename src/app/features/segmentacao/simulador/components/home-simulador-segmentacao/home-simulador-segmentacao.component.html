@@ -4,6 +4,7 @@
 >
   <ng-container slot="actions">
     <os-button-group>
+      <button class="osbg-btn" type="button" aria-label="Compactar memória" title="Compactar memória (juntar lacunas)" [disabled]="sim.processos().length === 0" (click)="compactar()"><i class="fa-solid fa-compress"></i></button>
       <button class="osbg-btn danger" type="button" aria-label="Reiniciar simulação" title="Reiniciar" (click)="sim.reiniciar()"><i class="fa-solid fa-rotate-right"></i></button>
     </os-button-group>
   </ng-container>

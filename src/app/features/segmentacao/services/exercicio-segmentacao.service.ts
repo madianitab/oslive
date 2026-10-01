@@ -27,7 +27,7 @@ export const TIPOS_EXERCICIO_SEG: { valor: TipoExercicioSeg; nome: string; descr
   { valor: 'MEMORIA_FISICA', nome: 'Preencher a memória física',
     descricao: 'Parte da memória está ocupada por outros processos. Use a tabela de segmentos para digitar cada byte do processo no endereço físico correto, entre os espaços livres.' },
   { valor: 'ALOCACAO', nome: 'Alocar um processo (best-fit)',
-    descricao: 'Um novo processo vai ser criado. Pelo best-fit (menor segmento primeiro, na menor lacuna que o comporta), diga se ele cabe e a base de cada segmento.' },
+    descricao: 'Um novo processo vai ser criado. Aloque cada segmento por best-fit (na ordem código, dados, pilha) e registre o resultado preenchendo a BASE na tabela de segmentos do processo.' },
 ];
 
 export const NOMES_EX_SEG = ['A', 'B', 'C'];
@@ -130,13 +130,14 @@ export class ExercicioSegmentacaoService {
     let novo: { nome: string; cor: string; tamanhos: Record<TipoSegmento, number> } | null = null;
     let gabarito: ResultadoAlocacao | null = null;
 
-    for (let tentativa = 0; tentativa < 500; tentativa++) {
+    // alocação: ~70% dos exercícios o processo cabe; nos demais, falha por fragmentação externa
+    let querFragmentacao = Math.random() < 0.3;
+    for (let tentativa = 0; tentativa < 2000; tentativa++) {
+      if (tentativa === 1500) querFragmentacao = false; // garantia: sempre gera um exercício
       processos = this.montarCenario(tipo === 'MEMORIA_FISICA' ? 6 : 3);
       if (!processos) continue;
       if (tipo !== 'ALOCACAO') break;
 
-      // alocação: ~70% dos exercícios o processo cabe; nos demais, falha por fragmentação externa
-      const querFragmentacao = Math.random() < 0.3;
       const tamanhos = tamanhosAleatorios(querFragmentacao ? 6 : 4);
       const cor = gera_cor(processos);
       const r = alocar(processos, 'D', cor, tamanhos);

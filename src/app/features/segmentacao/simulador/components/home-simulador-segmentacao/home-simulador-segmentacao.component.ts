@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { OsSimShellComponent } from 'src/app/ui/sim-shell/sim-shell.component';
 import { OsButtonGroupComponent } from 'src/app/ui/button-group/button-group.component';
 import { SimuladorSegmentacaoService } from 'src/app/features/segmentacao/services/simulador-segmentacao.service';
@@ -14,5 +15,9 @@ import { AreaSimuladorSegmentacaoComponent } from '../area-simulador-segmentacao
   providers: [SimuladorSegmentacaoService],
 })
 export class HomeSimuladorSegmentacaoComponent {
-  constructor(public sim: SimuladorSegmentacaoService) {}
+  constructor(public sim: SimuladorSegmentacaoService, private notifi: MatSnackBar) {}
+
+  compactar(): void {
+    this.notifi.open(this.sim.compactar(), 'Fechar', { duration: 5000 });
+  }
 }

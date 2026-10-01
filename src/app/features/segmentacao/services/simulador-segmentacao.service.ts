@@ -7,6 +7,7 @@ import {
   ResultadoTraducao,
   TipoSegmento,
   alocar,
+  compactar,
   lacunasDe,
   ocupacao,
   traduzir,
@@ -53,7 +54,7 @@ export class SimuladorSegmentacaoService {
     this.ultimaAlocacao.set({ nome, resultado });
     if (!resultado.ok) {
       return resultado.motivo === 'fragmentacao'
-        ? `Fragmentação externa: há ${resultado.livreTotal} bytes livres (o processo precisa de ${resultado.necessario}), mas nenhuma lacuna comporta um dos segmentos.`
+        ? `Fragmentação externa: há ${resultado.livreTotal} bytes livres (o processo precisa de ${resultado.necessario}), mas nenhuma lacuna comporta um dos segmentos. Experimente compactar a memória.`
         : `Memória insuficiente: o processo precisa de ${resultado.necessario} bytes e há ${resultado.livreTotal} livres.`;
     }
     this.processos.update(lista => [...lista, resultado.processo!]);
@@ -73,6 +74,20 @@ export class SimuladorSegmentacaoService {
     const nome = this.nomesDisponiveis()[Math.floor(Math.random() * this.nomesDisponiveis().length)];
     const r = () => Math.floor(Math.random() * 4) + 1;
     return this.criarProcesso(nome, { C: r(), D: r(), P: r() });
+  }
+
+  /** Compactação: junta as lacunas no fim da memória, atualizando as bases dos segmentos. */
+  compactar(): string {
+    const lacunas = this.lacunas();
+    const antes = lacunas.length;
+    if (antes === 0) return 'A memória está cheia: não há lacunas para juntar.';
+    if (antes === 1 && lacunas[0].inicio + lacunas[0].tamanho === 32) {
+      return 'A memória já está compactada: toda a área livre está numa única lacuna no fim.';
+    }
+    this.processos.update(lista => compactar(lista));
+    this.traducao.set(null);
+    this.ultimaAlocacao.set(null);
+    return `Memória compactada: ${antes} lacunas viraram 1 lacuna de ${this.livre()} bytes. As bases foram atualizadas nas tabelas de segmentos.`;
   }
 
   selecionar(nome: string): void {

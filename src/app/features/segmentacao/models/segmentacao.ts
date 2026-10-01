@@ -9,9 +9,11 @@
  * - tabela de segmentos: base (endereço físico inicial) e limite (tamanho);
  * - tradução: se deslocamento < limite → físico = base + deslocamento; senão, interrupção.
  *
- * Alocação (lógica original do OSLive): BEST-FIT, alocando primeiro o MENOR segmento.
- * Cada segmento vai para a menor lacuna onde cabe; no empate, a de menor endereço.
- * Se algum segmento não couber, o processo não é criado.
+ * Alocação, como nos livros (Silberschatz; Oliveira, Carissimi e Toscani): cada segmento é um
+ * pedido de memória atendido na ordem do processo (código → dados → pilha) por BEST-FIT:
+ * a menor lacuna em que o segmento cabe; no empate, a de menor endereço.
+ * Se algum segmento não couber, o processo não é criado (nada fica alocado).
+ * Remédio para a fragmentação externa: compactação (realocar os segmentos e atualizar as bases).
  */
 
 export const TAMANHO_MEMORIA = 32;
@@ -132,10 +134,8 @@ export function melhorLacuna(lista: Lacuna[], tamanho: number): Lacuna | null {
     .sort((a, b) => a.tamanho - b.tamanho || a.inicio - b.inicio)[0] ?? null;
 }
 
-/** Ordem de alocação: do menor para o maior segmento; empate segue código, dados, pilha. */
-export function ordemAlocacao(tamanhos: Record<TipoSegmento, number>): TipoSegmento[] {
-  return (['C', 'D', 'P'] as TipoSegmento[]).sort((a, b) => tamanhos[a] - tamanhos[b]);
-}
+/** Ordem de alocação: a ordem dos segmentos no processo (código, dados, pilha). */
+export const ORDEM_ALOCACAO: TipoSegmento[] = ['C', 'D', 'P'];
 
 export function alocar(
   processos: ProcessoSegmentado[],
@@ -149,7 +149,7 @@ export function alocar(
   const passos: PassoAlocacao[] = [];
   const segmentos: Segmento[] = [];
 
-  for (const tipo of ordemAlocacao(tamanhos)) {
+  for (const tipo of ORDEM_ALOCACAO) {
     const info = SEGMENTOS.find(s => s.tipo === tipo)!;
     const lista = lacunas(ocupado);
     const escolhida = melhorLacuna(lista, tamanhos[tipo]);
@@ -184,4 +184,17 @@ export function traduzir(p: ProcessoSegmentado, numeroSegmento: number, deslocam
     };
   }
   return { ok: true, fisico: s.base + deslocamento, erro: null };
+}
+
+/**
+ * Compactação: move os segmentos para o início da memória, na ordem de endereço,
+ * juntando todas as lacunas numa só. Só as bases mudam (o processo nem percebe:
+ * os endereços lógicos continuam os mesmos).
+ */
+export function compactar(processos: ProcessoSegmentado[]): ProcessoSegmentado[] {
+  const todos = processos.flatMap(p => p.segmentos.map(s => ({ p, s }))).sort((a, b) => a.s.base - b.s.base);
+  const novaBase = new Map<Segmento, number>();
+  let proximo = 0;
+  todos.forEach(({ s }) => { novaBase.set(s, proximo); proximo += s.tamanho; });
+  return processos.map(p => ({ ...p, segmentos: p.segmentos.map(s => ({ ...s, base: novaBase.get(s)! })) }));
 }

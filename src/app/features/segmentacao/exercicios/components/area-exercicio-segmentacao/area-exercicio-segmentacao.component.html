@@ -160,26 +160,10 @@
           <section>
             <div class="viz-label">Novo processo {{ n.nome }}</div>
             <div class="processo destaque">
-              <div class="processo-h"><span class="p-dot" [ngStyle]="{ 'background-color': n.cor }"></span>Processo {{ n.nome }}</div>
-              <table class="mem-table">
-                <tr><th>Segmento</th><th>Tamanho</th><th>Base (5 bits)</th></tr>
-                @for (s of segmentos; track s.tipo) {
-                  <tr>
-                    <td [ngStyle]="{ 'background-color': cor(n, s) }">{{ bin(s.numero, bS) }} · {{ s.nome }}</td>
-                    <td [ngStyle]="{ 'background-color': cor(n, s) }">{{ n.tamanhos[s.tipo] }}</td>
-                    @if (ex.mostrarResposta()) {
-                      <td class="t-neutro revelado-txt">{{ ex.baseEsperada(s.tipo) === null ? '–' : bin(ex.baseEsperada(s.tipo)!, bF) + ' (' + ex.baseEsperada(s.tipo) + ')' }}</td>
-                    } @else {
-                      <td class="td-campo">
-                        <input type="text" maxlength="7" class="campo campo-bin" placeholder="ex.: 01000" [disabled]="ex.respostaCabe() === 'nao'"
-                          [ngClass]="classe(ex.corretoBase(s.tipo))" [ngModel]="respBase(s.tipo)"
-                          (ngModelChange)="ex.responderBase(s.tipo, $event)" [attr.aria-label]="'Base do segmento ' + s.nome">
-                      </td>
-                    }
-                  </tr>
-                }
-              </table>
-              <div class="pergunta-cabe">
+              <div class="processo-h"><span class="p-dot" [ngStyle]="{ 'background-color': n.cor }"></span>Processo {{ n.nome }} precisa ser alocado</div>
+
+              <div class="passo-ex">
+                <span class="num-passo">1</span>
                 <span>O processo cabe na memória?</span>
                 @if (ex.mostrarResposta()) {
                   <b class="revelado-txt">{{ ex.gabaritoAlocacao()?.ok ? 'Sim' : 'Não (fragmentação externa)' }}</b>
@@ -191,6 +175,36 @@
                   </select>
                 }
               </div>
+
+              <div class="passo-ex">
+                <span class="num-passo">2</span>
+                <span>Se couber, <b>preencha a BASE na tabela de segmentos</b> do processo {{ n.nome }}.</span>
+              </div>
+              <div class="aviso-base">
+                <i class="fa-solid fa-hand-point-right"></i>
+                A alocação fica registrada na <b>tabela de segmentos</b>: a <b>base</b> é o endereço físico inicial que o best-fit escolheu
+                para o segmento, e o <b>limite</b> é o seu tamanho. Aloque na ordem código → dados → pilha.
+              </div>
+
+              <table class="mem-table tabela-alocacao">
+                <caption>Tabela de segmentos do processo {{ n.nome }}</caption>
+                <tr><th>Segmento</th><th>Limite</th><th class="th-base"><i class="fa-solid fa-pen"></i> Base (5 bits)</th></tr>
+                @for (s of segmentos; track s.tipo) {
+                  <tr>
+                    <td [ngStyle]="{ 'background-color': cor(n, s) }">{{ bin(s.numero, bS) }} · {{ s.nome }}</td>
+                    <td [ngStyle]="{ 'background-color': cor(n, s) }">{{ n.tamanhos[s.tipo] }}</td>
+                    @if (ex.mostrarResposta()) {
+                      <td class="t-neutro revelado-txt td-base">{{ ex.baseEsperada(s.tipo) === null ? '–' : bin(ex.baseEsperada(s.tipo)!, bF) + ' (' + ex.baseEsperada(s.tipo) + ')' }}</td>
+                    } @else {
+                      <td class="td-campo td-base">
+                        <input type="text" maxlength="7" class="campo campo-bin campo-base" placeholder="ex.: 01000" [disabled]="ex.respostaCabe() === 'nao'"
+                          [ngClass]="classe(ex.corretoBase(s.tipo))" [ngModel]="respBase(s.tipo)"
+                          (ngModelChange)="ex.responderBase(s.tipo, $event)" [attr.aria-label]="'Base do segmento ' + s.nome">
+                      </td>
+                    }
+                  </tr>
+                }
+              </table>
             </div>
           </section>
           <section>
