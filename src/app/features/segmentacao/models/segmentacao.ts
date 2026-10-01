@@ -4,7 +4,7 @@
  * Modelo, como no material da Aula 11:
  * - memória física de 32 bytes → endereço físico de 5 bits;
  * - endereço lógico = número do segmento (2 bits) + deslocamento (4 bits),
- *   ex.: D3 = 01 0010 (segmento de dados, deslocamento 2);
+ *   ex.: D2 = 01 0010 (segmento de dados, deslocamento 2);
  * - cada processo tem 3 segmentos: código (00), dados (01) e pilha (10);
  * - tabela de segmentos: base (endereço físico inicial) e limite (tamanho);
  * - tradução: se deslocamento < limite → físico = base + deslocamento; senão, interrupção.
@@ -74,7 +74,7 @@ export interface ByteFisico {
   processo: ProcessoSegmentado | null;
   segmento: Segmento | null;
   deslocamento: number | null;
-  conteudo: string | null; // ex.: "AC1" → exibido como C1 com a cor do processo
+  conteudo: string | null; // ex.: "C0" (exibido com o nome e a cor do processo)
 }
 
 export interface ResultadoTraducao {
@@ -87,9 +87,9 @@ export function binario(valor: number, bits: number): string {
   return valor.toString(2).padStart(bits, '0');
 }
 
-/** Nome do byte como no material (contagem a partir de 1): C1, D3, P2... */
+/** Nome do byte, contado a partir de 0 como na paginação: C0, D2, P1... (o número é o deslocamento). */
 export function nomeByte(tipo: TipoSegmento, deslocamento: number): string {
-  return `${tipo}${deslocamento + 1}`;
+  return `${tipo}${deslocamento}`;
 }
 
 export function corSegmento(cor: string, tipo: TipoSegmento): string {

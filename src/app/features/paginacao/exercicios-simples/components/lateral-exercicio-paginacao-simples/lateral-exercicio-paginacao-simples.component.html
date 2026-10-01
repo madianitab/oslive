@@ -42,6 +42,8 @@
       <li>Página e quadro têm <b>4 bytes</b>; a memória física tem <b>8 quadros</b> (32 bytes).</li>
       <li>End. lógico (4 bits) = <b>página</b> (2 bits) + <b>deslocamento</b> (2 bits).</li>
       <li>End. físico (5 bits) = <b>quadro</b> (3 bits) + o <b>mesmo deslocamento</b>.</li>
+      <li>Bytes contados a partir de 0: A0 é a página 00, deslocamento 00.</li>
+      <li>Bit <b>V</b>: página do processo; <b>I</b>: fora do seu espaço lógico (proteção).</li>
       <li>O que sobra na última página é <b>fragmentação interna</b>.</li>
     </ul>
   </os-panel>

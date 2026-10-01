@@ -19,7 +19,7 @@
       <p class="hint mt-campo">
         @switch (ex.algoritmo()) {
           @case ('FIFO') { Sai a página carregada há mais tempo (menor timestamp). }
-          @case ('HISTORICO') { Os bits formam um número (o mais recente à esquerda). Sai a de menor valor; no empate, a mais antiga. }
+          @case ('HISTORICO') { Compare a partir de T4 (instante mais recente): sai a página com bit 0; no empate, olhe T3, T2 e T1; persistindo, sai a de menor timestamp. }
           @case ('SEGUNDA_CHANCE') { Em ordem de timestamp, a página com bit 1 ganha uma segunda chance (o bit vira 0); sai a primeira com bit 0. Clique em um bit para simular um acesso. }
         }
       </p>

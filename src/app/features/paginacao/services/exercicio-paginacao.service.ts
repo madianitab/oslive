@@ -13,16 +13,16 @@ export type TipoExercicio = 'LOGICA' | 'FISICA' | 'VITIMA';
 export type AlgoritmoVitima = 'FIFO' | 'HISTORICO' | 'SEGUNDA_CHANCE';
 
 export const TIPOS_EXERCICIO: { valor: TipoExercicio; nome: string; descricao: string }[] = [
-  { valor: 'LOGICA', nome: 'Preencher Memória Lógica',
+  { valor: 'LOGICA', nome: 'Preencher a tabela de páginas',
     descricao: 'Observe a memória física e complete a tabela de páginas de cada processo (quadro e bit V/I).' },
-  { valor: 'FISICA', nome: 'Preencher Memória Física',
+  { valor: 'FISICA', nome: 'Preencher a memória física',
     descricao: 'Observe as tabelas de páginas e indique qual página está em cada quadro da memória física.' },
-  { valor: 'VITIMA', nome: 'Determinar Página Vítima',
+  { valor: 'VITIMA', nome: 'Determinar a página vítima',
     descricao: 'A memória física está cheia e uma nova página precisa entrar: escolha a página que será substituída.' },
 ];
 
 export const ALGORITMOS_VITIMA: { valor: AlgoritmoVitima; nome: string }[] = [
-  { valor: 'FIFO', nome: 'FIFO / FCFS (first-come, first-served)' },
+  { valor: 'FIFO', nome: 'FCFS (first-come, first-served)' },
   { valor: 'HISTORICO', nome: 'Histórico de bits de referência' },
   { valor: 'SEGUNDA_CHANCE', nome: 'Segunda Chance' },
 ];
@@ -294,7 +294,8 @@ export class ExercicioPaginacaoService {
   /**
    * Página vítima de acordo com o algoritmo:
    * - FIFO/FCFS: a carregada há mais tempo (menor timestamp);
-   * - Histórico de bits: menor valor do histórico (bit mais recente à esquerda); empate → menor timestamp;
+   * - Histórico de bits (como no material): compara a partir de T4 (mais recente) e descarta quem tem 1,
+   *   seguindo para T3, T2, T1; equivale ao menor valor lendo T4…T1 como binário; empate → menor timestamp;
    * - Segunda Chance: percorre em ordem de timestamp; bit 1 ganha segunda chance (vira 0 e vai para o fim);
    *   a primeira com bit 0 sai. Se todas tiverem bit 1, a mais antiga sai depois da volta completa.
    */

@@ -57,3 +57,6 @@
 .traducao p { margin: 0 0 4px; }
 .traducao b { color: var(--text); }
 .dica { margin-top: 12px; }
+
+.obs-sobra { color: var(--err-deep); font-style: italic; white-space: nowrap; }
+.bit-i { font-weight: 700; }

@@ -42,11 +42,19 @@
 
             <table class="mem-table">
               <caption>Tabela de páginas</caption>
-              <tr><th>Página</th><th>Quadro</th></tr>
+              <tr><th>Página</th><th>Quadro</th><th>Bit</th></tr>
               @for (q of p.quadros; track $index; let pagina = $index) {
                 <tr>
                   <td [ngStyle]="{ 'background-color': corPagina(p, pagina) }">{{ bin(pagina, sim.bitsPagina) }}</td>
                   <td [ngStyle]="{ 'background-color': corPagina(p, pagina) }">{{ bin(q, sim.bitsQuadro) }} ({{ q }})</td>
+                  <td [ngStyle]="{ 'background-color': corPagina(p, pagina) }">V</td>
+                </tr>
+              }
+              @for (pg of invalidas(p); track pg) {
+                <tr title="Página fora do espaço de endereçamento do processo">
+                  <td class="mem-livre">{{ bin(pg, sim.bitsPagina) }}</td>
+                  <td class="mem-livre">–</td>
+                  <td class="mem-livre bit-i">I</td>
                 </tr>
               }
             </table>
@@ -59,7 +67,8 @@
                 → página <b>{{ t.pagina }}</b>, deslocamento <b>{{ t.deslocamento }}</b></p>
               <p>Tabela de páginas: página {{ t.pagina }} → quadro <b>{{ t.quadro }}</b></p>
               <p>End. físico <b>{{ bin(t.quadro, sim.bitsQuadro) }}|{{ bin(t.deslocamento, sim.bitsDeslocamento) }}</b>
-                = {{ t.quadro }} × {{ tamanhoPagina }} + {{ t.deslocamento }} = byte <b>{{ t.quadro * tamanhoPagina + t.deslocamento }}</b></p>
+                = {{ t.quadro }} × {{ tamanhoPagina }} + {{ t.deslocamento }} = endereço <b>{{ t.quadro * tamanhoPagina + t.deslocamento }}</b>
+                @if (ehSobra(t)) { <span class="obs-sobra">· sobra (fragmentação interna)</span> }</p>
             </div>
           } @else {
             <p class="empty-hint dica">Clique em um byte da memória lógica para ver a tradução do endereço.</p>

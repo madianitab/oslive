@@ -6,13 +6,13 @@ function cria(processos: ProcessoSegmentado[], nome: string, C: number, D: numbe
 }
 
 describe('motor da segmentação', () => {
-  it('exemplo do material: D3 = 01 0010 e, com base 0, físico 00010', () => {
+  it('D2 = 01 0010 (dados, deslocamento 2) e, com base 0, físico 00010', () => {
     const p: ProcessoSegmentado = { nome: 'A', cor: '#000', segmentos: [
       { tipo: 'C', numero: 0, nome: 'Código', tamanho: 3, base: 10 },
       { tipo: 'D', numero: 1, nome: 'Dados', tamanho: 4, base: 0 },
       { tipo: 'P', numero: 2, nome: 'Pilha', tamanho: 2, base: 20 },
     ] };
-    expect(nomeByte('D', 2)).toBe('D3');
+    expect(nomeByte('D', 2)).toBe('D2');
     expect(traduzir(p, 1, 2)).toEqual({ ok: true, fisico: 2, erro: null });
   });
 

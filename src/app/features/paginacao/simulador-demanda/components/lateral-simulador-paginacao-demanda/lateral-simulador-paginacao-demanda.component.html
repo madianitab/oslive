@@ -56,7 +56,7 @@
                 <td>{{ p.paginas.length }}</td>
                 <td>{{ naMemoria(p) }}</td>
                 <td class="p-acts">
-                  <button type="button" class="p-act del" (click)="sim.removerProcesso(p.nome)" aria-label="Remover processo" title="Remover"><i class="fas fa-times"></i></button>
+                  <button type="button" class="p-act del" (click)="sim.removerProcesso(p.nome)" aria-label="Finalizar processo" title="Finalizar processo"><i class="fas fa-times"></i></button>
                 </td>
               </tr>
             }
@@ -69,7 +69,8 @@
   </os-panel>
 
   <os-panel title="Como usar">
-    <p class="hint">Clique em uma página da <b>memória lógica</b> para carregá-la na memória física (ou retirá-la).
+    <p class="hint">Clique em uma página da <b>memória lógica</b> para o processo acessá-la: com bit I ocorre <b>falta de página</b>.
+      Páginas só saem da memória como vítimas ou ao finalizar o processo.
       @if (sim.algoritmo() === 'SEGUNDA_CHANCE') {
         Na ordem de carga, use <b>Acessar</b> para ligar o bit de referência de uma página.
       }

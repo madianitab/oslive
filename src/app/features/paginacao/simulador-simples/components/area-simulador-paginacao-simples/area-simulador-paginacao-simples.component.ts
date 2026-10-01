@@ -54,6 +54,17 @@ export class AreaSimuladorPaginacaoSimplesComponent {
     return this.bin(quadro, this.sim.bitsQuadro) + this.bin(deslocamento, this.sim.bitsDeslocamento);
   }
 
+  /** Entradas da tabela de páginas (2 bits = 4 páginas) fora do espaço lógico do processo: bit I. */
+  invalidas(p: ProcessoSimples): number[] {
+    return [0, 1, 2, 3].filter(i => i >= p.quadros.length);
+  }
+
+  /** Byte da última página que o processo não usa: fragmentação interna. */
+  ehSobra(t: { processo: string; pagina: number; deslocamento: number }): boolean {
+    const p = this.sim.processos().find(x => x.nome === t.processo);
+    return !!p && t.pagina * this.tamanhoPagina + t.deslocamento >= p.bytes;
+  }
+
   logicoSelecionado(p: ProcessoSimples, b: ByteLogico): boolean {
     const t = this.sim.traducao();
     return !!t && t.processo === p.nome && t.pagina === b.pagina && t.deslocamento === b.deslocamento;

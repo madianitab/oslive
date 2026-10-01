@@ -5,7 +5,7 @@ import { TAM, TIMESTAMP_INICIAL } from 'src/app/core/constantes';
 export type AlgoritmoSubstituicao = 'FIFO' | 'SEGUNDA_CHANCE';
 
 export const ALGORITMOS_SUBSTITUICAO: { valor: AlgoritmoSubstituicao; nome: string }[] = [
-  { valor: 'FIFO', nome: 'FIFO (First In, First Out)' },
+  { valor: 'FIFO', nome: 'FCFS (first-come, first-served)' },
   { valor: 'SEGUNDA_CHANCE', nome: 'Segunda Chance' },
 ];
 
@@ -85,7 +85,7 @@ export class SimuladorPaginacaoDemandaService {
     this.processos.update(lista => [...lista, processo].sort((a, b) => a.nome.localeCompare(b.nome)));
     this.registrar('info', `Processo ${nome} criado com ${quantidadePaginas} página(s).`);
 
-    processo.paginas.slice(0, PAGINAS_CARREGADAS_NA_CRIACAO).forEach(p => this.carregarPagina(p));
+    processo.paginas.slice(0, PAGINAS_CARREGADAS_NA_CRIACAO).forEach(p => this.carregarPagina(p, true));
     return null;
   }
 
@@ -94,7 +94,7 @@ export class SimuladorPaginacaoDemandaService {
     if (!processo) return;
     processo.paginas.filter(p => p.quadro !== null).forEach(p => this.liberar(p));
     this.processos.update(lista => lista.filter(p => p.nome !== nome));
-    this.registrar('remocao', `Processo ${nome} removido; seus quadros foram liberados.`);
+    this.registrar('remocao', `Processo ${nome} finalizado: seus quadros foram liberados.`);
   }
 
   gerarAleatorio(): void {
@@ -102,15 +102,20 @@ export class SimuladorPaginacaoDemandaService {
     NOMES_PROCESSOS_DEMANDA.forEach(nome => this.criarProcesso(nome, Math.floor(Math.random() * 3) + 2));
   }
 
-  /** Clique na página da memória lógica: carrega se estiver no disco, remove se estiver na memória. */
-  alternarPagina(pagina: PaginaDemanda): void {
+  /**
+   * O processo acessa uma página da memória lógica:
+   * - bit I → falta de página (a página é trazida do disco);
+   * - bit V → acesso direto, sem falta de página (liga o bit de referência).
+   * Uma página só sai da memória como vítima de uma substituição ou quando o processo é finalizado.
+   */
+  acessarPaginaLogica(pagina: PaginaDemanda): void {
     if (pagina.quadro === null) {
       this.carregarPagina(pagina);
-    } else {
-      const quadro = pagina.quadro;
-      this.liberar(pagina);
-      this.registrar('remocao', `Página ${nomePagina(pagina)} retirada do quadro ${quadro} e mantida no disco.`);
+      return;
     }
+    this.fila.update(f => f.map(e => e.pagina === pagina ? { ...e, bitRef: 1 } : e));
+    this.registrar('acesso', `Acesso a ${nomePagina(pagina)}: bit V, sem falta de página` +
+      (this.algoritmo() === 'SEGUNDA_CHANCE' ? ' (bit de referência = 1).' : '.'));
   }
 
   /** Acesso a uma página já carregada: liga o bit de referência (usado pela Segunda Chance). */
@@ -119,7 +124,7 @@ export class SimuladorPaginacaoDemandaService {
     this.registrar('acesso', `Página ${nomePagina(entrada.pagina)} acessada: bit de referência = 1.`);
   }
 
-  carregarPagina(pagina: PaginaDemanda): void {
+  carregarPagina(pagina: PaginaDemanda, naCriacao = false): void {
     if (pagina.quadro !== null) return;
 
     let quadro = this.quadros().findIndex(q => q === null);
@@ -133,7 +138,9 @@ export class SimuladorPaginacaoDemandaService {
     this.fila.update(f => [...f, { pagina, timestamp, bitRef: 0 }]);
     this.totalCargas.update(n => n + 1);
     this.atualizarProcessos();
-    this.registrar('carga', `Página ${nomePagina(pagina)} carregada no quadro ${quadro} (timestamp ${timestamp}).`);
+    this.registrar('carga', naCriacao
+      ? `${nomePagina(pagina)} carregada no quadro ${quadro} na criação do processo (timestamp ${timestamp}).`
+      : `Falta de página em ${nomePagina(pagina)} → page-in do disco para o quadro ${quadro} → tabela: bit V (timestamp ${timestamp}).`);
   }
 
   reiniciar(registrar = true): void {

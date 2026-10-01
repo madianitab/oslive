@@ -2,10 +2,10 @@
 
   <section>
     <div class="viz-stats">
-      <os-stat label="Algoritmo" [value]="sim.algoritmo() === 'FIFO' ? 'FIFO' : 'Segunda Chance'"></os-stat>
+      <os-stat label="Algoritmo" [value]="sim.algoritmo() === 'FIFO' ? 'FCFS' : 'Segunda Chance'"></os-stat>
       <os-stat label="Quadros livres" [value]="sim.quadrosLivres() + ' / ' + sim.quadros().length"></os-stat>
       <os-stat label="Cargas" [value]="sim.totalCargas()"></os-stat>
-      <os-stat label="Substituições" [value]="sim.totalSubstituicoes()" [accent]="true"></os-stat>
+      <os-stat label="Substituições" [value]="sim.totalSubstituicoes()" hint="global: vítima de qualquer processo" [accent]="true"></os-stat>
     </div>
   </section>
 
@@ -31,8 +31,8 @@
                       <td class="td-botao">
                         <button type="button" class="btn-pagina" [class.carregada]="pg.quadro !== null"
                           [ngStyle]="pg.quadro !== null ? { 'background-color': p.cor, 'border-color': p.cor } : { 'border-color': p.cor }"
-                          (click)="sim.alternarPagina(pg)"
-                          [title]="pg.quadro === null ? 'Carregar na memória física' : 'Retirar da memória física'">
+                          (click)="sim.acessarPaginaLogica(pg)"
+                          [title]="pg.quadro === null ? 'Acessar: bit I, causa falta de página' : 'Acessar: bit V, sem falta de página'">
                           <i [class]="pg.quadro === null ? 'fa-solid fa-download' : 'fa-solid fa-check'"></i> {{ nomePagina(pg) }}
                         </button>
                       </td>

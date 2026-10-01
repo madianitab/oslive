@@ -86,3 +86,4 @@ select.campo { width: 100%; cursor: pointer; }
 }
 
 .acoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.bit-i { font-weight: 700; }

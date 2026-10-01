@@ -78,6 +78,11 @@ export class AreaExercicioPaginacaoSimplesComponent {
     return p.quadros.map((_, i) => i);
   }
 
+  /** Entradas da tabela (2 bits = 4 páginas) fora do espaço lógico do processo: bit I. */
+  invalidas(p: ProcessoExSimples): number[] {
+    return [0, 1, 2, 3].filter(i => i >= p.quadros.length);
+  }
+
   bytesLogicos(p: ProcessoExSimples): { pagina: number; desloc: number; conteudo: string | null }[] {
     const out = [];
     for (let i = 0; i < p.quadros.length * 4; i++) {

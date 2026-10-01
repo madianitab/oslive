@@ -151,7 +151,7 @@
                 <th>Página</th>
                 <th>Timestamp</th>
                 @if (ex.algoritmo() === 'HISTORICO') {
-                  @for (c of colunasHistorico; track c) { <th [title]="c === 't-1' ? 'Acesso mais recente' : ''">{{ c }}</th> }
+                  @for (c of colunasHistorico; track c) { <th [title]="c === 'T4' ? 'Instante mais recente' : ''">{{ c }}</th> }
                 }
                 @if (ex.algoritmo() === 'SEGUNDA_CHANCE') { <th>Bit ref.</th> }
                 <th>Vítima?</th>
@@ -166,7 +166,7 @@
                     <td [ngStyle]="{ 'background-color': q.cor }">{{ nomePagina(q) }}</td>
                     <td class="t-neutro">{{ q.timestamp }}</td>
                     @if (ex.algoritmo() === 'HISTORICO') {
-                      @for (b of q.historico; track $index) { <td class="t-neutro" [class.bit-ligado]="b === 1">{{ b }}</td> }
+                      @for (b of bitsT1aT4(q); track $index) { <td class="t-neutro" [class.bit-ligado]="b === 1">{{ b }}</td> }
                     }
                     @if (ex.algoritmo() === 'SEGUNDA_CHANCE') {
                       <td class="td-campo">
@@ -186,7 +186,7 @@
             </table>
           </div>
           @if (ex.algoritmo() === 'HISTORICO') {
-            <p class="hint-tabela">t-1 é o acesso mais recente. Leia os bits como um número binário.</p>
+            <p class="hint-tabela">T4 é o instante mais recente. Compare a partir de T4: fica para análise quem tem bit 0; no empate, olhe T3, T2 e T1; persistindo o empate, sai a de menor timestamp.</p>
           }
         </section>
 

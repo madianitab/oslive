@@ -111,7 +111,7 @@
               <div class="processo-h"><span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>Processo {{ p.nome }} · {{ p.bytes }} bytes · {{ nPaginas(p.bytes) }} páginas</div>
               <table class="mem-table">
                 <caption>Tabela de páginas</caption>
-                <tr><th>Página</th><th>Quadro</th></tr>
+                <tr><th>Página</th><th>Quadro</th><th>Bit</th></tr>
                 @for (pg of paginasDo(p); track pg) {
                   <tr>
                     <td [ngStyle]="{ 'background-color': corPagina(p, pg) }">{{ bin(pg, bitsPagina) }}</td>
@@ -126,6 +126,14 @@
                         </select>
                       </td>
                     }
+                    <td [ngStyle]="{ 'background-color': corPagina(p, pg) }">V</td>
+                  </tr>
+                }
+                @for (pg of invalidas(p); track pg) {
+                  <tr title="Página fora do espaço de endereçamento do processo">
+                    <td class="mem-livre">{{ bin(pg, bitsPagina) }}</td>
+                    <td class="mem-livre">–</td>
+                    <td class="mem-livre bit-i">I</td>
                   </tr>
                 }
               </table>
@@ -203,11 +211,19 @@
 <ng-template #tabelaPaginas let-p>
   <table class="mem-table">
     <caption>Tabela de páginas</caption>
-    <tr><th>Página</th><th>Quadro</th></tr>
+    <tr><th>Página</th><th>Quadro</th><th>Bit</th></tr>
     @for (pg of paginasDo(p); track pg) {
       <tr>
         <td [ngStyle]="{ 'background-color': corPagina(p, pg) }">{{ bin(pg, bitsPagina) }}</td>
         <td [ngStyle]="{ 'background-color': corPagina(p, pg) }">{{ bin(p.quadros[pg], bitsQuadro) }} ({{ p.quadros[pg] }})</td>
+        <td [ngStyle]="{ 'background-color': corPagina(p, pg) }">V</td>
+      </tr>
+    }
+    @for (pg of invalidas(p); track pg) {
+      <tr title="Página fora do espaço de endereçamento do processo">
+        <td class="mem-livre">{{ bin(pg, bitsPagina) }}</td>
+        <td class="mem-livre">–</td>
+        <td class="mem-livre bit-i">I</td>
       </tr>
     }
   </table>

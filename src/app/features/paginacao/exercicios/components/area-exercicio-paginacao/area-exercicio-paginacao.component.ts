@@ -24,11 +24,11 @@ export class AreaExercicioPaginacaoComponent {
   public readonly nomePagina = nomePagina;
   public readonly valorHistorico = valorHistorico;
   public readonly quadrosIdx = [0, 1, 2, 3, 4, 5, 6, 7];
-  /** Rótulos das colunas do histórico: o bit mais recente fica à esquerda. */
-  public readonly colunasHistorico = Array.from({ length: BITS_HISTORICO }, (_, i) => `t-${i + 1}`);
+  /** Colunas do histórico como no material: T1 ... T4, sendo T4 o instante mais recente. */
+  public readonly colunasHistorico = Array.from({ length: BITS_HISTORICO }, (_, i) => `T${i + 1}`);
 
   readonly nomeTipo = computed(() => {
-    const curtos: Record<string, string> = { LOGICA: 'Memória lógica', FISICA: 'Memória física', VITIMA: 'Página vítima' };
+    const curtos: Record<string, string> = { LOGICA: 'Tabela de páginas', FISICA: 'Memória física', VITIMA: 'Página vítima' };
     return curtos[this.ex.tipo()];
   });
 
@@ -49,6 +49,11 @@ export class AreaExercicioPaginacaoComponent {
     return this.ex.respostasLogica()[nomePagina(p)] ?? { quadro: '', bit: '' };
   }
 
+  /** Bits na ordem das colunas T1 ... T4 (o histórico guarda o mais recente primeiro). */
+  bitsT1aT4(p: PaginaExercicio): number[] {
+    return [...p.historico].reverse();
+  }
+
   historicoTexto(p: PaginaExercicio): string {
     return p.historico.join('');
   }
@@ -60,7 +65,7 @@ export class AreaExercicioPaginacaoComponent {
       case 'FIFO':
         return `${nomePagina(v)} tem o menor timestamp (${v.timestamp}): foi a primeira a entrar, então é a primeira a sair.`;
       case 'HISTORICO':
-        return `${nomePagina(v)} tem o menor histórico (${v.historico.join('')} = ${valorHistorico(v)}): foi a menos referenciada recentemente.`;
+        return `${nomePagina(v)} sai: lendo de T4 (mais recente) para T1, seus bits ${v.historico.join('')} formam o menor histórico, ou seja, é a página menos usada recentemente (no empate, sai a de menor timestamp).`;
       case 'SEGUNDA_CHANCE': {
         const fila = this.ex.filaCarga();
         const antes = fila.slice(0, fila.indexOf(v)).map(p => nomePagina(p));
