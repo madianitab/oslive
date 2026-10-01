@@ -6,6 +6,8 @@ Simulador didático de Sistemas Operacionais.
 |---|---|---|---|
 | Escalonamento de Processos | Simulador | `#/escalonamento/simulador` | `src/app/features/escalonamento/simulador` |
 | Escalonamento de Processos | Exercícios | `#/escalonamento/exercicios` | `src/app/features/escalonamento/exercicios` |
+| Partições | Partições Fixas | `#/particoes/fixas` | `src/app/features/particoes/fixas` |
+| Partições | Partições Variáveis | `#/particoes/variaveis` | `src/app/features/particoes/variaveis` |
 | Paginação | Simulador de Paginação Simples | `#/paginacao/simulador-simples` | `src/app/features/paginacao/simulador-simples` |
 | Paginação | Exercícios de Paginação Simples | `#/paginacao/exercicios-simples` | `src/app/features/paginacao/exercicios-simples` |
 | Paginação | Simulador de Paginação por Demanda | `#/paginacao/simulador-demanda` | `src/app/features/paginacao/simulador-demanda` |

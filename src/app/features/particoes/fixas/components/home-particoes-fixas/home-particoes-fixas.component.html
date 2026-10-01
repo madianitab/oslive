@@ -1,0 +1,13 @@
+<os-sim-shell
+  title="Partições Fixas"
+  subtitle="Alocação contígua estática: cada processo ocupa uma partição inteira e a sobra é fragmentação interna."
+>
+  <ng-container slot="actions">
+    <os-button-group>
+      <button class="osbg-btn primary" type="button" aria-label="Criar processo aleatório" title="Criar processo aleatório" (click)="sim.gerarAleatorio()"><i class="fa-solid fa-plus"></i></button>
+      <button class="osbg-btn danger" type="button" aria-label="Reiniciar simulação" title="Reiniciar" (click)="sim.reiniciar()"><i class="fa-solid fa-rotate-right"></i></button>
+    </os-button-group>
+  </ng-container>
+  <app-lateral-particoes-fixas slot="config"></app-lateral-particoes-fixas>
+  <app-area-particoes-fixas></app-area-particoes-fixas>
+</os-sim-shell>

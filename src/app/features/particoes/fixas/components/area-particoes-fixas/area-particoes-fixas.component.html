@@ -1,0 +1,140 @@
+<div class="viz">
+  <section>
+    <div class="viz-stats">
+      <os-stat label="Escolha da partição" [value]="nomePolitica()"></os-stat>
+      <os-stat label="Partições livres" [value]="sim.livres().length + ' / ' + sim.particoes().length" [hint]="sim.livreTotal() + ' KB livres'"></os-stat>
+      <os-stat label="Fragmentação interna" [value]="sim.fragInterna()" unit="KB" hint="soma das sobras nas partições" [accent]="sim.fragInterna() > 0"></os-stat>
+      <os-stat label="Fila de espera" [value]="sim.fila().length"></os-stat>
+    </div>
+  </section>
+
+  @if (sim.ultimo(); as u) {
+    @if (!u.particao) {
+      <div class="alerta" [class.externa]="u.motivo.startsWith('FRAGMENTAÇÃO EXTERNA')" [class.interna]="!u.motivo.startsWith('FRAGMENTAÇÃO EXTERNA')" role="alert">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div>{{ u.motivo }}</div>
+      </div>
+    } @else if (u.particao.tamanho > u.processo.tamanho) {
+      <div class="alerta interna" role="status">
+        <i class="fa-solid fa-puzzle-piece"></i>
+        <div><span class="titulo">Fragmentação interna</span>
+          <b>{{ u.processo.nome }}</b> ({{ u.processo.tamanho }} KB) foi para a <b>partição {{ u.particao.numero }}</b> ({{ u.particao.tamanho }} KB).
+          Sobram <b>{{ u.particao.tamanho - u.processo.tamanho }} KB</b> dentro da partição, que ficam perdidos: não podem ser usados por nenhum outro processo.
+        </div>
+      </div>
+    } @else {
+      <div class="alerta ok"><i class="fa-solid fa-circle-check"></i><div>{{ u.motivo }}</div></div>
+    }
+  }
+
+  <div class="layout">
+    <section>
+      <div class="viz-label">Memória física</div>
+      <div class="memoria">
+        <div class="escala" [ngStyle]="{ height: altura() + 'px' }">
+          @for (m of marcas; track m) { <span [ngStyle]="{ top: y(m) + 'px' }">{{ m }}</span> }
+        </div>
+        <div class="barra" [ngStyle]="{ height: altura() + 'px' }">
+          <div class="bloco so" [ngStyle]="{ top: '0px', height: y(so) + 'px' }"><b>SO</b>{{ so }} KB</div>
+          @for (p of sim.particoes(); track p.numero) {
+            @if (p.processo) {
+              <div class="bloco processo" [ngStyle]="{ top: y(p.inicio) + 'px', height: y(p.processo.tamanho) + 'px', 'background-color': p.processo.cor }"
+                [title]="p.processo.nome + ' na partição ' + p.numero">
+                <b>{{ p.processo.nome }}</b>@if (p.processo.tamanho >= 25) { {{ p.processo.tamanho }} KB }
+              </div>
+              @if (p.tamanho > p.processo.tamanho) {
+                <div class="bloco frag-interna" [ngStyle]="{ top: y(p.inicio + p.processo.tamanho) + 'px', height: y(p.tamanho - p.processo.tamanho) + 'px' }"
+                  [title]="'Fragmentação interna: ' + (p.tamanho - p.processo.tamanho) + ' KB'">
+                  @if (p.tamanho - p.processo.tamanho >= 18) { frag. interna {{ p.tamanho - p.processo.tamanho }} KB }
+                </div>
+              }
+            } @else {
+              <div class="bloco particao-livre" [ngStyle]="{ top: y(p.inicio) + 'px', height: y(p.tamanho) + 'px' }">
+                @if (p.tamanho >= 25) { partição {{ p.numero }} livre<br>{{ p.tamanho }} KB } @else { {{ p.numero }} }
+              </div>
+            }
+            <div class="borda-particao" [ngStyle]="{ top: y(p.inicio) + 'px' }"></div>
+          }
+          @if (naoParticionado().tamanho > 0) {
+            <div class="bloco lacuna" [ngStyle]="{ top: y(naoParticionado().inicio) + 'px', height: y(naoParticionado().tamanho) + 'px' }">
+              @if (naoParticionado().tamanho >= 20) { não particionado }
+            </div>
+          }
+        </div>
+      </div>
+      <p class="hint-tabela">Linhas pretas = limites das partições. Listras vermelhas = fragmentação interna.</p>
+    </section>
+
+    <div class="coluna">
+      <section>
+        <div class="viz-label">Tabela de partições</div>
+        <div class="res-card">
+          <table class="res-table">
+            <thead><tr><th>Partição</th><th>Início</th><th>Tamanho</th><th>Livre</th><th>Processo</th><th>Frag. interna</th><th></th></tr></thead>
+            <tbody>
+              @for (p of sim.particoes(); track p.numero) {
+                <tr>
+                  <td>{{ p.numero }}</td>
+                  <td>{{ p.inicio }} KB</td>
+                  <td>{{ p.tamanho }} KB</td>
+                  <td>{{ p.processo ? 'Não' : 'Sim' }}</td>
+                  <td>@if (p.processo) { <span class="p-dot" [ngStyle]="{ 'background-color': p.processo.cor }"></span>{{ p.processo.nome }} ({{ p.processo.tamanho }} KB) } @else { – }</td>
+                  <td [class.frag]="p.processo && p.tamanho > p.processo.tamanho">{{ p.processo ? (p.tamanho - p.processo.tamanho) + ' KB' : '–' }}</td>
+                  <td>@if (p.processo) { <button type="button" class="btn-mini" (click)="sim.encerrar(p.processo.nome)">Encerrar</button> }</td>
+                </tr>
+              }
+              <tr class="destaque-linha">
+                <td colspan="5" class="td-esq">Total de fragmentação interna</td>
+                <td class="frag">{{ sim.fragInterna() }} KB</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <div class="viz-label">Fila de espera</div>
+        <p class="hint-tabela" style="margin-top: 0">
+          @for (p of sim.fila(); track p.nome) {
+            <span class="chip-proc" [ngStyle]="{ 'background-color': p.cor }">{{ p.nome }} · {{ p.tamanho }} KB
+              <i class="fa-solid fa-xmark" style="cursor: pointer" title="Cancelar" (click)="sim.encerrar(p.nome)"></i></span>
+          } @empty { vazia }
+        </p>
+      </section>
+
+      @if (ocupadas().length > 0) {
+        <section>
+          <div class="viz-label">Proteção: registradores de base e limite</div>
+          <div class="protecao">
+            <div class="linha-form">
+              <label>Processo
+                <select class="campo" [(ngModel)]="procTeste" name="procTeste">
+                  <option value="" disabled>Escolha</option>
+                  @for (p of ocupadas(); track p.numero) { <option [value]="p.processo!.nome">{{ p.processo!.nome }}</option> }
+                </select>
+              </label>
+              <label>End. lógico (KB)
+                <input type="number" min="0" class="campo" [(ngModel)]="logicoTeste" name="logicoTeste">
+              </label>
+              <os-button variant="s" size="sm" (click)="testar()">Traduzir</os-button>
+            </div>
+            <p class="hint-tabela">Base = início da partição; limite = tamanho da partição.</p>
+            @if (sim.protecaoTeste(); as t) {
+              <p [class.res-ok]="t.r.ok" [class.res-erro]="!t.r.ok">{{ t.nome }}: {{ t.r.mensagem }}</p>
+            }
+          </div>
+        </section>
+      }
+
+      @if (sim.eventos().length > 0) {
+        <section>
+          <div class="viz-label">Diário</div>
+          <ul class="diario">
+            @for (e of sim.eventos(); track $index) { <li [class]="e.tipo">{{ e.texto }}</li> }
+          </ul>
+        </section>
+      }
+    </div>
+  </div>
+</div>

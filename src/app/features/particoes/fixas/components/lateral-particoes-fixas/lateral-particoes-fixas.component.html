@@ -1,0 +1,35 @@
+<div class="sim-config">
+  <os-panel title="Partições (KB)">
+    <input type="text" class="form-control" name="config" [(ngModel)]="config" [disabled]="!sim.vazia()" placeholder="ex.: 200, 100, 50, 30">
+    <div class="proc-actions" style="margin-top: 10px">
+      <os-button variant="s" size="sm" [disabled]="!sim.vazia()" (click)="aplicar()"><i class="fa-solid fa-table-cells-large"></i> Aplicar</os-button>
+    </div>
+    <p class="hint" style="margin-top: 10px">Definidas antes de executar e <b>não mudam</b> durante a execução. Área de usuário: {{ usuario }} KB (padrão do material: 200, 100, 50 e 30 KB).</p>
+  </os-panel>
+
+  <os-panel title="Escolha da partição">
+    <select class="form-control" name="politica" [ngModel]="sim.politica()" (ngModelChange)="sim.definirPolitica($event)">
+      @for (p of politicas; track p.valor) { <option [ngValue]="p.valor">{{ p.nome }}</option> }
+    </select>
+    <p class="hint" style="margin-top: 10px">O SO {{ regra }}.</p>
+  </os-panel>
+
+  <os-panel title="Criar processo">
+    <form class="proc-form" (ngSubmit)="criar()">
+      <input type="number" min="1" class="form-control" name="tamanho" placeholder="Tamanho (KB)" [(ngModel)]="tamanho">
+      <div class="proc-actions">
+        <os-button variant="p" size="sm" type="submit"><i class="fa-solid fa-circle-plus"></i> Criar</os-button>
+        <os-button variant="s" size="sm" type="button" (click)="sim.gerarAleatorio()"><i class="fa fa-cogs"></i> Aleatório</os-button>
+      </div>
+    </form>
+  </os-panel>
+
+  <os-panel title="Como funciona">
+    <ul class="hint" style="margin: 0; padding-left: 18px">
+      <li>Memória de {{ so + usuario }} KB: {{ so }} KB do SO e {{ usuario }} KB divididos em partições.</li>
+      <li>Alocação contígua: o processo vai para uma partição <b>livre de tamanho igual ou maior</b>.</li>
+      <li>O processo ocupa a partição inteira: a sobra é <b>fragmentação interna</b> (perdida para os outros processos).</li>
+      <li>Se nenhuma partição livre comporta o processo, ele espera na fila. Pode haver <b>fragmentação externa</b>: partições livres que, somadas, caberiam o processo.</li>
+    </ul>
+  </os-panel>
+</div>

@@ -1,0 +1,175 @@
+<div class="viz">
+  <section>
+    <div class="viz-stats">
+      <os-stat label="Algoritmo" [value]="nomeAlg()"></os-stat>
+      <os-stat label="Memória livre" [value]="sim.livre()" unit="KB" [hint]="sim.lacunas().length + ' lacuna(s)'"></os-stat>
+      <os-stat label="Maior lacuna" [value]="sim.maiorLacuna()" unit="KB"></os-stat>
+      <os-stat label="Fila de espera" [value]="sim.fila().length" [accent]="sim.bloqueadosPorFragmentacao().length > 0"></os-stat>
+    </div>
+  </section>
+
+  @if (sim.bloqueadosPorFragmentacao().length > 0) {
+    <div class="alerta externa" role="alert">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <div>
+        <span class="titulo">Fragmentação externa</span>
+        @for (p of sim.bloqueadosPorFragmentacao(); track p.nome) {
+          <b>{{ p.nome }}</b> precisa de <b>{{ p.tamanho }} KB</b>.
+        }
+        Há <b>{{ sim.livre() }} KB livres</b> no total, mas a maior lacuna tem só <b>{{ sim.maiorLacuna() }} KB</b>: o espaço livre está
+        dividido em {{ sim.lacunas().length }} lacunas não contíguas. Solução: <b>compactar</b> a memória (ou esperar processos terminarem).
+      </div>
+    </div>
+  }
+
+  <div class="layout">
+    <!-- BARRA DE MEMÓRIA -->
+    <section>
+      <div class="viz-label">Memória física</div>
+      <div class="memoria">
+        <div class="escala" [ngStyle]="{ height: altura + 'px' }">
+          @for (m of marcas; track m) { <span [ngStyle]="{ top: y(m) + 'px' }">{{ m }}</span> }
+        </div>
+        <div class="barra" [ngStyle]="{ height: altura + 'px' }">
+          <div class="bloco so" [ngStyle]="{ top: '0px', height: y(so) + 'px' }"><b>SO</b>{{ so }} KB</div>
+          @for (a of sim.alocados(); track a.processo.nome) {
+            <div class="bloco processo" [ngStyle]="{ top: y(a.base) + 'px', height: y(a.processo.tamanho) + 'px', 'background-color': a.processo.cor }"
+              [title]="a.processo.nome + ': base ' + a.base + ' KB, ' + a.processo.tamanho + ' KB'">
+              <b>{{ a.processo.nome }}</b>@if (a.processo.tamanho >= 25) { {{ a.processo.tamanho }} KB }
+            </div>
+          }
+          @for (l of sim.lacunas(); track l.inicio) {
+            <div class="bloco lacuna" [class.pequena]="pequena(l)" [ngStyle]="{ top: y(l.inicio) + 'px', height: y(l.tamanho) + 'px' }"
+              [title]="'Lacuna: início ' + l.inicio + ' KB, ' + l.tamanho + ' KB'">
+              @if (l.tamanho >= 18) { lacuna {{ l.tamanho }} KB }
+            </div>
+          }
+        </div>
+      </div>
+      <p class="hint-tabela">Listras = lacunas (livre). Em vermelho, lacunas pequenas demais para os processos da fila.</p>
+    </section>
+
+    <div class="coluna">
+      <!-- DECISÃO E COMPARAÇÃO -->
+      @if (sim.decisao(); as d) {
+        <section>
+          <div class="viz-label">Última alocação: {{ d.processo.nome }} ({{ d.processo.tamanho }} KB)</div>
+          @if (d.resultado === 'alocado') {
+            <div class="alerta ok"><i class="fa-solid fa-circle-check"></i>
+              <div>{{ nome(d.algoritmo) }} escolheu a lacuna em <b>{{ d.escolhida!.inicio }} KB</b> ({{ d.escolhida!.tamanho }} KB):
+                {{ d.processo.nome }} ficou com {{ d.processo.tamanho }} KB
+                @if (d.escolhida!.tamanho > d.processo.tamanho) { e a sobra de <b>{{ d.escolhida!.tamanho - d.processo.tamanho }} KB</b> virou nova lacuna. } @else { e ocupou a lacuna inteira. }</div>
+            </div>
+          } @else if (d.resultado === 'fragmentacao') {
+            <div class="alerta externa"><i class="fa-solid fa-triangle-exclamation"></i>
+              <div><span class="titulo">Fragmentação externa</span>{{ d.processo.nome }} precisa de {{ d.processo.tamanho }} KB e há {{ d.livre }} KB livres,
+                mas nenhuma lacuna comporta o processo (maior: {{ d.maiorLacuna }} KB). Ele foi para a fila.</div>
+            </div>
+          } @else {
+            <div class="alerta interna"><i class="fa-solid fa-hourglass-half"></i>
+              <div><span class="titulo">Memória insuficiente</span>{{ d.processo.nome }} precisa de {{ d.processo.tamanho }} KB e só há {{ d.livre }} KB livres. Ele aguarda na fila.</div>
+            </div>
+          }
+          <p class="hint-tabela">Lacunas no momento do pedido (início · tamanho):
+            @for (l of d.lacunas; track l.inicio) {
+              <span class="chip" [class.escolhida]="d.escolhida?.inicio === l.inicio" [class.nao-cabe]="l.tamanho < d.processo.tamanho">{{ l.inicio }} · {{ l.tamanho }}</span>
+            }
+          </p>
+          <div class="res-card" style="margin-top: 10px">
+            <div class="res-card-head">Comparação: o que cada algoritmo escolheria para {{ d.processo.nome }}</div>
+            <table class="res-table">
+              <thead><tr><th>Algoritmo</th><th>Lacuna escolhida</th><th>Sobra (nova lacuna)</th></tr></thead>
+              <tbody>
+                @for (c of d.comparativo; track c.algoritmo) {
+                  <tr [class.destaque-linha]="c.algoritmo === d.algoritmo">
+                    <td class="td-esq">{{ nome(c.algoritmo) }}</td>
+                    <td>@if (c.lacuna) { {{ c.lacuna.inicio }} KB ({{ c.lacuna.tamanho }} KB) } @else { <span class="frag">nenhuma</span> }</td>
+                    <td>@if (c.lacuna) { {{ c.lacuna.tamanho - d.processo.tamanho }} KB } @else { – }</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      <!-- PROCESSOS NA MEMÓRIA -->
+      <section>
+        <div class="viz-label">Processos na memória</div>
+        @if (sim.alocados().length === 0) {
+          <p class="empty-hint">Crie um processo para começar.</p>
+        } @else {
+          <div class="res-card">
+            <table class="res-table">
+              <thead><tr><th>Processo</th><th>Base</th><th>Limite (tamanho)</th><th>Ações</th></tr></thead>
+              <tbody>
+                @for (a of sim.alocados(); track a.processo.nome) {
+                  <tr>
+                    <td class="td-esq"><span class="p-dot" [ngStyle]="{ 'background-color': a.processo.cor }"></span>{{ a.processo.nome }}</td>
+                    <td>{{ a.base }} KB</td>
+                    <td>{{ a.processo.tamanho }} KB</td>
+                    <td><div class="acoes-linha">
+                      <button type="button" class="btn-mini" (click)="sim.encerrar(a.processo.nome)" title="O processo termina e libera a memória">Encerrar</button>
+                      <button type="button" class="btn-mini" (click)="sim.swapOut(a.processo.nome)" title="Copia o processo para o disco">Swap-out</button>
+                    </div></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+
+      <!-- FILA E DISCO -->
+      <section>
+        <div class="viz-label">Fila de espera e disco (swap)</div>
+        <p class="hint-tabela" style="margin-top: 0">Fila:
+          @for (p of sim.fila(); track p.nome) {
+            <span class="chip-proc" [ngStyle]="{ 'background-color': p.cor }" [title]="p.tamanho + ' KB'">{{ p.nome }} · {{ p.tamanho }} KB
+              <i class="fa-solid fa-xmark" style="cursor: pointer" title="Cancelar" (click)="sim.encerrar(p.nome)"></i></span>
+          } @empty { vazia }
+        </p>
+        <p class="hint-tabela">Disco:
+          @for (p of sim.disco(); track p.nome) {
+            <span class="chip-proc" [ngStyle]="{ 'background-color': p.cor }">{{ p.nome }} · {{ p.tamanho }} KB
+              <button type="button" class="btn-mini" (click)="sim.swapIn(p.nome)">Swap-in</button></span>
+          } @empty { vazio }
+        </p>
+      </section>
+
+      <!-- PROTEÇÃO -->
+      @if (sim.alocados().length > 0) {
+        <section>
+          <div class="viz-label">Proteção: registradores de base e limite</div>
+          <div class="protecao">
+            <div class="linha-form">
+              <label>Processo
+                <select class="campo" [(ngModel)]="procTeste" name="procTeste">
+                  <option value="" disabled>Escolha</option>
+                  @for (a of sim.alocados(); track a.processo.nome) { <option [value]="a.processo.nome">{{ a.processo.nome }}</option> }
+                </select>
+              </label>
+              <label>End. lógico (KB)
+                <input type="number" min="0" class="campo" [(ngModel)]="logicoTeste" name="logicoTeste">
+              </label>
+              <os-button variant="s" size="sm" (click)="testar()">Traduzir</os-button>
+            </div>
+            @if (sim.protecaoTeste(); as t) {
+              <p [class.res-ok]="t.r.ok" [class.res-erro]="!t.r.ok">{{ t.nome }}: {{ t.r.mensagem }}</p>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- DIÁRIO -->
+      @if (sim.eventos().length > 0) {
+        <section>
+          <div class="viz-label">Diário</div>
+          <ul class="diario">
+            @for (e of sim.eventos(); track $index) { <li [class]="e.tipo">{{ e.texto }}</li> }
+          </ul>
+        </section>
+      }
+    </div>
+  </div>
+</div>

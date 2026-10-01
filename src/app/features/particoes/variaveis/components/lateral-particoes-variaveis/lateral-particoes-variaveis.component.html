@@ -1,0 +1,34 @@
+<div class="sim-config">
+  <os-panel title="Algoritmo de alocação">
+    <select class="form-control" name="alg" [ngModel]="sim.algoritmo()" (ngModelChange)="sim.definirAlgoritmo($event)">
+      @for (a of algoritmos; track a.valor) { <option [ngValue]="a.valor">{{ a.nome }}</option> }
+    </select>
+    <p class="hint" style="margin-top: 10px">Escolhe {{ regra }}. Dá para trocar o algoritmo a qualquer momento.</p>
+  </os-panel>
+
+  <os-panel title="Criar processo">
+    <form class="proc-form" (ngSubmit)="criar()">
+      <input type="number" min="1" [max]="usuario" class="form-control" name="tamanho" placeholder="Tamanho (KB)" [(ngModel)]="tamanho">
+      <div class="proc-actions">
+        <os-button variant="p" size="sm" type="submit"><i class="fa-solid fa-circle-plus"></i> Criar</os-button>
+        <os-button variant="s" size="sm" type="button" (click)="sim.gerarAleatorio()"><i class="fa fa-cogs"></i> Aleatório</os-button>
+      </div>
+    </form>
+    <p class="info-livre" style="margin-top: 10px">Livre: <b>{{ sim.livre() }} KB</b> · maior lacuna: <b>{{ sim.maiorLacuna() }} KB</b></p>
+  </os-panel>
+
+  <os-panel title="Memória">
+    <os-button variant="s" size="sm" (click)="sim.compactar()"><i class="fa-solid fa-compress"></i> Compactar</os-button>
+    <p class="hint" style="margin-top: 10px">A compactação desloca os processos para unir as lacunas. Resolve a fragmentação externa, mas gasta CPU e exige relocação dinâmica (as bases mudam).</p>
+  </os-panel>
+
+  <os-panel title="Como funciona">
+    <ul class="hint" style="margin: 0; padding-left: 18px">
+      <li>Memória de {{ total }} KB: {{ so }} KB do SO e {{ usuario }} KB para os processos.</li>
+      <li>Cada processo recebe exatamente o que precisa (alocação contígua); a sobra vira uma nova lacuna.</li>
+      <li>Não há fragmentação interna. Pode haver <b>fragmentação externa</b>: memória livre suficiente, mas dividida em lacunas pequenas demais.</li>
+      <li>Processos que não cabem esperam na fila; ao liberar memória, a fila é atendida.</li>
+      <li><b>Swap-out</b> copia um processo para o disco e libera sua memória; <b>swap-in</b> o traz de volta.</li>
+    </ul>
+  </os-panel>
+</div>

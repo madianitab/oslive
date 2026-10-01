@@ -1,0 +1,92 @@
+/* Estilos comuns às simulações de partições (barra de memória, alertas e diário). */
+:host { display: block; }
+.layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 32px; align-items: start; }
+.coluna { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+
+.memoria { display: flex; gap: 6px; }
+.escala { position: relative; width: 44px; font-family: var(--f-mono); font-size: 10px; color: var(--text-3); }
+.escala span { position: absolute; right: 0; transform: translateY(-50%); }
+.barra {
+  position: relative;
+  width: 190px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  overflow: hidden;
+}
+.bloco {
+  position: absolute;
+  left: 0; right: 0;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  font-family: var(--f-mono); font-size: 11px; line-height: 1.2;
+  border-bottom: 1px solid var(--surface);
+  overflow: hidden;
+  text-align: center;
+}
+.bloco.so { background: #4a4a4a; color: #fff; }
+.bloco.processo { color: #fff; }
+.bloco.lacuna {
+  color: var(--text-3);
+  background: repeating-linear-gradient(45deg, var(--surface-2), var(--surface-2) 6px, var(--surface) 6px, var(--surface) 12px);
+}
+.bloco.lacuna.pequena { color: var(--err-deep); }
+.bloco.frag-interna {
+  color: var(--err-deep);
+  background: repeating-linear-gradient(45deg, var(--err-soft), var(--err-soft) 5px, #fff 5px, #fff 10px);
+  border-top: 1px dashed var(--err);
+}
+.bloco.particao-livre {
+  color: var(--text-3);
+  background: var(--surface-2);
+}
+.borda-particao { position: absolute; left: 0; right: 0; border-top: 2px solid var(--text); pointer-events: none; }
+.bloco b { font-weight: 700; }
+
+.alerta {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  font-size: 14px; line-height: 1.5; color: var(--text);
+}
+.alerta i { font-size: 18px; margin-top: 2px; }
+.alerta.externa { background: var(--err-soft); border: 2px solid var(--err); }
+.alerta.externa i, .alerta.externa .titulo { color: var(--err-deep); }
+.alerta.interna { background: var(--warn-soft); border: 2px solid var(--warn); }
+.alerta.interna i, .alerta.interna .titulo { color: var(--warn-deep); }
+.alerta.ok { background: var(--ok-soft); border: 1px solid var(--ok); }
+.alerta.ok i { color: var(--ok-deep); }
+.titulo { display: block; font-family: var(--f-mono); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 2px; }
+
+.chip { display: inline-block; font-family: var(--f-mono); font-size: 11px; padding: 2px 7px; margin: 2px; border: 1px solid var(--line); border-radius: var(--r-xs); background: var(--surface); }
+.chip.nao-cabe { opacity: .45; text-decoration: line-through; }
+.chip.escolhida { border-color: var(--ok); background: var(--ok-soft); color: var(--ok-deep); font-weight: 700; }
+.chip-proc { display: inline-block; font-family: var(--f-mono); font-size: 11px; color: #fff; padding: 3px 8px; margin: 2px; border-radius: var(--r-xs); }
+
+.res-card { max-width: 720px; }
+.td-esq { text-align: left !important; }
+.destaque-linha td { background: var(--a-soft); font-weight: 600; color: var(--text) !important; }
+.frag { color: var(--err-deep) !important; font-weight: 700; }
+.acoes-linha { display: flex; gap: 4px; justify-content: center; }
+.btn-mini {
+  font-size: 11px; padding: 2px 8px; border: 1px solid var(--line); border-radius: var(--r-xs);
+  background: var(--surface); color: var(--text-2); cursor: pointer;
+}
+.btn-mini:hover { border-color: var(--a); color: var(--a); }
+
+.protecao { max-width: 520px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px 16px; font-size: 12px; }
+.protecao .linha-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.protecao label { display: flex; flex-direction: column; gap: 4px; font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; margin: 0; color: var(--text-3); }
+.campo { height: 30px; min-width: 90px; font-family: var(--f-mono); font-size: 12px; text-align: center; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xs); }
+.res-ok { color: var(--ok-deep); font-family: var(--f-mono); margin: 8px 0 0; }
+.res-erro { color: var(--err-deep); font-family: var(--f-mono); font-weight: 600; margin: 8px 0 0; }
+
+.diario { list-style: none; padding: 0; margin: 0; font-size: 12.5px; max-height: 260px; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+.diario li { padding: 6px 12px; border-bottom: 1px solid var(--line-soft); color: var(--text-2); }
+.diario li:first-child { background: var(--a-soft); color: var(--text); }
+.diario li.erro { border-left: 4px solid var(--err); }
+.diario li.aviso { border-left: 4px solid var(--warn); }
+.diario li.ok { border-left: 4px solid var(--ok); }
+.diario li.info { border-left: 4px solid var(--line); }
+.hint-tabela { font-family: var(--f-serif); font-style: italic; font-size: 13px; color: var(--text-3); margin: 6px 0 0; }
+
+@media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } }

@@ -11,6 +11,8 @@ import { HomeExercicioEscalonamentoComponent } from 'src/app/features/escaloname
 import { HomeSimuladorPaginacaoSimplesComponent } from 'src/app/features/paginacao/simulador-simples/components/home-simulador-paginacao-simples/home-simulador-paginacao-simples.component';
 import { HomeExercicioPaginacaoSimplesComponent } from 'src/app/features/paginacao/exercicios-simples/components/home-exercicio-paginacao-simples/home-exercicio-paginacao-simples.component';
 import { HomeSimuladorPaginacaoDemandaComponent } from 'src/app/features/paginacao/simulador-demanda/components/home-simulador-paginacao-demanda/home-simulador-paginacao-demanda.component';
+import { HomeParticoesFixasComponent } from 'src/app/features/particoes/fixas/components/home-particoes-fixas/home-particoes-fixas.component';
+import { HomeParticoesVariaveisComponent } from 'src/app/features/particoes/variaveis/components/home-particoes-variaveis/home-particoes-variaveis.component';
 
 const routes: Routes = [
   { path: "", component: LandingComponent, pathMatch: 'full' },
@@ -20,6 +22,10 @@ const routes: Routes = [
   // Escalonamento de Processos
   { path: "escalonamento/simulador", component: HomeEscalonamentoComponent },
   { path: "escalonamento/exercicios", component: HomeExercicioEscalonamentoComponent },
+
+  // Partições (alocação contígua)
+  { path: "particoes/fixas", component: HomeParticoesFixasComponent },
+  { path: "particoes/variaveis", component: HomeParticoesVariaveisComponent },
 
   // Paginação
   { path: "paginacao/simulador-simples", component: HomeSimuladorPaginacaoSimplesComponent },
