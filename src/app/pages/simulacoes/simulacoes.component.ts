@@ -72,13 +72,13 @@ import { OsBadgeComponent } from '../../ui/badge/badge.component';
       <os-card title="Simulador">
         <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="11" width="18" height="4" rx="1"/><rect x="3" y="17" width="18" height="3" rx="1"/></svg></os-card-icon>
         <os-badge slot="badge" variant="a">simulador</os-badge>
-        Segmentos de código, dados e pilha mapeados na memória física.
+        Segmentos de código, dados e pilha, alocação best-fit passo a passo e tradução com verificação de limite.
         <div slot="footer"><os-button variant="p" size="sm" (click)="go('/segmentacao/simulador')">Abrir →</os-button></div>
       </os-card>
       <os-card title="Exercícios">
         <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="11" width="18" height="4" rx="1"/><rect x="3" y="17" width="18" height="3" rx="1"/></svg></os-card-icon>
         <os-badge slot="badge" variant="s">exercícios</os-badge>
-        Exercícios de alocação e tradução de endereços com segmentação.
+        Traduza endereços, complete tabela de segmentos e memória física e aloque processos por best-fit.
         <div slot="footer"><os-button variant="p" size="sm" (click)="go('/segmentacao/exercicios')">Abrir →</os-button></div>
       </os-card>
     </div>

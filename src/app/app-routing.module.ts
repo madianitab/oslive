@@ -4,8 +4,8 @@ import { HomePaginacaoPorDemandaExerciciosComponent } from 'src/app/features/pag
 import { LandingComponent } from './pages/landing/landing.component';
 import { SimulacoesComponent } from './pages/simulacoes/simulacoes.component';
 import { HomeEscalonamentoComponent } from 'src/app/features/escalonamento/simulador/components/home-escalonamento/home-escalonamento.component';
-import { HomeComponent as SegmentacaoHomeComponent } from 'src/app/features/segmentacao/simulador/components/home/home.component';
-import { HomeExercicioDeSegmentacaoComponent } from 'src/app/features/segmentacao/exercicios/components/home-exercicio-de-segmentacao/home-exercicio-de-segmentacao.component';
+import { HomeSimuladorSegmentacaoComponent } from 'src/app/features/segmentacao/simulador/components/home-simulador-segmentacao/home-simulador-segmentacao.component';
+import { HomeExercicioSegmentacaoComponent } from 'src/app/features/segmentacao/exercicios/components/home-exercicio-segmentacao/home-exercicio-segmentacao.component';
 import { BrandkitComponent } from './pages/brandkit/brandkit.component';
 import { HomeExercicioEscalonamentoComponent } from 'src/app/features/escalonamento/exercicios/components/home-exercicio-escalonamento/home-exercicio-escalonamento.component';
 import { HomeSimuladorPaginacaoSimplesComponent } from 'src/app/features/paginacao/simulador-simples/components/home-simulador-paginacao-simples/home-simulador-paginacao-simples.component';
@@ -28,8 +28,8 @@ const routes: Routes = [
   { path: "paginacao/exercicios", component: HomePaginacaoPorDemandaExerciciosComponent },
 
   // Segmentação
-  { path: "segmentacao/simulador", component: SegmentacaoHomeComponent },
-  { path: "segmentacao/exercicios", component: HomeExercicioDeSegmentacaoComponent },
+  { path: "segmentacao/simulador", component: HomeSimuladorSegmentacaoComponent },
+  { path: "segmentacao/exercicios", component: HomeExercicioSegmentacaoComponent },
 
   // Endereços antigos (mantidos para não quebrar links já compartilhados)
   { path: "EscalonamentoDeProcessos", redirectTo: "escalonamento/simulador" },

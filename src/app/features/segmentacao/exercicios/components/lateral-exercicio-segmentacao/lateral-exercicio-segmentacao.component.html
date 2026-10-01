@@ -1,0 +1,29 @@
+<div class="sim-config">
+
+  <os-panel title="Tipo de exercício">
+    <select class="form-control" name="tipo" [ngModel]="ex.tipo()" (ngModelChange)="ex.definirTipo($event)">
+      @for (t of tipos; track t.valor) {
+        <option [ngValue]="t.valor">{{ t.nome }}</option>
+      }
+    </select>
+    <p class="hint mt-campo">{{ descricaoTipo }}</p>
+  </os-panel>
+
+  <os-panel title="Gerar exercício">
+    <div class="proc-actions">
+      <os-button variant="p" size="sm" (click)="ex.gerar()"><i class="fa-solid fa-shuffle"></i> {{ ex.gerado() ? 'Gerar outro' : 'Gerar exercício' }}</os-button>
+    </div>
+    <p class="hint mt-campo">Sempre 3 processos (A, B e C) com segmentos de tamanhos aleatórios, alocados por best-fit.</p>
+  </os-panel>
+
+  <os-panel title="Regras">
+    <ul class="hint regras">
+      <li>Memória física de <b>32 bytes</b> (endereço físico de 5 bits).</li>
+      <li>End. lógico = <b>segmento</b> (2 bits: 00 código, 01 dados, 10 pilha) + <b>deslocamento</b> (4 bits).</li>
+      <li>Se deslocamento &lt; <b>limite</b>: físico = <b>base + deslocamento</b>. Senão, <b>interrupção</b>.</li>
+      <li>Bytes contados a partir de 1: C1 é o deslocamento 0000.</li>
+      <li><b>Best-fit</b>: menor segmento primeiro, na menor lacuna que o comporta (empate: menor endereço).</li>
+    </ul>
+  </os-panel>
+
+</div>

@@ -1,0 +1,7 @@
+.mt-campo { margin-top: 10px; }
+.campo-nome { text-transform: uppercase; }
+.campo-nome::placeholder { text-transform: none; }
+.linha-selecionada { background: var(--a-soft) !important; }
+.clicavel { cursor: pointer; }
+.regras { margin: 0; padding-left: 18px; }
+.regras li { margin-bottom: 4px; }

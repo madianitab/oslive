@@ -1,0 +1,13 @@
+<os-sim-shell
+  title="Segmentação"
+  subtitle="Crie processos com segmentos de código, dados e pilha e veja a alocação best-fit."
+>
+  <ng-container slot="actions">
+    <os-button-group>
+      <button class="osbg-btn danger" type="button" aria-label="Reiniciar simulação" title="Reiniciar" (click)="sim.reiniciar()"><i class="fa-solid fa-rotate-right"></i></button>
+    </os-button-group>
+  </ng-container>
+
+  <app-lateral-simulador-segmentacao slot="config"></app-lateral-simulador-segmentacao>
+  <app-area-simulador-segmentacao></app-area-simulador-segmentacao>
+</os-sim-shell>

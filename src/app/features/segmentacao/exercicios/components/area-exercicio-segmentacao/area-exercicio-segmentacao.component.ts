@@ -1,79 +1,102 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-
+import { Component, computed } from '@angular/core';
+import { NgStyle, NgClass, NgTemplateOutlet } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { OsStatComponent } from 'src/app/ui/stat/stat.component';
+import { OsButtonComponent } from 'src/app/ui/button/button.component';
+import {
+  Correcao,
+  ExercicioSegmentacaoService,
+  PerguntaTraducaoSeg,
+  TIPOS_EXERCICIO_SEG,
+} from 'src/app/features/segmentacao/services/exercicio-segmentacao.service';
+import {
+  BITS_DESLOCAMENTO,
+  BITS_FISICO,
+  BITS_SEGMENTO,
+  ByteFisico,
+  Lacuna,
+  PassoAlocacao,
+  ProcessoSegmentado,
+  SEGMENTOS,
+  Segmento,
+  TipoSegmento,
+  binario,
+  corSegmento,
+  nomeByte,
+  traduzir,
+} from 'src/app/features/segmentacao/models/segmentacao';
 
 @Component({
-    selector: 'app-area-exercicio-segmentacao',
-    templateUrl: './area-exercicio-segmentacao.component.html',
-    styleUrls: ['./area-exercicio-segmentacao.component.css'],
-    standalone: true,
-    imports: []
+  selector: 'app-area-exercicio-segmentacao',
+  templateUrl: './area-exercicio-segmentacao.component.html',
+  styleUrls: ['../../../../../ui/styles/sim-viz.css', './area-exercicio-segmentacao.component.css'],
+  standalone: true,
+  imports: [NgStyle, NgClass, NgTemplateOutlet, FormsModule, OsStatComponent, OsButtonComponent],
 })
-export class AreaExercicioSegmentacaoComponent implements OnChanges {
-  @Input() codigo = 0;
-  @Input() dados = 0;
-  @Input() pilha = 0;
+export class AreaExercicioSegmentacaoComponent {
+  public readonly bin = binario;
+  public readonly bF = BITS_FISICO;
+  public readonly bS = BITS_SEGMENTO;
+  public readonly bD = BITS_DESLOCAMENTO;
+  public readonly nomeByte = nomeByte;
+  public readonly segmentos = SEGMENTOS;
 
-  memoriaLogica: any[] = [];
-  tabelaSegmentos: any[] = [];
-  tableMemory: [string, string, string][] = [];
+  readonly nomeTipo = computed(() => ({
+    TRADUCAO: 'Tradução', TABELA: 'Tabela de segmentos', MEMORIA_FISICA: 'Memória física', ALOCACAO: 'Alocação best-fit',
+  } as Record<string, string>)[this.ex.tipo()]);
+  readonly descricao = computed(() => TIPOS_EXERCICIO_SEG.find(t => t.valor === this.ex.tipo())?.descricao ?? '');
+  readonly percentual = computed(() => {
+    const p = this.ex.placar();
+    return p && p.total ? Math.round((p.acertos / p.total) * 100) : 0;
+  });
+  readonly metades = computed(() => {
+    const m = this.ex.memoria();
+    return [m.slice(0, 16), m.slice(16)];
+  });
+  readonly outros = computed(() => this.ex.processos().slice(1));
 
-  constructor() {
-    this.gerarMemoria();
+  constructor(public ex: ExercicioSegmentacaoService) {}
+
+  classe(c: Correcao): Record<string, boolean> {
+    return { acerto: c === true, erro: c === false };
   }
 
-  // Aqui e onde reagem as mudanças dos @Input
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['codigo'] || changes['dados'] || changes['pilha']) {
-      this.cadastrar(this.codigo, this.dados, this.pilha);
-    }
+  cor(p: { cor: string }, s: { tipo: TipoSegmento }): string {
+    return corSegmento(p.cor, s.tipo);
   }
 
-  cadastrar(codigo: number, dados: number, pilha: number): void {
-    this.memoriaLogica = [];
-    this.tabelaSegmentos = [];
-
-    const segmentos = [
-      { tipo: 'Código', tamanho: codigo, prefixo: 'C', id: '00' },
-      { tipo: 'Dados', tamanho: dados, prefixo: 'D', id: '01' },
-      { tipo: 'Pilha', tamanho: pilha, prefixo: 'P', id: '10' },
-    ];
-
-    let baseAtual = 0;
-
-    segmentos.forEach(seg => {
-      const linhas = [];
-      for (let i = 0; i < seg.tamanho; i++) {
-        const deslocamento = i.toString(2).padStart(5, '0');
-        linhas.push({ deslocamento, byte: `${seg.prefixo}${i + 1}` });
-      }
-
-      this.memoriaLogica.push({ segmento: seg.id, nome: seg.tipo, linhas });
-
-      const base = baseAtual.toString(2).padStart(5, '0');
-      const limite = seg.tamanho.toString(2).padStart(5, '0');
-      this.tabelaSegmentos.push({
-        segmento: seg.id,
-        base,
-        limite
-      });
-
-      baseAtual += seg.tamanho;
-    });
+  corByte(b: ByteFisico): string | null {
+    return b.processo && b.segmento ? corSegmento(b.processo.cor, b.segmento.tipo) : null;
   }
 
-  gerarMemoria() {
-    for (let i = 0; i < 32; i++) {
-      const enderecoBinario = i.toString(2).padStart(5, '0');
-      this.tableMemory.push([enderecoBinario, '', '']);
-    }
+  deslocamentos(s: Segmento): number[] {
+    return Array.from({ length: s.tamanho }, (_, i) => i);
   }
 
-  whatColor(tipo: string): string {
-    switch (tipo) {
-      case 'codigo': return '#ADD8E6';
-      case 'dados': return '#90EE90';
-      case 'pilha': return '#FFB6C1';
-      default: return 'transparent';
-    }
+  explicacao(q: PerguntaTraducaoSeg): string {
+    const r = traduzir(q.processo, q.segmento, q.deslocamento);
+    if (!r.ok) return r.erro ?? '';
+    const s = q.processo.segmentos.find(x => x.numero === q.segmento)!;
+    return `${q.deslocamento} < ${s.tamanho} → ${s.base} + ${q.deslocamento} = ${r.fisico}`;
+  }
+
+  resposta(endereco: number): string {
+    return this.ex.respostasMemoria()[endereco] ?? '';
+  }
+
+  respBase(t: TipoSegmento): string {
+    return this.ex.respostasBase()[t] ?? '';
+  }
+
+  respTabela(chave: string): string {
+    return this.ex.respostasTabela()[chave] ?? '';
+  }
+
+  lacunaEscolhida(passo: PassoAlocacao, l: Lacuna): boolean {
+    return !!passo.escolhida && passo.escolhida.inicio === l.inicio;
+  }
+
+  segDe(p: ProcessoSegmentado, t: TipoSegmento): Segmento {
+    return p.segmentos.find(s => s.tipo === t)!;
   }
 }

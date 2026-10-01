@@ -1,0 +1,164 @@
+<div class="viz">
+
+  <section>
+    <div class="viz-stats">
+      <os-stat label="Processos" [value]="sim.processos().length"></os-stat>
+      <os-stat label="Memória livre" [value]="sim.livre()" unit="bytes" hint="de 32 bytes"></os-stat>
+      <os-stat label="Lacunas" [value]="sim.lacunas().length"></os-stat>
+      <os-stat label="Maior lacuna" [value]="sim.maiorLacuna()" unit="bytes" [accent]="true"></os-stat>
+    </div>
+  </section>
+
+  <div class="layout">
+    <!-- MEMÓRIA LÓGICA, TABELA DE SEGMENTOS E TRADUÇÃO -->
+    <section>
+      <div class="viz-label">Memória lógica</div>
+      @if (sim.processos().length === 0) {
+        <p class="empty-hint">Crie um processo na configuração para começar.</p>
+      } @else {
+        <div class="abas" role="tablist">
+          @for (p of sim.processos(); track p.nome) {
+            <button type="button" role="tab" class="aba" [class.ativa]="sim.selecionado() === p.nome"
+              [attr.aria-selected]="sim.selecionado() === p.nome" (click)="sim.selecionar(p.nome)">
+              <span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>Processo {{ p.nome }}
+            </button>
+          }
+        </div>
+
+        @if (sim.processoSelecionado(); as p) {
+          <div class="mem-grupo">
+            @for (s of p.segmentos; track s.tipo) {
+              <table class="mem-table">
+                <caption>Seg. {{ bin(s.numero, bS) }} · {{ s.nome }}</caption>
+                <tr><th>Desloc.</th><th>Byte</th></tr>
+                @for (d of deslocamentos(s); track d) {
+                  <tr class="clicavel" [class.selecionado]="logicoSelecionado(p, s, d)" (click)="traduzirByte(p, s, d)" title="Clique para traduzir o endereço">
+                    <td [ngStyle]="{ 'background-color': cor(p, s) }">{{ bin(d, bD) }}</td>
+                    <td [ngStyle]="{ 'background-color': cor(p, s) }">{{ nomeByte(s.tipo, d) }}</td>
+                  </tr>
+                }
+              </table>
+            }
+          </div>
+
+          <div class="mt-bloco">
+            <table class="mem-table">
+              <caption>Tabela de segmentos</caption>
+              <tr><th>Segmento</th><th>Base</th><th>Limite</th></tr>
+              @for (s of p.segmentos; track s.tipo) {
+                <tr>
+                  <td [ngStyle]="{ 'background-color': cor(p, s) }">{{ bin(s.numero, bS) }} · {{ s.nome }}</td>
+                  <td [ngStyle]="{ 'background-color': cor(p, s) }">{{ bin(s.base, bF) }} ({{ s.base }})</td>
+                  <td [ngStyle]="{ 'background-color': cor(p, s) }">{{ s.tamanho }}</td>
+                </tr>
+              }
+            </table>
+          </div>
+
+          <div class="traducao">
+            <div class="traducao-h"><i class="fa-solid fa-right-left"></i> Tradução de endereço</div>
+            <div class="teste">
+              <label>Segmento
+                <select class="campo" [(ngModel)]="segTeste" name="segTeste">
+                  @for (o of opcoesSegmento; track o) { <option [ngValue]="o">{{ bin(o, bS) }}</option> }
+                </select>
+              </label>
+              <label>Deslocamento
+                <input type="number" min="0" max="15" class="campo" [(ngModel)]="deslTeste" name="deslTeste">
+              </label>
+              <os-button variant="s" size="sm" (click)="testar(p)">Traduzir</os-button>
+            </div>
+            @if (sim.traducao(); as t) {
+              <p>End. lógico <b>{{ bin(t.segmento, bS) }} {{ bin(t.deslocamento, bD) }}</b> → segmento <b>{{ bin(t.segmento, bS) }}</b>, deslocamento <b>{{ t.deslocamento }}</b></p>
+              @if (t.resultado.ok) {
+                @if (segmentoTraduzido(p); as s) {
+                  <p>{{ t.deslocamento }} &lt; limite {{ s.tamanho }} ✓ → físico = base + deslocamento = {{ s.base }} + {{ t.deslocamento }}
+                    = <b>{{ t.resultado.fisico }}</b> (<b>{{ bin(t.resultado.fisico!, bF) }}</b>)</p>
+                }
+              } @else {
+                <p class="erro-traducao"><i class="fa-solid fa-triangle-exclamation"></i> {{ t.resultado.erro }}</p>
+              }
+            } @else {
+              <p class="dica">Clique em um byte da memória lógica ou informe um endereço (teste também um deslocamento maior que o limite).</p>
+            }
+          </div>
+        }
+      }
+    </section>
+
+    <!-- MEMÓRIA FÍSICA E LACUNAS -->
+    <section>
+      <div class="viz-label">Memória física</div>
+      <div class="mem-grupo">
+        @for (metade of metades(); track $index) {
+          <table class="mem-table">
+            <tr><th>End. físico</th><th>Byte</th></tr>
+            @for (b of metade; track b.endereco) {
+              <tr [class.selecionado]="fisicoSelecionado(b)">
+                @if (b.processo) {
+                  <td [ngStyle]="{ 'background-color': corByte(b) }">{{ bin(b.endereco, bF) }}</td>
+                  <td [ngStyle]="{ 'background-color': corByte(b) }">{{ b.processo.nome }}·{{ b.conteudo }}</td>
+                } @else {
+                  <td class="mem-livre">{{ bin(b.endereco, bF) }}</td>
+                  <td class="mem-livre"></td>
+                }
+              </tr>
+            }
+          </table>
+        }
+        <table class="mem-table">
+          <caption>Lacunas</caption>
+          <tr><th>Início</th><th>Tamanho</th></tr>
+          @for (l of sim.lacunas(); track l.inicio) {
+            <tr><td class="t-neutro">{{ bin(l.inicio, bF) }} ({{ l.inicio }})</td><td class="t-neutro">{{ l.tamanho }}</td></tr>
+          }
+          @if (sim.lacunas().length === 0) {
+            <tr><td class="t-neutro" colspan="2">nenhuma</td></tr>
+          }
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- PASSO A PASSO DO BEST-FIT -->
+  @if (sim.ultimaAlocacao(); as u) {
+    <section>
+      <div class="viz-label">Como o processo {{ u.nome }} foi alocado (best-fit)</div>
+      <p class="hint-tabela">O menor segmento é alocado primeiro. Para cada segmento, entre as lacunas onde ele cabe, escolhe-se a de <b>menor tamanho</b> (menor sobra); no empate, a de menor endereço.</p>
+      <div class="res-card passos-card">
+        <table class="res-table">
+          <thead><tr><th>Ordem</th><th>Segmento</th><th>Tamanho</th><th>Lacunas disponíveis (início · tamanho)</th><th>Escolhida</th><th>Sobra</th></tr></thead>
+          <tbody>
+            @for (passo of u.resultado.passos; track $index; let i = $index) {
+              <tr>
+                <td>{{ i + 1 }}º</td>
+                <td>{{ passo.nome }}</td>
+                <td>{{ passo.tamanho }}</td>
+                <td class="td-lacunas">
+                  @for (l of passo.lacunas; track l.inicio) {
+                    <span class="chip-lacuna" [class.escolhida]="lacunaEscolhida(passo, l)" [class.nao-cabe]="l.tamanho < passo.tamanho">{{ l.inicio }} · {{ l.tamanho }}</span>
+                  }
+                  @if (passo.lacunas.length === 0) { <span class="chip-lacuna nao-cabe">nenhuma</span> }
+                </td>
+                <td>
+                  @if (passo.escolhida) { base {{ passo.escolhida.inicio }} } @else { <span class="falha">não cabe</span> }
+                </td>
+                <td>{{ passo.escolhida ? passo.sobra : '–' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (!u.resultado.ok) {
+        <p class="falha-msg">
+          @if (u.resultado.motivo === 'fragmentacao') {
+            <b>Fragmentação externa:</b> há {{ u.resultado.livreTotal }} bytes livres e o processo precisa de {{ u.resultado.necessario }},
+            mas o espaço está dividido em lacunas pequenas demais. O processo não foi criado.
+          } @else {
+            <b>Memória insuficiente:</b> o processo precisa de {{ u.resultado.necessario }} bytes e só há {{ u.resultado.livreTotal }} livres. O processo não foi criado.
+          }
+        </p>
+      }
+    </section>
+  }
+</div>

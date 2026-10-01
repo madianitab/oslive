@@ -1,0 +1,60 @@
+<div class="sim-config">
+
+  <os-panel title="Criar processo">
+    <label class="check-row">
+      <input type="checkbox" [ngModel]="aleatorio()" (ngModelChange)="aleatorio.set($event)">
+      <span>Gerar processo com valores aleatórios</span>
+    </label>
+    @if (aleatorio()) {
+      <os-button variant="s" size="sm" (click)="gerar()"><i class="fa fa-cogs"></i> Gerar processo</os-button>
+    } @else {
+      <form class="proc-form" (ngSubmit)="criar()">
+        <input type="text" maxlength="1" class="form-control campo-nome" name="nome" placeholder="Nome do processo (letra)" [(ngModel)]="nome">
+        <input type="number" min="1" [max]="max" class="form-control" name="codigo" placeholder="Código (bytes)" [(ngModel)]="codigo">
+        <input type="number" min="1" [max]="max" class="form-control" name="dados" placeholder="Dados (bytes)" [(ngModel)]="dados">
+        <input type="number" min="1" [max]="max" class="form-control" name="pilha" placeholder="Pilha (bytes)" [(ngModel)]="pilha">
+        <div class="proc-actions">
+          <os-button variant="p" size="sm" type="submit"><i class="fa-solid fa-circle-plus"></i> Criar</os-button>
+          <os-button variant="d" size="sm" type="button" (click)="limpar()"><i class="fa-solid fa-circle-xmark"></i> Cancelar</os-button>
+        </div>
+      </form>
+    }
+    <p class="info-livre mt-campo">Memória livre: <b>{{ sim.livre() }} bytes</b> · maior lacuna: <b>{{ sim.maiorLacuna() }}</b></p>
+  </os-panel>
+
+  <os-panel title="Tabela de processos">
+    <span slot="meta">{{ sim.processos().length }}</span>
+    @if (sim.processos().length > 0) {
+      <div class="tbl-scroll">
+        <table class="ptable">
+          <thead><tr><th class="th-name">Processo</th><th>Cód.</th><th>Dados</th><th>Pilha</th><th class="th-acts"></th></tr></thead>
+          <tbody>
+            @for (p of sim.processos(); track p.nome) {
+              <tr class="clicavel" [class.linha-selecionada]="sim.selecionado() === p.nome" (click)="sim.selecionar(p.nome)" title="Ver memória lógica do processo">
+                <td class="p-name"><span class="p-dot" [ngStyle]="{ 'background-color': p.cor }"></span>{{ p.nome }}</td>
+                <td>{{ tamanho(p, 'C') }}</td>
+                <td>{{ tamanho(p, 'D') }}</td>
+                <td>{{ tamanho(p, 'P') }}</td>
+                <td class="p-acts">
+                  <button type="button" class="p-act del" (click)="sim.removerProcesso(p.nome); $event.stopPropagation()" aria-label="Remover processo" title="Remover"><i class="fas fa-times"></i></button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="empty">Nenhum processo cadastrado.</p>
+    }
+  </os-panel>
+
+  <os-panel title="Como funciona">
+    <ul class="hint regras">
+      <li>Memória física de <b>32 bytes</b> (endereço físico de 5 bits).</li>
+      <li>End. lógico = <b>segmento</b> (2 bits: 00 código, 01 dados, 10 pilha) + <b>deslocamento</b> (4 bits).</li>
+      <li>Físico = <b>base + deslocamento</b>, se o deslocamento for menor que o <b>limite</b>.</li>
+      <li>Alocação <b>best-fit</b>: o menor segmento é alocado primeiro, na menor lacuna em que cabe.</li>
+    </ul>
+  </os-panel>
+
+</div>
