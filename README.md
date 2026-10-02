@@ -18,10 +18,12 @@ Simulador didático de Sistemas Operacionais.
 | Paginação | Exercícios de Paginação por Demanda | `#/paginacao/exercicios` | `src/app/features/paginacao/exercicios` |
 | Segmentação | Simulador | `#/segmentacao/simulador` | `src/app/features/segmentacao/simulador` |
 | Segmentação | Exercícios | `#/segmentacao/exercicios` | `src/app/features/segmentacao/exercicios` |
+| Avaliações | Área do aluno (login) | `#/avaliacoes` | `src/app/features/avaliacoes` |
+| Administração | Usuários (só admin) | `#/admin/usuarios` | `src/app/pages/admin-usuarios` |
 
 Em cada assunto, `models/` e `services/` ficam na raiz da pasta e são compartilhados entre simulador e exercícios.
 
-Aplicação Angular 18, sem backend.
+Aplicação Angular 18. Simuladores e exercícios rodam sem backend; as avaliações usam login com Google via Supabase (veja [docs/login-supabase.md](docs/login-supabase.md)).
 
 ## Executar localmente
 

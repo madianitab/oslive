@@ -146,6 +146,15 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
 - **Saída:** cada `printf` aparece em uma linha, com a cor do processo.
 - **Variável sem valor inicial:** o simulador considera 0 e mostra um aviso (em C o valor é indefinido). Globais começam com 0, como em C.
 
+## 4.1 Login (Supabase)
+
+- **Só avaliações exigem login.** Simuladores e exercícios nunca usam login. Configuração e regras em `docs/login-supabase.md`; banco em `supabase/schema.sql`.
+- **Código:** `core/auth/` (`AuthService`, guard `exigirLogin(...papéis)`, `supabase.config.ts`). O Supabase é carregado por import dinâmico, só nas páginas protegidas.
+- **Rotas protegidas** usam `loadComponent` + `canActivate: [exigirLogin()]` (ou `exigirLogin('admin')`, `exigirLogin('admin', 'professor')`).
+- **Papéis:** `admin` (a professora), `professor` (liberado por ela em `#/admin/usuarios`) e `aluno` (padrão de quem entra pelo Google).
+- **Segurança no banco:** toda tabela nova precisa de RLS. Nunca coloque a chave `secret`/`service_role` no código.
+- **Páginas simples** (login, avaliações, admin) usam `ui/styles/pagina.css`.
+
 ## 5. Como adicionar um módulo novo
 
 1. **Modelo:** crie `features/<assunto>/models/<nome>.ts` com a lógica pura e um `.spec.ts` com casos do material.

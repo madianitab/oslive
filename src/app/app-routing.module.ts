@@ -14,6 +14,7 @@ import { HomeSimuladorPaginacaoDemandaComponent } from 'src/app/features/paginac
 import { HomeParticoesFixasComponent } from 'src/app/features/particoes/fixas/components/home-particoes-fixas/home-particoes-fixas.component';
 import { HomeParticoesVariaveisComponent } from 'src/app/features/particoes/variaveis/components/home-particoes-variaveis/home-particoes-variaveis.component';
 import { HomeEstadosComponent } from 'src/app/features/processos/estados/components/home-estados/home-estados.component';
+import { exigirLogin } from './core/auth/auth.guard';
 import { HomeArvoreComponent } from 'src/app/features/processos/arvore/components/home-arvore/home-arvore.component';
 
 const routes: Routes = [
@@ -42,6 +43,11 @@ const routes: Routes = [
   // Segmentação
   { path: "segmentacao/simulador", component: HomeSimuladorSegmentacaoComponent },
   { path: "segmentacao/exercicios", component: HomeExercicioSegmentacaoComponent },
+
+  // Avaliações (exigem login; carregadas só quando abertas)
+  { path: "entrar", loadComponent: () => import('./pages/entrar/entrar.component').then(m => m.EntrarComponent) },
+  { path: "avaliacoes", canActivate: [exigirLogin()], loadComponent: () => import('src/app/features/avaliacoes/components/home-avaliacoes/home-avaliacoes.component').then(m => m.HomeAvaliacoesComponent) },
+  { path: "admin/usuarios", canActivate: [exigirLogin('admin')], loadComponent: () => import('./pages/admin-usuarios/admin-usuarios.component').then(m => m.AdminUsuariosComponent) },
 
   // Endereços antigos (mantidos para não quebrar links já compartilhados)
   { path: "EscalonamentoDeProcessos", redirectTo: "escalonamento/simulador" },
