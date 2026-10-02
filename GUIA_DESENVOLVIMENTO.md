@@ -58,7 +58,7 @@ O visual vem do design system criado no [PR #1](https://github.com/madianitab/os
 ### 3.2 Estilos compartilhados (`src/app/ui/styles/`)
 
 - `sim-config.css`: lateral de configuração (`.sim-config`, `.form-control`, `.check-row`, `.proc-form`, `.proc-actions`, `.ptable`, `.p-dot`, `.p-act`, `.hint`, `.empty`, `.info-livre`).
-- `sim-viz.css`: área principal (`.viz`, `.viz-label`, `.viz-stats`, `.viz-scroll`, `.viz-table`, `.t-lbl`, `.t-val`, `.t-proc`, `.res-card`, `.res-table`, `.mem-table`, `.mem-livre`, `.mem-grupo`, `.empty-hint`).
+- `sim-viz.css`: área principal (`.viz`, `.viz-label`, `.viz-stats`, `.viz-scroll`, `.viz-table` (com `.gantt` para o diagrama de uso da CPU, compacto), `.t-lbl`, `.t-val`, `.t-proc`, `.res-card`, `.res-table`, `.mem-table`, `.mem-livre`, `.mem-grupo`, `.empty-hint`).
 
 Inclua esses arquivos no `styleUrls` do componente, por exemplo `'../../../../../ui/styles/sim-viz.css'`. Use o CSS do próprio componente só para o que for específico daquela tela.
 

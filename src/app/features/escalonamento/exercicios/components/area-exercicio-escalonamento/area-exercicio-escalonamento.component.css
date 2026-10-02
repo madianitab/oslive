@@ -31,7 +31,7 @@
   transition: border-color .14s var(--ease), box-shadow .14s var(--ease), background .14s var(--ease);
 }
 .campo-resposta { width: 110px; padding: 6px 8px; }
-.campo-diagrama { width: 32px; height: 30px; padding: 0; text-transform: uppercase; }
+.campo-diagrama { width: 24px; height: 28px; padding: 0; font-size: 12px; text-transform: uppercase; }
 .campo-resposta:focus,
 .campo-diagrama:focus { outline: none; border-color: var(--a); box-shadow: var(--ring); }
 

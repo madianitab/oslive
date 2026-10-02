@@ -12,7 +12,8 @@ import {
   EscalonamentoExercicioService,
 } from 'src/app/features/escalonamento/services/escalonamento-exercicio.service';
 
-export type TipoResposta = 'tabela' | 'diagrama';
+/** tabela: preenche a tabela; diagrama: preenche o diagrama; completo: preenche os dois. */
+export type TipoResposta = 'tabela' | 'diagrama' | 'completo';
 
 export interface ConfiguracaoExercicio {
   processos: Processo[];

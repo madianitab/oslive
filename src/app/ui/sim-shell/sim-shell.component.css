@@ -77,13 +77,17 @@
   background: var(--surface);
   border-right: 1px solid var(--line);
   overflow: hidden;
+  overflow: clip; /* clip (e não hidden) para não anular o sticky do filho */
   transition: width .26s var(--ease), opacity .2s var(--ease);
 }
 .os-sim-side-scroll {
   width: var(--os-side-w);
-  height: 100%;
-  max-height: calc(100vh - 60px - 69px); /* viewport - topbar - header */
+  /* fixa abaixo da topbar e do cabeçalho; rola sozinha, sem acompanhar a página */
+  position: sticky;
+  top: calc(60px + var(--os-head-h, 69px));
+  height: calc(100vh - 60px - var(--os-head-h, 69px));
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 20px;
   display: flex;
   flex-direction: column;

@@ -71,6 +71,16 @@ export class AreaExercicioEscalonamentoComponent implements OnChanges {
     return [...(this.configuracao?.processos ?? [])].sort((a, b) => a.chegada - b.chegada);
   }
 
+  /** O aluno preenche a tabela (tipos 'tabela' e 'completo'). */
+  get respondeTabela(): boolean {
+    return this.configuracao?.tipo === 'tabela' || this.configuracao?.tipo === 'completo';
+  }
+
+  /** O aluno preenche o diagrama (tipos 'diagrama' e 'completo'). */
+  get respondeDiagrama(): boolean {
+    return this.configuracao?.tipo === 'diagrama' || this.configuracao?.tipo === 'completo';
+  }
+
   get usaPrioridade(): boolean {
     const alg = this.configuracao?.algoritmo;
     return alg === 'PRIO' || alg === 'PRIO_P';
@@ -110,7 +120,7 @@ export class AreaExercicioEscalonamentoComponent implements OnChanges {
     let acertos = 0;
     let total = 0;
 
-    if (cfg.tipo === 'tabela') {
+    if (this.respondeTabela) {
       this.respostasTabela.update(respostas => respostas.map((r, i) => {
         const linha = gabarito.tabela[i];
         const corretoEspera = this.exercicioService.corrigirNumero(r.espera, linha.espera);
@@ -119,7 +129,8 @@ export class AreaExercicioEscalonamentoComponent implements OnChanges {
         total += 2;
         return { ...r, corretoEspera, corretoTurnaround };
       }));
-    } else {
+    }
+    if (this.respondeDiagrama) {
       this.respostasDiagrama.update(respostas => respostas.map((r, i) => {
         const correto = this.exercicioService.normalizarCelulaDiagrama(r.valor) === gabarito.diagrama[i].nome;
         acertos += correto ? 1 : 0;

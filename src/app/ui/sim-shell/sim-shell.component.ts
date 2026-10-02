@@ -1,4 +1,4 @@
-import { Component, Input, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild, signal } from '@angular/core';
 import { NgIf } from '@angular/common';
 
 /**
@@ -18,8 +18,8 @@ import { NgIf } from '@angular/common';
   imports: [NgIf],
   styleUrls: ['./sim-shell.component.css'],
   template: `
-    <section class="os-sim" [class.collapsed]="collapsed()">
-      <header class="os-sim-head">
+    <section #root class="os-sim" [class.collapsed]="collapsed()">
+      <header #head class="os-sim-head">
         <div class="os-sim-head-left">
           <button
             type="button"
@@ -55,9 +55,26 @@ import { NgIf } from '@angular/common';
     </section>
   `,
 })
-export class OsSimShellComponent {
+export class OsSimShellComponent implements AfterViewInit, OnDestroy {
   @Input() title = '';
   @Input() subtitle = '';
+
+  @ViewChild('root') private root?: ElementRef<HTMLElement>;
+  @ViewChild('head') private head?: ElementRef<HTMLElement>;
+  private observador?: ResizeObserver;
+
+  /** Mede o cabeçalho (a altura muda se o subtítulo quebrar linha) para posicionar a lateral fixa. */
+  ngAfterViewInit(): void {
+    const head = this.head?.nativeElement;
+    const root = this.root?.nativeElement;
+    if (!head || !root || typeof ResizeObserver === 'undefined') return;
+    this.observador = new ResizeObserver(() => root.style.setProperty('--os-head-h', `${head.offsetHeight}px`));
+    this.observador.observe(head);
+  }
+
+  ngOnDestroy(): void {
+    this.observador?.disconnect();
+  }
 
   /** estado do painel de config (recolhido?) */
   readonly collapsed = signal(false);
