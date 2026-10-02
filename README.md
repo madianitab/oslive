@@ -1,5 +1,7 @@
 # OSLive
 
+> Para alterar o projeto, leia também o [Guia de desenvolvimento](GUIA_DESENVOLVIMENTO.md): padrões, design system, convenções conceituais e fluxo de entrega.
+
 Simulador didático de Sistemas Operacionais.
 
 | Assunto | Modo | Rota | Pasta |
