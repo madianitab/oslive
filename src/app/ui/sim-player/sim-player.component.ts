@@ -14,7 +14,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
              (input)="seek.emit(+$any($event.target).value)" aria-label="Posição na simulação" />
       <span class="pos">{{ atual + 1 }} / {{ total }}</span>
       <select class="vel" [value]="velocidade" (change)="velocidadeChange.emit(+$any($event.target).value)" aria-label="Velocidade">
-        <option [value]="0.5">0.5×</option><option [value]="1">1×</option><option [value]="2">2×</option>
+        <option [value]="0.5" [selected]="velocidade == 0.5">0.5×</option><option [value]="1" [selected]="velocidade == 1">1×</option><option [value]="2" [selected]="velocidade == 2">2×</option>
       </select>
     </div>
   `,

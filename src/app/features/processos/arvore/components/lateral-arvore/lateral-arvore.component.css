@@ -1,0 +1,17 @@
+code { font-family: var(--f-mono); font-size: 11.5px; color: var(--text); background: var(--surface-2); border: 1px solid var(--line-soft); border-radius: var(--r-xs); padding: 0 4px; }
+.aceita { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.aceita li { display: flex; flex-wrap: wrap; gap: 4px; }
+.legenda-arvore { list-style: none; margin: 0; padding: 0; font-size: 12.5px; color: var(--text-2); display: flex; flex-direction: column; gap: 7px; }
+.legenda-arvore li { display: flex; align-items: center; gap: 9px; line-height: 1.3; }
+.amostra {
+  flex: none; width: 26px; height: 18px; border-radius: var(--r-xs);
+  background: #4f7cf7; border: 2px solid transparent;
+  font-family: var(--f-mono); font-size: 10px; font-weight: 700; color: #fff; display: grid; place-items: center;
+}
+.amostra.executando { border-color: var(--a); box-shadow: 0 0 0 2px var(--a-soft); }
+.amostra.bloqueado { border: 2px dashed var(--text); }
+.amostra.zumbi { opacity: .38; border: 2px dashed var(--text-3); }
+.amostra.orfao { width: auto; padding: 0 6px; height: 16px; border-radius: 8px; background: var(--warn); font-size: 9.5px; }
+select.form-control { height: auto; }
+.mt-campo { margin-top: 10px; }
+.rotulo { display: block; font-family: var(--f-mono); font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); margin: 8px 0 4px; }

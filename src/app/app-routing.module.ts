@@ -14,6 +14,7 @@ import { HomeSimuladorPaginacaoDemandaComponent } from 'src/app/features/paginac
 import { HomeParticoesFixasComponent } from 'src/app/features/particoes/fixas/components/home-particoes-fixas/home-particoes-fixas.component';
 import { HomeParticoesVariaveisComponent } from 'src/app/features/particoes/variaveis/components/home-particoes-variaveis/home-particoes-variaveis.component';
 import { HomeEstadosComponent } from 'src/app/features/processos/estados/components/home-estados/home-estados.component';
+import { HomeArvoreComponent } from 'src/app/features/processos/arvore/components/home-arvore/home-arvore.component';
 
 const routes: Routes = [
   { path: "", component: LandingComponent, pathMatch: 'full' },
@@ -22,6 +23,7 @@ const routes: Routes = [
 
   // Processos
   { path: "processos/estados", component: HomeEstadosComponent },
+  { path: "processos/arvore", component: HomeArvoreComponent },
 
   // Escalonamento de Processos
   { path: "escalonamento/simulador", component: HomeEscalonamentoComponent },

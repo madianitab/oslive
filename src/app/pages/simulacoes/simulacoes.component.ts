@@ -27,6 +27,12 @@ import { OsBadgeComponent } from '../../ui/badge/badge.component';
         Animação do diagrama de estados: criação, apto, executando, bloqueado e destruição, com cenários aleatórios.
         <div slot="footer"><os-button variant="p" size="sm" (click)="go('/processos/estados')">Abrir →</os-button></div>
       </os-card>
+      <os-card title="Árvore de Processos">
+        <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="2.5" width="6" height="5" rx="1"/><rect x="2.5" y="16.5" width="6" height="5" rx="1"/><rect x="15.5" y="16.5" width="6" height="5" rx="1"/><path d="M12 7.5v4M5.5 16.5v-2.5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v2.5"/></svg></os-card-icon>
+        <os-badge slot="badge" variant="a">simulador</os-badge>
+        Programa em C com fork(), wait(), waitpid(), sleep() e exit(): saída, árvore de processos, zumbis e órfãos.
+        <div slot="footer"><os-button variant="p" size="sm" (click)="go('/processos/arvore')">Abrir →</os-button></div>
+      </os-card>
     </div>
   </section>
 

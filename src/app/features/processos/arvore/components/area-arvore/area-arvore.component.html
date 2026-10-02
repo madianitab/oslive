@@ -1,0 +1,104 @@
+<div class="viz">
+  <div class="viz-stats">
+    <os-stat label="Processos" [value]="sim.resultado().processos.length" [accent]="true"></os-stat>
+    <os-stat label="Linhas de saída" [value]="sim.resultado().saida.length"></os-stat>
+    <os-stat label="Órfãos adotados" [value]="sim.resultado().orfaos"></os-stat>
+    <os-stat label="Tempo final" [value]="sim.resultado().tempoFinal" unit="s"></os-stat>
+  </div>
+
+  <!-- CÓDIGO E SAÍDA -->
+  <section class="duas">
+    <div class="col">
+      <div class="viz-label">Código</div>
+      <app-editor-codigo [codigo]="sim.codigo()" (codigoChange)="sim.editar($event)" (executar)="sim.executar()"
+                         [linhaAtual]="sim.evento()?.linha ?? null" [linhaErro]="sim.resultado().erro?.linha ?? null"></app-editor-codigo>
+      @if (sim.alterado()) {
+        <p class="dica-alterado">O código mudou: clique em <b>Executar</b> para ver o novo resultado.</p>
+      }
+      @if (sim.resultado().erro; as e) {
+        <os-alert variant="err" [title]="e.linha ? 'Linha ' + e.linha : 'Erro'">{{ e.texto }}</os-alert>
+      }
+      @for (a of sim.resultado().avisos; track $index) {
+        <os-alert variant="warn">{{ a.texto }}</os-alert>
+      }
+    </div>
+    <div class="col">
+      <div class="viz-label">Saída</div>
+      <os-terminal label="stdout">
+        <div class="saida" #saidaScroll>
+          @for (s of sim.saida(); track $index; let ultimo = $last) {
+            <div class="sl" [class.nova]="ultimo && sim.evento()?.tipo === 'printf'">
+              <span class="tag" [style.background]="sim.cores()[s.pid]" [style.color]="sim.textos()[s.pid]">{{ s.pid }}</span><span class="txt">{{ s.texto || ' ' }}</span>
+            </div>
+          } @empty {
+            <div class="vazia">(sem saída até aqui)</div>
+          }
+        </div>
+      </os-terminal>
+    </div>
+  </section>
+
+  <!-- ÁRVORE -->
+  <section>
+    <div class="viz-label">Árvore de processos</div>
+    @if (sim.total() > 0) {
+      <os-sim-player [total]="sim.total()" [atual]="sim.indice()" [tocando]="sim.tocando()" [velocidade]="sim.velocidade()"
+                     (play)="sim.tocar()" (pause)="sim.pausar()" (passo)="sim.passo($event)" (seek)="sim.irPara($event)"
+                     (velocidadeChange)="sim.velocidade.set($event)"></os-sim-player>
+      @if (sim.evento(); as e) {
+        <div class="narracao" aria-live="polite">
+          <span class="tempo">t = {{ e.t }} s</span>
+          <span class="chip-tipo" [attr.data-tipo]="e.tipo">{{ rotuloTipo[e.tipo] }}</span>
+          <span class="narr-texto">{{ e.texto }}</span>
+        </div>
+      }
+      <div class="viz-scroll">
+        <svg class="arvore" [attr.viewBox]="'0 0 ' + arvore().largura + ' ' + arvore().altura"
+             [attr.width]="arvore().largura" [attr.height]="arvore().altura" role="img" aria-label="Árvore de processos">
+          @for (a of arvore().arestas; track a.pid) {
+            @if (estado(a.pid)) {
+              <path class="aresta" [class.nova]="criadoAgora() === a.pid" [attr.d]="a.d"></path>
+            }
+          }
+          @for (n of arvore().nos; track n.pid) {
+            @if (estado(n.pid); as e) {
+              <g class="no" [attr.data-estado]="e.estado" [class.nova]="criadoAgora() === n.pid">
+                <title>PID {{ n.pid }}, PPID {{ e.ppid }}: {{ rotuloEstado(e) }}</title>
+                <rect class="caixa" [attr.x]="n.x" [attr.y]="n.y" [attr.width]="W" [attr.height]="H" rx="8" [attr.fill]="n.cor"></rect>
+                <text class="t-pid" [attr.x]="n.x + 10" [attr.y]="n.y + 21" [attr.fill]="n.texto">PID {{ n.pid }}</text>
+                <text class="t-ppid" [attr.x]="n.x + 10" [attr.y]="n.y + 38" [attr.fill]="n.texto">{{ rotuloPpid(n, e) }}</text>
+                <text class="t-estado" [attr.x]="n.x + 10" [attr.y]="n.y + 55" [attr.fill]="n.texto">{{ rotuloEstado(e) }}</text>
+                @if (e.orfao) {
+                  <g class="selo">
+                    <rect [attr.x]="n.x + W - 44" [attr.y]="n.y - 9" width="44" height="17" rx="8.5"></rect>
+                    <text [attr.x]="n.x + W - 22" [attr.y]="n.y + 3">órfão</text>
+                  </g>
+                }
+              </g>
+            }
+          }
+        </svg>
+      </div>
+    } @else {
+      <p class="empty-hint">Nenhum processo ainda. Escreva o programa e clique em Executar.</p>
+    }
+  </section>
+
+  <!-- EVENTOS -->
+  @if (sim.total() > 0) {
+    <section>
+      <div class="viz-label">Eventos (clique para voltar a um momento)</div>
+      <ol class="eventos" #listaEventos>
+        @for (e of sim.resultado().eventos; track $index; let i = $index) {
+          <li [attr.data-i]="i" [class.atual]="i === sim.indice()" [class.futuro]="i > sim.indice()" (click)="sim.irPara(i)">
+            <span class="ev-t">t={{ e.t }}</span>
+            <span class="ev-pid" [style.background]="sim.cores()[e.pid]" [style.color]="sim.textos()[e.pid]">{{ e.pid }}</span>
+            <span class="chip-tipo" [attr.data-tipo]="e.tipo">{{ rotuloTipo[e.tipo] }}</span>
+            <span class="ev-txt">{{ e.texto }}</span>
+            @if (e.linha) { <span class="ev-l">l. {{ e.linha }}</span> }
+          </li>
+        }
+      </ol>
+    </section>
+  }
+</div>

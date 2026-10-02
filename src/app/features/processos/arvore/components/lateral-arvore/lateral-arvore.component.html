@@ -1,0 +1,43 @@
+<div class="sim-config">
+  <os-panel title="Programa">
+    <label class="rotulo" for="ex">Exemplo</label>
+    <select id="ex" class="form-control" [ngModel]="sim.exemplo()" (ngModelChange)="sim.carregarExemplo($event)">
+      @if (!sim.exemplo()) { <option value="">Código próprio</option> }
+      @for (e of sim.exemplos; track e.id) { <option [value]="e.id">{{ e.nome }}</option> }
+    </select>
+    <p class="hint mt-campo">Edite o código e clique em <b>Executar</b> (ou Ctrl + Enter).</p>
+  </os-panel>
+
+  <os-panel title="Escalonamento">
+    <label class="rotulo" for="ordem">Após o fork(), executa primeiro</label>
+    <select id="ordem" class="form-control" [ngModel]="sim.ordem()" (ngModelChange)="sim.definirOrdem($event)">
+      @for (o of ordens; track o.v) { <option [ngValue]="o.v">{{ o.nome }}</option> }
+    </select>
+    <p class="hint mt-campo">
+      Cada processo executa até bloquear ou terminar. Na ordem aleatória, a saída pode se intercalar de outro jeito a cada
+      execução: use <i class="fa-solid fa-shuffle"></i> para ver outra execução possível.
+    </p>
+    <p class="hint mt-campo">O tempo só avança com <code>sleep()</code>; as demais instruções são instantâneas.</p>
+  </os-panel>
+
+  <os-panel title="O que o simulador aceita">
+    <ul class="aceita">
+      <li><code>fork()</code> <code>getpid()</code> <code>getppid()</code></li>
+      <li><code>wait(&amp;st)</code> <code>waitpid(pid, &amp;st, op)</code></li>
+      <li><code>sleep(s)</code> <code>exit(n)</code> <code>printf(...)</code></li>
+      <li><code>WEXITSTATUS</code> <code>WNOHANG</code> <code>NULL</code></li>
+    </ul>
+    <p class="hint mt-campo">Também: <code>int</code>/<code>pid_t</code>, vetores, variáveis globais, funções, <code>if</code>, <code>for</code>,
+      <code>while</code>, <code>do</code> e <code>#define</code>. O primeiro processo tem PID {{ pidInicial }}; o limite é {{ limite }} processos.</p>
+  </os-panel>
+
+  <os-panel title="Legenda">
+    <ul class="legenda-arvore">
+      <li><span class="amostra executando"></span>Executando</li>
+      <li><span class="amostra"></span>Apto ou terminado</li>
+      <li><span class="amostra bloqueado"></span>Bloqueado (wait, sleep)</li>
+      <li><span class="amostra zumbi"></span>Zumbi (terminou, pai ainda não chamou wait)</li>
+      <li><span class="amostra orfao">órfão</span>Pai terminou antes: adotado pelo init (PPID 1)</li>
+    </ul>
+  </os-panel>
+</div>

@@ -1,0 +1,20 @@
+<os-sim-shell
+  title="Árvore de Processos"
+  subtitle="Escreva um programa em C com fork() e veja os processos criados, a saída e a árvore."
+>
+  <ng-container slot="actions">
+    <os-button-group>
+      <button class="osbg-btn primary" type="button" aria-label="Executar o programa" title="Executar (Ctrl + Enter)" (click)="sim.executar()">
+        <i class="fa-solid fa-play"></i> Executar
+      </button>
+      <button class="osbg-btn" type="button" aria-label="Outra execução possível" title="Outra execução possível (ordem aleatória)" (click)="sim.outraExecucao()">
+        <i class="fa-solid fa-shuffle"></i>
+      </button>
+      <button class="osbg-btn danger" type="button" aria-label="Limpar o código" title="Limpar o código" (click)="sim.limpar()">
+        <i class="fa-solid fa-eraser"></i>
+      </button>
+    </os-button-group>
+  </ng-container>
+  <app-lateral-arvore slot="config"></app-lateral-arvore>
+  <app-area-arvore></app-area-arvore>
+</os-sim-shell>

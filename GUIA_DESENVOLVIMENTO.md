@@ -136,6 +136,16 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
 - **Diagrama:** segue a Figura 4.2 do livro, com cinco estados, as transições do livro e as linhas pontilhadas (retorno imediato e kill/exceção).
 - **Ciclo de cada processo no cenário:** criação → CPU → CPU (preempção entre as duas) → E/S → CPU → fim, com 3 a 5 processos.
 
+### Árvore de processos (fork)
+- **Interpretador próprio** (`processos/models/arvore-processos.ts`) de um subconjunto de C: `int`/`pid_t`, vetores, globais, funções, `if`, `for`, `while`, `do`, `#define` simples. Cada processo tem sua cópia das variáveis; `fork()` clona tudo.
+- **Chamadas:** `fork`, `getpid`, `getppid`, `wait`, `waitpid` (com `WNOHANG`), `sleep`, `exit`, `printf`, `WEXITSTATUS`. `sched_yield` ficou de fora, por decisão da professora.
+- **PIDs:** o shell é o 99, o primeiro processo é o 100 e os demais seguem a ordem de criação. Limite de 64 processos; depois disso, `fork()` retorna -1.
+- **Escalonamento:** uma CPU; cada processo executa até bloquear (`wait`, `waitpid`, `sleep`) ou terminar. Após o `fork()`, **o pai continua por padrão**; também há "filho primeiro" e "aleatória" (com semente, para repetir a execução).
+- **Tempo:** as instruções são instantâneas; o tempo só avança com `sleep()`.
+- **Zumbi e órfão:** quem termina vira **zumbi** até o pai chamar `wait`. Quando o pai termina antes, os filhos ficam **órfãos**, são adotados pelo init (PID 1) e o init os coleta na hora.
+- **Saída:** cada `printf` aparece em uma linha, com a cor do processo.
+- **Variável sem valor inicial:** o simulador considera 0 e mostra um aviso (em C o valor é indefinido). Globais começam com 0, como em C.
+
 ## 5. Como adicionar um módulo novo
 
 1. **Modelo:** crie `features/<assunto>/models/<nome>.ts` com a lógica pura e um `.spec.ts` com casos do material.
