@@ -4,10 +4,10 @@ import { OsAlertComponent } from 'src/app/ui/alert/alert.component';
 import { OsTerminalComponent } from 'src/app/ui/terminal/terminal.component';
 import { OsSimPlayerComponent } from 'src/app/ui/sim-player/sim-player.component';
 import { ArvoreProcessosService } from 'src/app/features/processos/services/arvore-processos.service';
-import { EstadoFoto, PID_INIT, TipoEvento } from 'src/app/features/processos/models/arvore-processos';
+import { EstadoFoto, LIMITE_PROCESSOS, PID_INIT, TipoEvento } from 'src/app/features/processos/models/arvore-processos';
 import { EditorCodigoComponent } from '../editor-codigo/editor-codigo.component';
 
-const W = 90, H = 50, GX = 8, GY = 30, PAD = 6;
+const W = 68, H = 50, GX = 6, GY = 30, PAD = 6;
 
 interface No { pid: number; ppid: number; x: number; y: number; cor: string; texto: string; }
 interface Aresta { pid: number; d: string; }
@@ -27,6 +27,7 @@ export class AreaArvoreComponent {
   readonly W = W;
   readonly H = H;
   readonly rotuloTipo = ROTULO_TIPO;
+  readonly limite = LIMITE_PROCESSOS;
   @ViewChild('listaEventos') listaEventos?: ElementRef<HTMLElement>;
   @ViewChild('saidaScroll') saidaScroll?: ElementRef<HTMLElement>;
 

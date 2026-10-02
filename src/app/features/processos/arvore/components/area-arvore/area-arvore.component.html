@@ -7,11 +7,12 @@
   </div>
 
   <!-- CÓDIGO E ÁRVORE -->
-  <section class="duas">
+  <section class="duas topo">
     <div class="col">
       <div class="viz-label">Código</div>
       <app-editor-codigo [codigo]="sim.codigo()" (codigoChange)="sim.editar($event)" (executar)="sim.executar()"
                          [linhaAtual]="sim.evento()?.linha ?? null" [linhaErro]="sim.resultado().erro?.linha ?? null"></app-editor-codigo>
+      <p class="obs-codigo">Você pode digitar qualquer programa em C que gere no máximo {{ limite }} processos.</p>
       @if (sim.alterado()) {
         <p class="dica-alterado">O código mudou: clique em <b>Executar</b>.</p>
       }
@@ -49,13 +50,13 @@
                 <g class="no" [attr.data-estado]="e.estado" [class.nova]="criadoAgora() === n.pid">
                   <title>PID {{ n.pid }}, PPID {{ e.ppid }}: {{ rotuloEstado(e) }}</title>
                   <rect class="caixa" [attr.x]="n.x" [attr.y]="n.y" [attr.width]="W" [attr.height]="H" rx="6" [attr.fill]="n.cor"></rect>
-                  <text class="t-pid" [attr.x]="n.x + 7" [attr.y]="n.y + 16" [attr.fill]="n.texto">PID {{ n.pid }}</text>
-                  <text class="t-ppid" [attr.x]="n.x + 7" [attr.y]="n.y + 30" [attr.fill]="n.texto">{{ rotuloPpid(n, e) }}</text>
-                  <text class="t-estado" [attr.x]="n.x + 7" [attr.y]="n.y + 43" [attr.fill]="n.texto">{{ rotuloEstado(e) }}</text>
+                  <text class="t-pid" [attr.x]="n.x + W / 2" [attr.y]="n.y + 16" [attr.fill]="n.texto">PID {{ n.pid }}</text>
+                  <text class="t-ppid" [attr.x]="n.x + W / 2" [attr.y]="n.y + 30" [attr.fill]="n.texto">{{ rotuloPpid(n, e) }}</text>
+                  <text class="t-estado" [attr.x]="n.x + W / 2" [attr.y]="n.y + 43" [attr.fill]="n.texto">{{ rotuloEstado(e) }}</text>
                   @if (e.orfao) {
                     <g class="selo">
-                      <rect [attr.x]="n.x + W - 36" [attr.y]="n.y - 8" width="36" height="14" rx="7"></rect>
-                      <text [attr.x]="n.x + W - 18" [attr.y]="n.y + 2">órfão</text>
+                      <rect [attr.x]="n.x + W - 32" [attr.y]="n.y - 8" width="34" height="14" rx="7"></rect>
+                      <text [attr.x]="n.x + W - 15" [attr.y]="n.y + 2">órfão</text>
                     </g>
                   }
                 </g>

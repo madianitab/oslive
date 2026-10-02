@@ -2,7 +2,9 @@
 .duas { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 .col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .col .viz-label { margin-bottom: 2px; }
-@media (max-width: 980px) { .duas { grid-template-columns: minmax(0, 1fr); } }
+.duas.topo { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+@media (max-width: 980px) { .duas, .duas.topo { grid-template-columns: minmax(0, 1fr); } }
+.obs-codigo { margin: 0; font-size: 12px; color: var(--text-3); font-style: italic; }
 
 .dica-alterado { margin: 0; font-size: 12.5px; color: var(--warn-deep, var(--text-2)); }
 
@@ -41,9 +43,10 @@
 .aresta { fill: none; stroke: var(--text-3); stroke-width: 1.4; }
 .aresta.nova { stroke: var(--a); stroke-width: 2.6; }
 .caixa { stroke: rgba(0, 0, 0, .18); stroke-width: 1; transition: opacity .2s var(--ease); }
-.t-pid { font-size: 12px; font-weight: 700; }
-.t-ppid { font-size: 10px; opacity: .92; }
-.t-estado { font-size: 9.5px; opacity: .92; }
+.arvore text { text-anchor: middle; }
+.t-pid { font-size: 11.5px; font-weight: 700; }
+.t-ppid { font-size: 9.5px; opacity: .92; }
+.t-estado { font-size: 9px; opacity: .92; }
 .no[data-estado="executando"] .caixa { stroke: var(--a); stroke-width: 3; filter: drop-shadow(0 0 5px var(--a-soft)); }
 .no[data-estado="bloqueado"] .caixa { stroke: var(--text); stroke-width: 2; stroke-dasharray: 5 3; }
 .no[data-estado="zumbi"] .caixa { opacity: .38; stroke: var(--text-3); stroke-width: 2; stroke-dasharray: 4 3; }
@@ -52,7 +55,7 @@
 @keyframes surge { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .no.nova .caixa { animation: none; } }
 .selo rect { fill: var(--warn); }
-.selo text { fill: #fff; font-size: 8.5px; font-weight: 700; text-anchor: middle; }
+.selo text { fill: #fff; font-size: 8px; font-weight: 700; text-anchor: middle; }
 
 /* eventos */
 .eventos { list-style: none; margin: 0; padding: 0; max-height: 318px; overflow: auto; position: relative;
