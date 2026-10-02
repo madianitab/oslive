@@ -7,7 +7,7 @@ import { ArvoreProcessosService } from 'src/app/features/processos/services/arvo
 import { EstadoFoto, PID_INIT, TipoEvento } from 'src/app/features/processos/models/arvore-processos';
 import { EditorCodigoComponent } from '../editor-codigo/editor-codigo.component';
 
-const W = 118, H = 66, GX = 18, GY = 48, PAD = 14;
+const W = 90, H = 50, GX = 8, GY = 30, PAD = 6;
 
 interface No { pid: number; ppid: number; x: number; y: number; cor: string; texto: string; }
 interface Aresta { pid: number; d: string; }
@@ -61,7 +61,7 @@ export class AreaArvoreComponent {
       const fs = filhos[pid] ?? [];
       fs.forEach(f => posicionar(f, prof + 1));
       const x = fs.length ? (pos[fs[0]].x + pos[fs[fs.length - 1]].x) / 2 : PAD + (folha++) * (W + GX);
-      const y = PAD + 8 + prof * (H + GY);
+      const y = PAD + 9 + prof * (H + GY);
       fundo = Math.max(fundo, y + H);
       pos[pid] = { x, y };
       nos.push({ pid, ppid: ppid[pid], x, y, cor: cores[pid], texto: this.sim.textos()[pid] });
@@ -97,11 +97,11 @@ export class AreaArvoreComponent {
       case 'apto': return 'apto';
       case 'bloqueado': return e.detalhe || 'bloqueado';
       case 'zumbi': return 'zumbi';
-      case 'terminado': return `terminou (${e.status ?? 0})`;
+      case 'terminado': return `fim (${e.status ?? 0})`;
     }
   }
 
   rotuloPpid(n: No, e: EstadoFoto): string {
-    return e.ppid === PID_INIT && n.ppid !== PID_INIT ? `PPID 1 (era ${n.ppid})` : `PPID ${e.ppid}`;
+    return e.ppid === PID_INIT && n.ppid !== PID_INIT ? `PPID 1←${n.ppid}` : `PPID ${e.ppid}`;
   }
 }

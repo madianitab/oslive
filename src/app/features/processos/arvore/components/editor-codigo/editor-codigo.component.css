@@ -12,7 +12,7 @@
   border-radius: var(--r-md);
   box-shadow: var(--sh-xs);
   overflow: auto;
-  max-height: 560px;
+  max-height: 520px;
   transition: border-color .14s var(--ease), box-shadow .14s var(--ease);
 }
 .editor:focus-within { border-color: var(--a); box-shadow: var(--ring); }
@@ -23,34 +23,34 @@
   grid-template-columns: auto 1fr;
   min-width: max-content;
   font-family: var(--f-mono);
-  font-size: 13px;
-  line-height: 20px;
+  font-size: 12.5px;
+  line-height: 18px;
 }
 .gutter {
   grid-column: 1; grid-row: 1;
-  padding: 10px 8px 10px 12px;
+  padding: 8px 6px 8px 8px;
   text-align: right;
   color: var(--text-3);
   background: var(--surface-2);
   border-right: 1px solid var(--line-soft);
   user-select: none;
-  min-width: 42px;
+  min-width: 34px;
 }
-.gutter div { height: 20px; }
+.gutter div { height: 18px; }
 .gutter .atual { color: var(--a); font-weight: 700; }
 .gutter .err { color: var(--err); font-weight: 700; }
 
 .camada, textarea {
   grid-column: 2; grid-row: 1;
   margin: 0;
-  padding: 10px 14px;
+  padding: 8px 12px;
   font: inherit;
-  line-height: 20px;
+  line-height: 18px;
   white-space: pre;
   tab-size: 4;
 }
 .camada { color: var(--text); pointer-events: none; }
-.ln { min-height: 20px; margin: 0 -14px; padding: 0 14px; }
+.ln { min-height: 18px; margin: 0 -12px; padding: 0 12px; }
 .ln.atual { background: var(--a-soft); box-shadow: inset 3px 0 0 var(--a); }
 .ln.err { background: var(--err-soft); box-shadow: inset 3px 0 0 var(--err); }
 
