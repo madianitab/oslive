@@ -13,6 +13,6 @@
  * protegidas mostram um aviso. O resto do OSLive funciona normalmente.
  */
 export const SUPABASE_CONFIG = {
-  url: '',
-  chavePublica: '',
+  url: 'https://qbtzffrxiwleerwejlwb.supabase.co',
+  chavePublica: 'sb_publishable_erk28q7pGuLA1T6mTIkIWw_q7EbPimG',
 };
