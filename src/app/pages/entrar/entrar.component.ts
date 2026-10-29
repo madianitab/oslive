@@ -28,7 +28,9 @@ import { AuthService } from '../../core/auth/auth.service';
       <os-alert variant="err" title="Não foi possível entrar">{{ erro() }}</os-alert>
     }
     <div class="pg-acoes">
-      <os-button variant="p" (click)="entrar()">Entrar com Google</os-button>
+      <os-button variant="p" [disabled]="indo()" (click)="entrar()">
+        {{ indo() ? 'Abrindo o Google…' : 'Entrar com Google' }}
+      </os-button>
     </div>
   }
 </div>
@@ -41,6 +43,8 @@ export class EntrarComponent implements OnInit {
 
   readonly carregando = signal(true);
   readonly erro = signal('');
+  /** Clicou em "Entrar com Google" e o navegador está indo para o Google. */
+  readonly indo = signal(false);
 
   async ngOnInit(): Promise<void> {
     if (!this.auth.configurado) return;
@@ -60,12 +64,15 @@ export class EntrarComponent implements OnInit {
   }
 
   async entrar(): Promise<void> {
+    if (this.indo()) return;
     this.erro.set('');
+    this.indo.set(true);
     const retorno = this.rota.snapshot.queryParamMap.get('retorno') ?? '/avaliacoes';
     try {
-      await this.auth.entrarComGoogle(retorno);
+      await this.auth.entrarComGoogle(retorno);   // em caso de sucesso, a página sai daqui
     } catch (e) {
       this.erro.set(e instanceof Error ? e.message : String(e));
+      this.indo.set(false);
     }
   }
 }

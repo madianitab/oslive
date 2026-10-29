@@ -9,6 +9,10 @@ import { FormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { AppComponent } from './app/app.component';
+import { guardarRetornoDoLogin } from './app/core/auth/retorno-login';
+
+// antes do Angular: o roteador apagaria o ?code=… que volta do login com Google
+guardarRetornoDoLogin();
 
 if (environment.production) {
   enableProdMode();

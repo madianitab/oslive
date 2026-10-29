@@ -83,7 +83,8 @@ export class MenuContaComponent implements OnInit {
 
   ngOnInit(): void {
     // só baixa o Supabase se este navegador já tiver entrado antes
-    if (this.auth.temSessaoSalva()) this.auth.iniciar();
+    // (se o servidor não responder, segue mostrando "Entrar"; a página de login avisa)
+    if (this.auth.temSessaoSalva()) this.auth.iniciar().catch(() => undefined);
   }
 
   @HostListener('document:click', ['$event'])

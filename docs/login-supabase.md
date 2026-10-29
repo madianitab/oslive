@@ -39,3 +39,5 @@ As regras ficam no banco (RLS), não no navegador:
 ## Plano gratuito
 
 Projetos sem uso por 7 dias são pausados. Os dados não se perdem: reative em *Dashboard → Restore project*. Durante a pausa, o login falha, mas o resto do OSLive funciona.
+
+Se o servidor de login não responder em 8 segundos, a página `#/entrar` mostra o aviso "O servidor de login não respondeu…" junto com o botão **Entrar com Google** (ela não fica mais parada em "Verificando acesso…"). Depois de reativar o projeto, basta clicar de novo.
