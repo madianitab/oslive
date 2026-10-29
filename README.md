@@ -25,7 +25,7 @@ Simulador didático de Sistemas Operacionais.
 
 Em cada assunto, `models/` e `services/` ficam na raiz da pasta e são compartilhados entre simulador e exercícios.
 
-Aplicação Angular 18. Simuladores e exercícios rodam sem backend; as avaliações e o envio de sugestões usam login com Google via Supabase (veja [docs/login-supabase.md](docs/login-supabase.md)).
+Aplicação Angular 18. Simuladores e exercícios rodam sem backend; as avaliações e o envio de sugestões usam login com Google via Supabase (botão **Entrar** na barra superior) (veja [docs/login-supabase.md](docs/login-supabase.md)).
 
 ## Executar localmente
 

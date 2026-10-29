@@ -43,6 +43,19 @@ export class AuthService {
   private cliente?: Promise<SupabaseClient>;
   private inicio?: Promise<void>;
 
+  /**
+   * Há sessão salva neste navegador? Verifica só o localStorage, sem baixar o Supabase,
+   * para que quem nunca entrou não carregue a biblioteca nos simuladores.
+   */
+  temSessaoSalva(): boolean {
+    if (!this.configurado) return false;
+    try {
+      return Object.keys(localStorage).some(k => /^sb-.+-auth-token$/.test(k));
+    } catch {
+      return false;
+    }
+  }
+
   /** Carrega a sessão (inclusive a que volta do Google). Pode ser chamado várias vezes. */
   iniciar(): Promise<void> {
     this.inicio ??= this.carregarSessao();
