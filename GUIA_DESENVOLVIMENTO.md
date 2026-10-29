@@ -153,6 +153,7 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
 
 - **Só avaliações e o envio de sugestões exigem login.** Simuladores e exercícios nunca usam login. Configuração e regras em `docs/login-supabase.md`; banco em `supabase/schema.sql`.
 - **Código:** `core/auth/` (`AuthService`, guard `exigirLogin(...papéis)`, `supabase.config.ts`). O Supabase é carregado por import dinâmico, só nas páginas protegidas.
+- **Acesso:** link **Avaliações** na barra superior; sem login, o guard leva a `#/entrar`.
 - **Rotas protegidas** usam `loadComponent` + `canActivate: [exigirLogin()]` (ou `exigirLogin('admin')`, `exigirLogin('admin', 'professor')`).
 - **Papéis:** `admin` (a professora), `professor` (liberado por ela em `#/admin/usuarios`) e `aluno` (padrão de quem entra pelo Google).
 - **Segurança no banco:** toda tabela nova precisa de RLS. Nunca coloque a chave `secret`/`service_role` no código.

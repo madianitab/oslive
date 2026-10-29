@@ -19,6 +19,7 @@ import { ThemeService } from '../../core/theme.service';
         <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Início</a>
         <a routerLink="/simulacoes" routerLinkActive="active">Simulações</a>
         <a routerLink="/brandkit" routerLinkActive="active">Design System</a>
+        <a routerLink="/avaliacoes" routerLinkActive="active" title="Avaliações (entrar com Google)">Avaliações</a>
       </nav>
 
       <button
