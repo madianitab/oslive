@@ -129,6 +129,8 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
   - Não existe "retirar página": uma página só sai da memória como **vítima** ou quando o processo é **finalizado**.
   - A substituição é **global**: a vítima pode ser de qualquer processo.
 - **Histórico de bits:** colunas **T1…T4, sendo T4 o instante mais recente**. Compara a partir de T4; no empate, passa para T3, T2 e T1; persistindo o empate, sai o menor timestamp.
+  - Regra única em `paginacao/models/historico-bits.ts`, usada pelo simulador e pelos exercícios (internamente o vetor guarda o mais recente primeiro).
+  - **Simulador:** cada página tem o bit **R** do instante atual. A carga conta como acesso (R = 1); acessar uma página V liga R. O botão **Avançar instante** leva R para T4, desloca o histórico (T1 sai) e zera R.
 - **Segunda Chance:** bit de referência 0 na carga. Quem tem bit 1 ganha uma segunda chance: o bit vira 0, o timestamp é atualizado e a página vai para o fim da fila.
 
 ### Segmentação

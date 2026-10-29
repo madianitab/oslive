@@ -1,11 +1,13 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { gera_cor } from 'src/app/core/utils';
-import { TAM, TIMESTAMP_INICIAL } from 'src/app/core/constantes';
+import { TAM, TAM_HISTORICO_REF, TIMESTAMP_INICIAL } from 'src/app/core/constantes';
+import { bitsT1aT4, deslocarHistorico, vitimaHistorico } from '../models/historico-bits';
 
-export type AlgoritmoSubstituicao = 'FIFO' | 'SEGUNDA_CHANCE';
+export type AlgoritmoSubstituicao = 'FIFO' | 'HISTORICO' | 'SEGUNDA_CHANCE';
 
 export const ALGORITMOS_SUBSTITUICAO: { valor: AlgoritmoSubstituicao; nome: string }[] = [
   { valor: 'FIFO', nome: 'FIFO (first-in, first-out)' },
+  { valor: 'HISTORICO', nome: 'Histórico de bits de referência' },
   { valor: 'SEGUNDA_CHANCE', nome: 'Segunda Chance' },
 ];
 
@@ -30,11 +32,16 @@ export interface ProcessoDemanda {
 export interface EntradaFila {
   pagina: PaginaDemanda;
   timestamp: number;
+  /** Bit de referência do intervalo atual (Segunda Chance e Histórico). */
   bitRef: 0 | 1;
+  /** Histórico de bits: mais recente primeiro (historico[0] = T4). */
+  historico: number[];
 }
 
+export const BITS_HISTORICO_DEMANDA = TAM_HISTORICO_REF;
+
 export interface EventoSimulacao {
-  tipo: 'carga' | 'substituicao' | 'segunda-chance' | 'remocao' | 'acesso' | 'info';
+  tipo: 'carga' | 'substituicao' | 'segunda-chance' | 'remocao' | 'acesso' | 'instante' | 'info';
   mensagem: string;
 }
 
@@ -63,6 +70,20 @@ export class SimuladorPaginacaoDemandaService {
     NOMES_PROCESSOS_DEMANDA.filter(n => !this.processos().some(p => p.nome === n)));
 
   readonly quadrosLivres = computed(() => this.quadros().filter(q => q === null).length);
+
+  /** Instantes já registrados no histórico (botão "Avançar instante"). */
+  readonly instantes = signal(0);
+
+  /** Página que sairia agora se faltasse um quadro (destacada na ordem de carga). */
+  readonly proximaVitima = computed<EntradaFila | null>(() => {
+    const fila = this.fila();
+    if (fila.length === 0) return null;
+    switch (this.algoritmo()) {
+      case 'HISTORICO': return vitimaHistorico(fila);
+      case 'SEGUNDA_CHANCE': return fila.find(e => e.bitRef === 0) ?? fila[0];
+      default: return fila[0];
+    }
+  });
 
   definirAlgoritmo(algoritmo: AlgoritmoSubstituicao): void {
     this.algoritmo.set(algoritmo);
@@ -115,13 +136,28 @@ export class SimuladorPaginacaoDemandaService {
     }
     this.fila.update(f => f.map(e => e.pagina === pagina ? { ...e, bitRef: 1 } : e));
     this.registrar('acesso', `Acesso a ${nomePagina(pagina)}: bit V, sem falta de página` +
-      (this.algoritmo() === 'SEGUNDA_CHANCE' ? ' (bit de referência = 1).' : '.'));
+      (this.algoritmo() !== 'FIFO' ? ' (bit de referência = 1).' : '.'));
   }
 
   /** Acesso a uma página já carregada: liga o bit de referência (usado pela Segunda Chance). */
   acessarPagina(entrada: EntradaFila): void {
     this.fila.update(f => f.map(e => e === entrada ? { ...e, bitRef: 1 } : e));
     this.registrar('acesso', `Página ${nomePagina(entrada.pagina)} acessada: bit de referência = 1.`);
+  }
+
+  /**
+   * Histórico de bits: passa um instante. O bit de referência de cada página entra como o novo T4,
+   * os bits andam uma coluna (o T1 mais antigo sai) e o bit de referência volta a 0.
+   */
+  avancarInstante(): void {
+    if (this.fila().length === 0) return;
+    this.fila.update(f => f.map(e => ({
+      ...e,
+      historico: deslocarHistorico(e.historico, e.bitRef, BITS_HISTORICO_DEMANDA),
+      bitRef: 0 as const,
+    })));
+    this.instantes.update(n => n + 1);
+    this.registrar('instante', `Novo instante: os bits de referência entraram em T4 e o histórico andou uma coluna.`);
   }
 
   carregarPagina(pagina: PaginaDemanda, naCriacao = false): void {
@@ -135,7 +171,10 @@ export class SimuladorPaginacaoDemandaService {
     const timestamp = this.relogio++;
     pagina.quadro = quadro;
     this.quadros.update(q => q.map((atual, i) => i === quadro ? pagina : atual));
-    this.fila.update(f => [...f, { pagina, timestamp, bitRef: 0 }]);
+    // Segunda Chance: bit 0 na carga (convenção do material). Histórico: a carga é um acesso, então bit 1.
+    const bitRef: 0 | 1 = this.algoritmo() === 'HISTORICO' ? 1 : 0;
+    const historico = Array(BITS_HISTORICO_DEMANDA).fill(0);
+    this.fila.update(f => [...f, { pagina, timestamp, bitRef, historico }]);
     this.totalCargas.update(n => n + 1);
     this.atualizarProcessos();
     this.registrar('carga', naCriacao
@@ -151,6 +190,7 @@ export class SimuladorPaginacaoDemandaService {
     this.totalCargas.set(0);
     this.totalSubstituicoes.set(0);
     this.relogio = TIMESTAMP_INICIAL;
+    this.instantes.set(0);
     if (registrar) this.registrar('info', 'Simulação reiniciada.');
   }
 
@@ -168,7 +208,16 @@ export class SimuladorPaginacaoDemandaService {
       }
     }
 
-    const vitima = fila.shift()!;
+    let vitima: EntradaFila;
+    if (this.algoritmo() === 'HISTORICO') {
+      vitima = vitimaHistorico(fila)!;
+      fila = fila.filter(e => e !== vitima);
+      this.registrar('substituicao',
+        `Histórico: ${nomePagina(vitima.pagina)} tem o menor histórico (T1…T4 = ${bitsT1aT4(vitima.historico).join(' ')})` +
+        ` — comparação a partir de T4; no empate, menor timestamp.`);
+    } else {
+      vitima = fila.shift()!;
+    }
     this.totalSubstituicoes.update(n => n + 1);
     this.fila.set(fila);
     const quadro = vitima.pagina.quadro!;

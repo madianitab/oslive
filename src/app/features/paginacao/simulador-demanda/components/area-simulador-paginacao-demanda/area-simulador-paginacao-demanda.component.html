@@ -2,7 +2,7 @@
 
   <section>
     <div class="viz-stats">
-      <os-stat label="Algoritmo" [value]="sim.algoritmo() === 'FIFO' ? 'FIFO' : 'Segunda Chance'"></os-stat>
+      <os-stat label="Algoritmo" [value]="nomeAlgoritmo()"></os-stat>
       <os-stat label="Quadros livres" [value]="sim.quadrosLivres() + ' / ' + sim.quadros().length"></os-stat>
       <os-stat label="Cargas" [value]="sim.totalCargas()"></os-stat>
       <os-stat label="Substituições" [value]="sim.totalSubstituicoes()" hint="global: vítima de qualquer processo" [accent]="true"></os-stat>
@@ -63,6 +63,12 @@
 
       <section>
         <div class="viz-label">Ordem de carga (fila por timestamp)</div>
+        @if (sim.algoritmo() === 'HISTORICO' && sim.fila().length > 0) {
+          <div class="instante">
+            <os-button variant="s" size="sm" (click)="sim.avancarInstante()"><i class="fa-solid fa-clock"></i> Avançar instante</os-button>
+            <span class="hint-tabela">Instantes: {{ sim.instantes() }}. O bit de referência (R) entra em T4; T4 é o mais recente.</span>
+          </div>
+        }
         @if (sim.fila().length === 0) {
           <p class="empty-hint">Nenhuma página carregada.</p>
         } @else {
@@ -74,14 +80,24 @@
               </tr>
               <tr>
                 <td class="t-lbl">Página</td>
-                @for (e of sim.fila(); track e.pagina; let i = $index) {
-                  <td class="t-proc" [class.proxima]="i === 0" [ngStyle]="{ 'background-color': e.pagina.cor }"
-                    [title]="i === 0 ? 'Próxima candidata à substituição' : ''">{{ nomePagina(e.pagina) }}</td>
+                @for (e of sim.fila(); track e.pagina) {
+                  <td class="t-proc" [class.proxima]="e === sim.proximaVitima()" [ngStyle]="{ 'background-color': e.pagina.cor }"
+                    [title]="e === sim.proximaVitima() ? 'Próxima candidata à substituição' : ''">{{ nomePagina(e.pagina) }}</td>
                 }
               </tr>
-              @if (sim.algoritmo() === 'SEGUNDA_CHANCE') {
+              @if (sim.algoritmo() === 'HISTORICO') {
+                @for (c of colunasHistorico; track c; let k = $index) {
+                  <tr>
+                    <td class="t-lbl" [title]="c === 'T4' ? 'Instante mais recente' : ''">{{ c }}</td>
+                    @for (e of sim.fila(); track e.pagina) {
+                      <td class="t-val" [class.bit-ligado]="bitsT1aT4(e.historico)[k] === 1">{{ bitsT1aT4(e.historico)[k] }}</td>
+                    }
+                  </tr>
+                }
+              }
+              @if (sim.algoritmo() !== 'FIFO') {
                 <tr>
-                  <td class="t-lbl">Bit ref.</td>
+                  <td class="t-lbl" [title]="sim.algoritmo() === 'HISTORICO' ? 'Bit de referência do instante atual' : ''">{{ sim.algoritmo() === 'HISTORICO' ? 'R (atual)' : 'Bit ref.' }}</td>
                   @for (e of sim.fila(); track e.pagina) {
                     <td class="t-val" [class.bit-ligado]="e.bitRef === 1">{{ e.bitRef }}</td>
                   }

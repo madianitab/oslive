@@ -9,6 +9,8 @@
     <p class="hint mt-campo">
       @if (sim.algoritmo() === 'FIFO') {
         Sai a página carregada há mais tempo (menor timestamp).
+      } @else if (sim.algoritmo() === 'HISTORICO') {
+        Compare a partir de T4 (instante mais recente): sai a página com bit 0; no empate, olhe T3, T2 e T1; persistindo, sai a de menor timestamp.
       } @else {
         Páginas com bit de referência 1 ganham uma segunda chance: o bit vira 0 e elas vão para o fim da fila.
       }
@@ -73,6 +75,9 @@
       Páginas só saem da memória como vítimas ou ao finalizar o processo.
       @if (sim.algoritmo() === 'SEGUNDA_CHANCE') {
         Na ordem de carga, use <b>Acessar</b> para ligar o bit de referência de uma página.
+      }
+      @if (sim.algoritmo() === 'HISTORICO') {
+        Acessar uma página liga o bit R (a carga também conta como acesso). <b>Avançar instante</b> leva R para T4 e o histórico anda uma coluna.
       }
     </p>
   </os-panel>
