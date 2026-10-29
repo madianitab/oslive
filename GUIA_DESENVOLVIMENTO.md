@@ -96,7 +96,7 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
 
 ### Geral
 - **Numeração a partir de 0:** endereços, páginas, quadros, deslocamentos **e rótulos de bytes** (A0, C0, D2…). O número do rótulo é igual ao deslocamento.
-- **Nomenclatura do material:** FCFS (e não FIFO) na paginação por demanda; "fila de aptos"; "página vítima"; "falta de página".
+- **Nomenclatura do material:** FIFO na paginação por demanda (FCFS fica para o escalonamento; a classe `FCFS` em `paginacao/models` manteve o nome por histórico); "fila de aptos"; "página vítima"; "falta de página".
 
 ### Escalonamento
 - **Prioridade:** **menor número = maior prioridade** (0 é a mais alta), tanto na preemptiva quanto na não preemptiva.

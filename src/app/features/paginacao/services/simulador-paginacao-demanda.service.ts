@@ -5,7 +5,7 @@ import { TAM, TIMESTAMP_INICIAL } from 'src/app/core/constantes';
 export type AlgoritmoSubstituicao = 'FIFO' | 'SEGUNDA_CHANCE';
 
 export const ALGORITMOS_SUBSTITUICAO: { valor: AlgoritmoSubstituicao; nome: string }[] = [
-  { valor: 'FIFO', nome: 'FCFS (first-come, first-served)' },
+  { valor: 'FIFO', nome: 'FIFO (first-in, first-out)' },
   { valor: 'SEGUNDA_CHANCE', nome: 'Segunda Chance' },
 ];
 

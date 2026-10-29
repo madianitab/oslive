@@ -3,6 +3,7 @@ import { MemoriaFisica } from './memoria-fisica';
 import { STR_MEMORIA_VAZIA, MEMORIA_FISICA_COR} from 'src/app/core/constantes';
 
 
+/** Substituição de páginas FIFO (o nome da classe é histórico; na tela aparece "FIFO"). */
 export class FCFS {
       public lista: Array<Pagina> = [];
 
