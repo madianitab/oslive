@@ -1,6 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 import type { Session, SupabaseClient, User } from '@supabase/supabase-js';
 import { SUPABASE_CONFIG } from './supabase.config';
+import { consumirRetornoDoLogin } from './retorno-login';
 
 export type Papel = 'admin' | 'professor' | 'aluno';
 
@@ -159,7 +160,9 @@ export class AuthService {
       createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.chavePublica, {
         auth: {
           flowType: 'pkce',          // volta do Google com ?code=… (compatível com rotas #)
-          detectSessionInUrl: true,
+          // o Angular apaga o ?code=… antes daqui; main.ts guarda o código e
+          // carregarSessao() faz a troca (veja retorno-login.ts)
+          detectSessionInUrl: false,
           persistSession: true,
           // trava simples: evita travamentos do navigator.locks com o Angular
           lock: async (_nome, _tempo, fn) => fn(),
@@ -172,14 +175,18 @@ export class AuthService {
   private async carregarSessao(): Promise<void> {
     if (!this.configurado) return;
     const sb = await this.supabase();
+
+    // volta do Google: troca o código guardado em main.ts pela sessão
+    const retorno = consumirRetornoDoLogin();
+    if (retorno?.erro) throw new Error(`O login foi recusado: ${retorno.erro}`);
+    if (retorno?.code) {
+      const { error } = await sb.auth.exchangeCodeForSession(retorno.code);
+      if (error) throw new Error(`Não foi possível concluir o login: ${error.message}`);
+    }
+
     const { data, error } = await sb.auth.getSession();
     if (error) throw error;
     await this.aplicarSessao(data.session);
-
-    // tira o ?code=… da barra de endereço depois do login
-    if (location.search.includes('code=')) {
-      history.replaceState(null, '', location.pathname + location.hash);
-    }
 
     if (this.ouvindo) return;
     this.ouvindo = true;
