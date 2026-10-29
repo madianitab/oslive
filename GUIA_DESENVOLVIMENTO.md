@@ -32,6 +32,8 @@ src/app/
 
 Assuntos atuais: `processos`, `escalonamento`, `particoes`, `paginacao` e `segmentacao`. A tabela de rotas está no `README.md`.
 
+**Cores dos processos:** use sempre `gera_cor(processosExistentes)` de `core/utils.ts`. Ela usa a paleta de 16 cores e, quando acaba, gera cores escuras novas (texto branco legível); não há limite de processos.
+
 **Separação obrigatória:**
 - O algoritmo fica no `models/` e não depende do Angular.
 - O serviço guarda o estado com `signals`.
