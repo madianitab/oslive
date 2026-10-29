@@ -49,6 +49,7 @@ import { AuthService } from '../../../../core/auth/auth.service';
   @if (auth.papel() === 'admin') {
     <div class="pg-acoes">
       <os-button variant="s" (click)="router.navigateByUrl('/admin/usuarios')">Gerenciar usuários</os-button>
+      <os-button variant="s" (click)="router.navigateByUrl('/admin/sugestoes')">Ver sugestões</os-button>
     </div>
   }
 </div>

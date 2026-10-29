@@ -161,7 +161,7 @@
 
 /* ───────── barra de progresso das cenas ───────── */
 .px-progress {
-  position: fixed; top: 60px; left: 0; right: 0; height: 2px;
+  position: fixed; top: var(--os-tb-visivel, 60px); transition: top .25s var(--ease); left: 0; right: 0; height: 2px;
   z-index: 90; background: var(--line-soft); pointer-events: none;
 }
 .px-progress-fill {

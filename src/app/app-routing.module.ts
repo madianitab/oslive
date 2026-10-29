@@ -47,6 +47,8 @@ const routes: Routes = [
   // Avaliações (exigem login; carregadas só quando abertas)
   { path: "entrar", loadComponent: () => import('./pages/entrar/entrar.component').then(m => m.EntrarComponent) },
   { path: "avaliacoes", canActivate: [exigirLogin()], loadComponent: () => import('src/app/features/avaliacoes/components/home-avaliacoes/home-avaliacoes.component').then(m => m.HomeAvaliacoesComponent) },
+  { path: "sugestao", canActivate: [exigirLogin()], loadComponent: () => import('./pages/sugestao/sugestao.component').then(m => m.SugestaoComponent) },
+  { path: "admin/sugestoes", canActivate: [exigirLogin('admin')], loadComponent: () => import('./pages/admin-sugestoes/admin-sugestoes.component').then(m => m.AdminSugestoesComponent) },
   { path: "admin/usuarios", canActivate: [exigirLogin('admin')], loadComponent: () => import('./pages/admin-usuarios/admin-usuarios.component').then(m => m.AdminUsuariosComponent) },
 
   // Endereços antigos (mantidos para não quebrar links já compartilhados)

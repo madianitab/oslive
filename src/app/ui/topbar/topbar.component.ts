@@ -1,4 +1,5 @@
-import { Component, HostListener, inject, signal } from '@angular/core';
+import { Component, HostListener, OnDestroy, inject, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIf } from '@angular/common';
 import { ThemeService } from '../../core/theme.service';
@@ -9,7 +10,7 @@ import { ThemeService } from '../../core/theme.service';
   imports: [RouterLink, RouterLinkActive, NgIf],
   styleUrls: ['./topbar.component.css'],
   template: `
-    <header class="os-topbar" [class.scrolled]="scrolled()">
+    <header class="os-topbar" [class.scrolled]="scrolled()" [class.oculta]="oculta()" (focusin)="mostrar()">
       <a class="os-tb-brand" routerLink="/" aria-label="OSLive — início"> 
         <span class="os-tb-name">OS<b>Live</b></span>
       </a>
@@ -19,6 +20,9 @@ import { ThemeService } from '../../core/theme.service';
         <a routerLink="/simulacoes" routerLinkActive="active">Simulações</a>
         <a routerLink="/brandkit" routerLinkActive="active">Design System</a>
       </nav>
+
+      <!-- conta do usuário (Entrar / menu), fornecida pelo app -->
+      <ng-content select="[slot=conta]"></ng-content>
 
       <button
         type="button"
@@ -37,15 +41,45 @@ import { ThemeService } from '../../core/theme.service';
     </header>
   `,
 })
-export class OsTopbarComponent {
+export class OsTopbarComponent implements OnDestroy {
   readonly theme = inject(ThemeService);
+  private readonly doc = inject(DOCUMENT);
   readonly scrolled = signal(false);
+  /** Oculta ao rolar a página para baixo; volta ao rolar para cima ou perto do topo. */
+  readonly oculta = signal(false);
+  private ultimoY = 0;
 
   @HostListener('window:scroll')
   onScroll(): void {
-    const s = window.scrollY > 12;
+    const y = Math.max(0, window.scrollY);
+    const s = y > 12;
     if (s !== this.scrolled()) {
       this.scrolled.set(s);
     }
+    const delta = y - this.ultimoY;
+    if (y <= 60) {
+      this.definirOculta(false);
+    } else if (Math.abs(delta) > 6) {   // ignora pequenas oscilações (ex.: touchpad)
+      this.definirOculta(delta > 0);
+    } else {
+      return;                           // mantém a referência até o movimento ser perceptível
+    }
+    this.ultimoY = y;
+  }
+
+  /** Foco pelo teclado (Tab) dentro da barra sempre a mostra. */
+  mostrar(): void {
+    this.definirOculta(false);
+  }
+
+  ngOnDestroy(): void {
+    this.doc.documentElement.classList.remove('os-tb-oculta');
+  }
+
+  /** A classe no <html> faz o cabeçalho fixo das simulações subir junto (variável --os-tb-visivel). */
+  private definirOculta(v: boolean): void {
+    if (v === this.oculta()) return;
+    this.oculta.set(v);
+    this.doc.documentElement.classList.toggle('os-tb-oculta', v);
   }
 }

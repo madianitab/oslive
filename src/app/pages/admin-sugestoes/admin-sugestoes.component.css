@@ -1,0 +1,4 @@
+.filtro { margin-bottom: 16px; }
+.texto { white-space: pre-wrap; max-width: 420px; }
+.pagina { display: block; margin-top: 4px; font-size: 11px; color: var(--text-3); }
+tr.lida td { color: var(--text-3); }

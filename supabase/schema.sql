@@ -82,3 +82,77 @@ end $$;
 
 revoke all on function public.definir_papel(uuid, text) from public, anon;
 grant execute on function public.definir_papel(uuid, text) to authenticated;
+
+-- ============================================================
+-- 7. Sugestões (botão "Sugestão" em todas as páginas)
+--    Quem está logado envia; só a administradora lê e marca como lida.
+-- ============================================================
+create table if not exists public.sugestoes (
+  id         bigint generated always as identity primary key,
+  usuario_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  tipo       text not null default 'sugestao'
+             check (tipo in ('sugestao', 'erro', 'duvida')),
+  pagina     text check (char_length(pagina) <= 200),
+  texto      text not null check (char_length(btrim(texto)) between 5 and 2000),
+  lida       boolean not null default false,
+  criado_em  timestamptz not null default now()
+);
+
+alter table public.sugestoes enable row level security;
+revoke all on public.sugestoes from anon, authenticated;
+
+-- o cliente só informa tipo, página e texto; autor, data e "lida" vêm do banco
+grant insert (tipo, pagina, texto) on public.sugestoes to authenticated;
+grant select on public.sugestoes to authenticated;
+grant update (lida) on public.sugestoes to authenticated;
+
+drop policy if exists sugestoes_insert on public.sugestoes;
+create policy sugestoes_insert on public.sugestoes
+  for insert to authenticated
+  with check (usuario_id = auth.uid());
+
+drop policy if exists sugestoes_select on public.sugestoes;
+create policy sugestoes_select on public.sugestoes
+  for select to authenticated
+  using (usuario_id = auth.uid() or public.meu_papel() = 'admin');
+
+drop policy if exists sugestoes_update on public.sugestoes;
+create policy sugestoes_update on public.sugestoes
+  for update to authenticated
+  using (public.meu_papel() = 'admin')
+  with check (public.meu_papel() = 'admin');
+
+-- limite contra abuso: no máximo 5 sugestões por hora por usuário
+create or replace function public.limitar_sugestoes()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if (select count(*) from public.sugestoes
+       where usuario_id = new.usuario_id
+         and criado_em > now() - interval '1 hour') >= 5 then
+    raise exception 'Limite de 5 sugestões por hora atingido. Tente mais tarde.';
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists antes_de_sugestao on public.sugestoes;
+create trigger antes_de_sugestao
+  before insert on public.sugestoes
+  for each row execute function public.limitar_sugestoes();
+
+-- e-mail e nome de quem enviou, só para a administradora
+create or replace function public.listar_sugestoes()
+returns table (id bigint, tipo text, pagina text, texto text, lida boolean,
+               criado_em timestamptz, email text, nome text)
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if public.meu_papel() is distinct from 'admin' then
+    raise exception 'Apenas a administradora pode ver as sugestões';
+  end if;
+  return query
+    select s.id, s.tipo, s.pagina, s.texto, s.lida, s.criado_em, p.email, p.nome
+      from public.sugestoes s left join public.perfis p on p.id = s.usuario_id
+     order by s.lida, s.criado_em desc;
+end $$;
+
+revoke all on function public.listar_sugestoes() from public, anon;
+grant execute on function public.listar_sugestoes() to authenticated;

@@ -1,0 +1,8 @@
+.form { display: flex; flex-direction: column; gap: 6px; }
+.tipos { display: flex; gap: 18px; flex-wrap: wrap; border: none; padding: 0; margin: 0 0 12px; }
+.tipos legend, .rotulo {
+  font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-3); margin-bottom: 6px; padding: 0;
+}
+textarea.form-control { height: auto; resize: vertical; font-family: var(--f-sans); font-size: 14px; line-height: 1.5; }
+.contador { text-align: right; margin: 0; }

@@ -19,11 +19,13 @@ Simulador didático de Sistemas Operacionais.
 | Segmentação | Simulador | `#/segmentacao/simulador` | `src/app/features/segmentacao/simulador` |
 | Segmentação | Exercícios | `#/segmentacao/exercicios` | `src/app/features/segmentacao/exercicios` |
 | Avaliações | Área do aluno (login) | `#/avaliacoes` | `src/app/features/avaliacoes` |
+| Sugestões | Enviar sugestão (login) — botão flutuante em todas as páginas | `#/sugestao` | `src/app/pages/sugestao` |
 | Administração | Usuários (só admin) | `#/admin/usuarios` | `src/app/pages/admin-usuarios` |
+| Administração | Sugestões recebidas (só admin) | `#/admin/sugestoes` | `src/app/pages/admin-sugestoes` |
 
 Em cada assunto, `models/` e `services/` ficam na raiz da pasta e são compartilhados entre simulador e exercícios.
 
-Aplicação Angular 18. Simuladores e exercícios rodam sem backend; as avaliações usam login com Google via Supabase (veja [docs/login-supabase.md](docs/login-supabase.md)).
+Aplicação Angular 18. Simuladores e exercícios rodam sem backend; as avaliações e o envio de sugestões usam login com Google via Supabase (botão **Entrar** na barra superior) (veja [docs/login-supabase.md](docs/login-supabase.md)).
 
 ## Executar localmente
 

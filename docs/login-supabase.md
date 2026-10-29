@@ -1,19 +1,21 @@
-# Login com Supabase (avaliações)
+# Login com Supabase (avaliações e sugestões)
 
-Só as rotas de avaliação exigem login. Simuladores e exercícios continuam abertos, e a biblioteca do Supabase só é baixada quando uma página protegida é aberta.
+Só as rotas de avaliação e de sugestão exigem login. Simuladores e exercícios continuam abertos, e a biblioteca do Supabase só é baixada quando uma página protegida é aberta.
 
 | Rota | Quem acessa |
 |---|---|
 | `#/entrar` | todos (botão "Entrar com Google") |
 | `#/avaliacoes` | qualquer usuário logado |
+| `#/sugestao` | qualquer usuário logado (envia sugestão, erro ou dúvida) |
 | `#/admin/usuarios` | só a administradora |
+| `#/admin/sugestoes` | só a administradora |
 
 **Papéis:** quem entra pelo Google vira **aluno**; a conta `madianitab@gmail.com` vira **admin**; a admin promove alunos a **professor** em `#/admin/usuarios`.
 
 ## Configuração (uma vez)
 
 1. **Projeto:** em [supabase.com](https://supabase.com), crie um projeto (região São Paulo).
-2. **Banco:** em *SQL Editor*, cole o conteúdo de `supabase/schema.sql` e clique em *Run*. Para usar outro e-mail de admin, troque-o na função `email_admin()` antes de rodar.
+2. **Banco:** em *SQL Editor*, cole o conteúdo de `supabase/schema.sql` e clique em *Run*. Para usar outro e-mail de admin, troque-o na função `email_admin()` antes de rodar. O script é idempotente: rode de novo sempre que ele mudar (ex.: a tabela `sugestoes`).
 3. **Google:**
    - No [Google Cloud Console](https://console.cloud.google.com/), em *APIs e serviços → Credenciais*, crie um *ID do cliente OAuth* do tipo *Aplicativo da Web*.
    - Em *URIs de redirecionamento autorizados*, coloque `https://<id-do-projeto>.supabase.co/auth/v1/callback` (o endereço aparece no Supabase, no passo seguinte).
