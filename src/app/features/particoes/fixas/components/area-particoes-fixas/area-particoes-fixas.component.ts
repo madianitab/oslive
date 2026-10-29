@@ -3,6 +3,7 @@ import { NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OsStatComponent } from 'src/app/ui/stat/stat.component';
 import { OsButtonComponent } from 'src/app/ui/button/button.component';
+import { marcasEscala } from 'src/app/features/particoes/models/escala-memoria';
 import { POLITICAS_FIXAS, SimuladorParticoesFixasService, TAM_SO_FIX } from 'src/app/features/particoes/services/simulador-particoes-fixas.service';
 
 const PX_POR_KB = 1.2;
@@ -16,7 +17,6 @@ const PX_POR_KB = 1.2;
 })
 export class AreaParticoesFixasComponent {
   readonly so = TAM_SO_FIX;
-  readonly marcas = [0, 100, 200, 300, 400, 500];
   procTeste = '';
   logicoTeste: number | null = 0;
 
@@ -26,6 +26,15 @@ export class AreaParticoesFixasComponent {
     return Math.max(500, u ? u.inicio + u.tamanho : TAM_SO_FIX);
   });
   readonly altura = computed(() => this.fim() * PX_POR_KB);
+  /** Régua com os endereços de início de cada região (SO, partições, processos, sobras) e o fim da memória. */
+  readonly marcas = computed(() => {
+    const limites = [TAM_SO_FIX];
+    for (const p of this.sim.particoes()) {
+      limites.push(p.inicio, p.inicio + p.tamanho);
+      if (p.processo) limites.push(p.inicio + p.processo.tamanho);
+    }
+    return marcasEscala(limites, this.fim(), PX_POR_KB);
+  });
   readonly nomePolitica = computed(() => this.sim.politica() === 'BEST' ? 'Menor que comporta' : 'Primeira que comporta');
   readonly ocupadas = computed(() => this.sim.particoes().filter(p => p.processo));
   readonly naoParticionado = computed(() => {

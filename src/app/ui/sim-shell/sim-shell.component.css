@@ -19,8 +19,9 @@
   border-bottom: 1px solid var(--line);
   box-shadow: var(--sh-xs);
   position: sticky;
-  top: 60px;
+  top: var(--os-tb-visivel, 60px);
   z-index: 20;
+  transition: top .25s var(--ease);
 }
 .os-sim-head-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
 .os-sim-head-center { display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -84,8 +85,9 @@
   width: var(--os-side-w);
   /* fixa abaixo da topbar e do cabeçalho; rola sozinha, sem acompanhar a página */
   position: sticky;
-  top: calc(60px + var(--os-head-h, 69px));
-  height: calc(100vh - 60px - var(--os-head-h, 69px));
+  top: calc(var(--os-tb-visivel, 60px) + var(--os-head-h, 69px));
+  height: calc(100vh - var(--os-tb-visivel, 60px) - var(--os-head-h, 69px));
+  transition: top .25s var(--ease), height .25s var(--ease);
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 20px;

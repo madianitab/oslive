@@ -12,6 +12,19 @@ export interface Perfil {
   criado_em: string;
 }
 
+export type TipoSugestao = 'sugestao' | 'erro' | 'duvida';
+
+export interface Sugestao {
+  id: number;
+  tipo: TipoSugestao;
+  pagina: string | null;
+  texto: string;
+  lida: boolean;
+  criado_em: string;
+  email: string | null;
+  nome: string | null;
+}
+
 const CHAVE_RETORNO = 'oslive:retorno';
 
 /**
@@ -74,6 +87,28 @@ export class AuthService {
   async definirPapel(id: string, papel: 'professor' | 'aluno'): Promise<void> {
     const sb = await this.supabase();
     const { error } = await sb.rpc('definir_papel', { alvo: id, novo_papel: papel });
+    if (error) throw error;
+  }
+
+  // ───────── sugestões (tabela public.sugestoes, com RLS) ─────────
+
+  async enviarSugestao(tipo: TipoSugestao, texto: string, pagina: string | null): Promise<void> {
+    const sb = await this.supabase();
+    const { error } = await sb.from('sugestoes').insert({ tipo, texto: texto.trim(), pagina });
+    if (error) throw error;
+  }
+
+  /** Só a administradora (a função no banco recusa os demais). */
+  async listarSugestoes(): Promise<Sugestao[]> {
+    const sb = await this.supabase();
+    const { data, error } = await sb.rpc('listar_sugestoes');
+    if (error) throw error;
+    return (data ?? []) as Sugestao[];
+  }
+
+  async marcarSugestao(id: number, lida: boolean): Promise<void> {
+    const sb = await this.supabase();
+    const { error } = await sb.from('sugestoes').update({ lida }).eq('id', id);
     if (error) throw error;
   }
 

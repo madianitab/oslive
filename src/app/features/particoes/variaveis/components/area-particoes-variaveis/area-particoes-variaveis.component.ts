@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { OsStatComponent } from 'src/app/ui/stat/stat.component';
 import { OsButtonComponent } from 'src/app/ui/button/button.component';
 import { ALGORITMOS_FIT, AlgoritmoFit, Lacuna } from 'src/app/features/particoes/models/particoes';
+import { marcasEscala } from 'src/app/features/particoes/models/escala-memoria';
 import { SimuladorParticoesVariaveisService, TAM_SO_VAR, TAM_TOTAL_VAR } from 'src/app/features/particoes/services/simulador-particoes-variaveis.service';
 
 const PX_POR_KB = 1.2;
@@ -18,7 +19,12 @@ const PX_POR_KB = 1.2;
 export class AreaParticoesVariaveisComponent {
   readonly altura = TAM_TOTAL_VAR * PX_POR_KB;
   readonly so = TAM_SO_VAR;
-  readonly marcas = [0, 100, 200, 300, 400, 500];
+  /** Régua com os endereços de início de cada região (SO, processos, lacunas) e o fim da memória. */
+  readonly marcas = computed(() => marcasEscala([
+    TAM_SO_VAR,
+    ...this.sim.alocados().flatMap(a => [a.base, a.base + a.processo.tamanho]),
+    ...this.sim.lacunas().map(l => l.inicio),
+  ], TAM_TOTAL_VAR, PX_POR_KB));
   procTeste = '';
   logicoTeste: number | null = 0;
 

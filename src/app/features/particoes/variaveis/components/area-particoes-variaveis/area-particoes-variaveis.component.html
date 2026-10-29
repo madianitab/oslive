@@ -28,7 +28,7 @@
       <div class="viz-label">Memória física</div>
       <div class="memoria">
         <div class="escala" [ngStyle]="{ height: altura + 'px' }">
-          @for (m of marcas; track m) { <span [ngStyle]="{ top: y(m) + 'px' }">{{ m }}</span> }
+          @for (m of marcas(); track m.valor) { <span [ngStyle]="{ top: m.topo + 'px' }">{{ m.valor }}</span> }
         </div>
         <div class="barra" [ngStyle]="{ height: altura + 'px' }">
           <div class="bloco so" [ngStyle]="{ top: '0px', height: y(so) + 'px' }"><b>SO</b>{{ so }} KB</div>

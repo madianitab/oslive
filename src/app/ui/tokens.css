@@ -2,6 +2,9 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Serif:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
 
 :root {
+  /* altura visível da topbar: 60px, ou 0 quando ela se oculta ao rolar para baixo (classe no <html>) */
+  --os-tb-visivel: 60px;
+
   /* neutros greige */
   --n-0: #ffffff;
   --n-25: #fcfcfb;
@@ -93,3 +96,6 @@
   --sh-md: 0 8px 28px rgba(0,0,0,.55);
   --sh-lg: 0 18px 60px rgba(0,0,0,.6);
 }
+
+/* topbar oculta ao rolar para baixo (ver os-topbar) */
+:root.os-tb-oculta { --os-tb-visivel: 0px; }

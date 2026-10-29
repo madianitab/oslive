@@ -13,8 +13,8 @@ import { AuthService } from '../../core/auth/auth.service';
 <div class="pg pg-estreita">
   <header class="pg-head">
     <div class="pg-idx">Entrar</div>
-    <h1 class="pg-title">Acesso às avaliações</h1>
-    <p class="pg-sub">Simuladores e exercícios continuam abertos. O login é só para as avaliações.</p>
+    <h1 class="pg-title">Entrar</h1>
+    <p class="pg-sub">Simuladores e exercícios continuam abertos. O login é usado só nas avaliações e no envio de sugestões.</p>
   </header>
 
   @if (!auth.configurado) {

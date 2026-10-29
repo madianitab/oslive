@@ -71,6 +71,8 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
 - **Fontes:** `--f-sans`, `--f-mono`, `--f-serif`.
 - **Formas e sombras:** raios `--r-xs`, `--r-sm`, `--r-md`; sombras `--sh-xs` … `--sh-lg`; foco `--ring`; transição `--ease`.
 
+**Topbar:** ela se oculta ao rolar para baixo e volta ao rolar para cima. A altura visível fica na variável `--os-tb-visivel` (60px ou 0). Elementos fixos ou `sticky` abaixo dela usam `top: var(--os-tb-visivel, 60px)`, nunca `60px` fixo.
+
 **Tailwind:** prefixo `tw-` (ex.: `tw-grid`). O tema escuro é ativado por `[data-theme="dark"]`. **Teste sempre nos dois temas.**
 
 ### 3.4 Padrão de tela
@@ -115,6 +117,7 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
   - **Fragmentação externa** em destaque quando há memória livre suficiente no total, mas nenhuma lacuna comporta o processo.
   - **Compactação** com relocação: as bases mudam.
 - **Fixas:** a sobra dentro da partição é **fragmentação interna**, sempre em destaque. As partições só mudam com a memória vazia.
+- **Régua da memória física:** mostra os endereços reais de início de cada região (SO, partições, processos, sobras, lacunas) e o fim da memória (`particoes/models/escala-memoria.ts`), não marcas fixas de 100 em 100.
 
 ### Paginação
 - **Modelo da paginação simples:** página e quadro de 4 bytes, 8 quadros (32 bytes), endereço lógico de 4 bits (página 2 + deslocamento 2) e físico de 5 bits (quadro 3 + deslocamento 2).
@@ -148,12 +151,13 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
 
 ## 4.1 Login (Supabase)
 
-- **Só avaliações exigem login.** Simuladores e exercícios nunca usam login. Configuração e regras em `docs/login-supabase.md`; banco em `supabase/schema.sql`.
+- **Só avaliações e o envio de sugestões exigem login.** Simuladores e exercícios nunca usam login. Configuração e regras em `docs/login-supabase.md`; banco em `supabase/schema.sql`.
 - **Código:** `core/auth/` (`AuthService`, guard `exigirLogin(...papéis)`, `supabase.config.ts`). O Supabase é carregado por import dinâmico, só nas páginas protegidas.
 - **Rotas protegidas** usam `loadComponent` + `canActivate: [exigirLogin()]` (ou `exigirLogin('admin')`, `exigirLogin('admin', 'professor')`).
 - **Papéis:** `admin` (a professora), `professor` (liberado por ela em `#/admin/usuarios`) e `aluno` (padrão de quem entra pelo Google).
 - **Segurança no banco:** toda tabela nova precisa de RLS. Nunca coloque a chave `secret`/`service_role` no código.
-- **Páginas simples** (login, avaliações, admin) usam `ui/styles/pagina.css`.
+- **Sugestões:** botão flutuante (`pages/sugestao/botao-sugestao.component.ts`) em todas as páginas, exceto login, sugestão e admin. Leva a `#/sugestao?pagina=<rota>`. Tabela `sugestoes` com RLS: cada usuário só insere em seu nome (tipo, página e texto), no máximo 5 por hora; só a admin lê (função `listar_sugestoes`) e marca como lida em `#/admin/sugestoes`.
+- **Páginas simples** (login, avaliações, sugestão, admin) usam `ui/styles/pagina.css`.
 
 ## 5. Como adicionar um módulo novo
 
