@@ -27,6 +27,21 @@ export interface Sugestao {
 
 const CHAVE_RETORNO = 'oslive:retorno';
 
+/** Tempo máximo para o Supabase responder antes de desistir (projeto pausado, rede lenta). */
+const PRAZO_MS = 8000;
+
+/** Mensagem mostrada quando o servidor de login não responde. */
+export const MSG_SEM_RESPOSTA =
+  'O servidor de login não respondeu. Ele pode estar pausado por inatividade (plano gratuito) ou a rede está lenta. Tente de novo em instantes.';
+
+/** Rejeita se a promessa não terminar no prazo, para a tela nunca ficar parada. */
+function comPrazo<T>(p: Promise<T>, ms = PRAZO_MS): Promise<T> {
+  return new Promise<T>((ok, falha) => {
+    const t = setTimeout(() => falha(new Error(MSG_SEM_RESPOSTA)), ms);
+    p.then(v => { clearTimeout(t); ok(v); }, e => { clearTimeout(t); falha(e); });
+  });
+}
+
 /**
  * Login com Google via Supabase.
  * A biblioteca do Supabase só é baixada quando alguma página protegida é
@@ -42,6 +57,7 @@ export class AuthService {
 
   private cliente?: Promise<SupabaseClient>;
   private inicio?: Promise<void>;
+  private ouvindo = false;
 
   /**
    * Há sessão salva neste navegador? Verifica só o localStorage, sem baixar o Supabase,
@@ -56,15 +72,22 @@ export class AuthService {
     }
   }
 
-  /** Carrega a sessão (inclusive a que volta do Google). Pode ser chamado várias vezes. */
+  /**
+   * Carrega a sessão (inclusive a que volta do Google). Pode ser chamado várias vezes.
+   * Nunca fica esperando para sempre: se o Supabase não responder em PRAZO_MS, rejeita
+   * com MSG_SEM_RESPOSTA e a próxima chamada tenta de novo.
+   */
   iniciar(): Promise<void> {
-    this.inicio ??= this.carregarSessao();
+    this.inicio ??= comPrazo(this.carregarSessao()).catch(e => {
+      this.inicio = undefined;   // não guarda a falha: a próxima chamada tenta de novo
+      throw e;
+    });
     return this.inicio;
   }
 
   async entrarComGoogle(retorno: string): Promise<void> {
     sessionStorage.setItem(CHAVE_RETORNO, retorno || '/avaliacoes');
-    const sb = await this.supabase();
+    const sb = await comPrazo(this.supabase());
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: `${location.origin}${location.pathname}#/entrar` },
@@ -74,7 +97,8 @@ export class AuthService {
 
   async sair(): Promise<void> {
     const sb = await this.supabase();
-    await sb.auth.signOut();
+    // sai localmente mesmo se o servidor não responder
+    await comPrazo(sb.auth.signOut()).catch(() => undefined);
     this.usuario.set(null);
     this.perfil.set(null);
   }
@@ -148,7 +172,8 @@ export class AuthService {
   private async carregarSessao(): Promise<void> {
     if (!this.configurado) return;
     const sb = await this.supabase();
-    const { data } = await sb.auth.getSession();
+    const { data, error } = await sb.auth.getSession();
+    if (error) throw error;
     await this.aplicarSessao(data.session);
 
     // tira o ?code=… da barra de endereço depois do login
@@ -156,6 +181,8 @@ export class AuthService {
       history.replaceState(null, '', location.pathname + location.hash);
     }
 
+    if (this.ouvindo) return;
+    this.ouvindo = true;
     sb.auth.onAuthStateChange((_evento, sessao) => {
       // fora do callback, como recomenda o Supabase
       setTimeout(() => this.aplicarSessao(sessao));

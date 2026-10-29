@@ -13,7 +13,12 @@ export function exigirLogin(...papeis: Papel[]): CanActivateFn {
 
     if (!auth.configurado) return router.createUrlTree(['/entrar']);
 
-    await auth.iniciar();
+    try {
+      await auth.iniciar();
+    } catch {
+      // servidor de login sem resposta: a página de login explica e oferece nova tentativa
+      return router.createUrlTree(['/entrar'], { queryParams: { retorno: estado.url } });
+    }
     if (!auth.usuario()) {
       return router.createUrlTree(['/entrar'], { queryParams: { retorno: estado.url } });
     }
