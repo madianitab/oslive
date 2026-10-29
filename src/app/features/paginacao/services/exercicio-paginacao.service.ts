@@ -1,6 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { gera_cor } from 'src/app/core/utils';
 import { TAM, TAM_HISTORICO_REF, TIMESTAMP_INICIAL } from 'src/app/core/constantes';
+import { valorHistoricoBits, vitimaHistorico } from '../models/historico-bits';
 
 /**
  * Exercícios de Paginação por Demanda (ideia original do módulo de Carlos Bruno):
@@ -62,7 +63,7 @@ export function nomePagina(p: PaginaExercicio): string {
 }
 
 export function valorHistorico(p: PaginaExercicio): number {
-  return p.historico.reduce((acc, bit) => acc * 2 + bit, 0);
+  return valorHistoricoBits(p.historico);
 }
 
 function embaralhar<T>(lista: T[]): T[] {
@@ -306,7 +307,7 @@ export class ExercicioPaginacaoService {
       case 'FIFO':
         return fila[0];
       case 'HISTORICO':
-        return [...fila].sort((a, b) => valorHistorico(a) - valorHistorico(b) || (a.timestamp ?? 0) - (b.timestamp ?? 0))[0];
+        return vitimaHistorico(fila);
       case 'SEGUNDA_CHANCE':
         return fila.find(p => p.bitRef === 0) ?? fila[0];
     }
