@@ -47,12 +47,43 @@ export function contrastText(bg: string | null | undefined): string {
   return luminancia > 0.6 ? '#1a1a1a' : '#ffffff';
 }
 
-export function gera_cor(coresJaUtilizadas: Array<{ cor: string }> = []): string {
-  const disponiveis = CORES_DISPONIVEIS.filter(
-    c => !coresJaUtilizadas.some(p => p.cor === c)
-  );
-  return disponiveis[Math.floor(Math.random() * disponiveis.length)];
+/**
+ * Cor para um novo processo, diferente das já usadas.
+ * Usa primeiro a paleta fixa (16 cores); quando ela acaba, gera cores escuras
+ * pelo ângulo áureo, sempre com contraste para o texto branco. Nunca retorna
+ * undefined (antes, a partir do 17º processo a cor sumia e o rótulo ficava invisível).
+ */
+export function gera_cor(coresJaUtilizadas: Array<{ cor?: string | null }> = []): string {
+  const usadas = new Set(coresJaUtilizadas.map(p => (p.cor ?? '').toUpperCase()));
+  const disponiveis = CORES_DISPONIVEIS.filter(c => !usadas.has(c.toUpperCase()));
+  if (disponiveis.length > 0) {
+    return disponiveis[Math.floor(Math.random() * disponiveis.length)];
+  }
+  for (let i = 0; i < 360; i++) {
+    const cor = corGerada(usadas.size + i);
+    if (!usadas.has(cor)) return cor;
+  }
+  return corGerada(usadas.size);
 }
+
+/** n-ésima cor gerada: matiz espalhado pelo ângulo áureo, saturação e luminosidade fixas (fundo escuro). */
+export function corGerada(n: number): string {
+  const matiz = (n * 137.508) % 360;
+  const luz = n % 2 === 0 ? 0.28 : 0.34;
+  return hslParaHex(matiz, 0.6, luz);
+}
+
+function hslParaHex(h: number, s: number, l: number): string {
+  const a = s * Math.min(l, 1 - l);
+  const canal = (n: number) => {
+    const k = (n + h / 30) % 12;
+    const v = l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+    return Math.round(v * 255).toString(16).padStart(2, '0');
+  };
+  return `#${canal(0)}${canal(8)}${canal(4)}`.toUpperCase();
+}
+
+const gera_cor_global = gera_cor;
 
 export namespace Utils {
       export function embaralhamentoFisherYates(array: Array<number>): Array<number> {
@@ -64,31 +95,7 @@ export namespace Utils {
       }
 
       export function gera_cor(coresJaUtilizadas: Array<ProcessoPaginacao> = []): string {
-            var coresDisponiveis: Array<string> = [
-                  "#0048BA", // Azul Royal
-                  "#B03060", // Vermelho Vinho
-                  "#FF4500", // Laranja Vermelho
-                  "#008B8B", // Azul Escuro Ciano
-                  "#A52A2A", // Marrom
-                  "#8B0000", // Vermelho Escuro
-                  "#006400", // Verde Escuro
-                  "#2F4F4F", // Cinza Ardósia Escuro
-                  "#800080", // Púrpura
-                  "#000080", // Azul Marinho
-                  "#708090", // Cinza Ardósia
-                  "#6B8E23", // Verde Oliva
-                  "#556B2F", // Verde Oliva Escuro
-                  "#FF8C00", // Laranja Escuro
-                  "#9932CC", // Orquídea Escura
-                  "#8B4513", // Sela Marrom
-            ];
-
-            for (var i = 0; i < coresJaUtilizadas.length; i++) {
-                  var pos = coresDisponiveis.indexOf(coresJaUtilizadas[i].cor);
-                  if (pos != -1) coresDisponiveis.splice(pos, 1);
-            }
-
-            return coresDisponiveis[Math.floor(Math.random() * coresDisponiveis.length)];
+            return gera_cor_global(coresJaUtilizadas);
       }
 
 
