@@ -2,7 +2,7 @@
 
   <section>
     <div class="viz-stats">
-      <os-stat label="Algoritmo" [value]="sim.algoritmo() === 'FIFO' ? 'FCFS' : 'Segunda Chance'"></os-stat>
+      <os-stat label="Algoritmo" [value]="sim.algoritmo() === 'FIFO' ? 'FIFO' : 'Segunda Chance'"></os-stat>
       <os-stat label="Quadros livres" [value]="sim.quadrosLivres() + ' / ' + sim.quadros().length"></os-stat>
       <os-stat label="Cargas" [value]="sim.totalCargas()"></os-stat>
       <os-stat label="Substituições" [value]="sim.totalSubstituicoes()" hint="global: vítima de qualquer processo" [accent]="true"></os-stat>

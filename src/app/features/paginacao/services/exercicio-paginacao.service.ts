@@ -6,7 +6,7 @@ import { TAM, TAM_HISTORICO_REF, TIMESTAMP_INICIAL } from 'src/app/core/constant
  * Exercícios de Paginação por Demanda (ideia original do módulo de Carlos Bruno):
  *  1. Preencher a memória lógica: a partir da memória física, completar a tabela de páginas (End. MF e bit V/I);
  *  2. Preencher a memória física: a partir das tabelas de páginas, dizer qual página está em cada quadro;
- *  3. Determinar a página vítima: com a memória cheia, escolher quem sai por FIFO (FCFS),
+ *  3. Determinar a página vítima: com a memória cheia, escolher quem sai por FIFO,
  *     Histórico de bits de referência ou Segunda Chance.
  */
 export type TipoExercicio = 'LOGICA' | 'FISICA' | 'VITIMA';
@@ -22,7 +22,7 @@ export const TIPOS_EXERCICIO: { valor: TipoExercicio; nome: string; descricao: s
 ];
 
 export const ALGORITMOS_VITIMA: { valor: AlgoritmoVitima; nome: string }[] = [
-  { valor: 'FIFO', nome: 'FCFS (first-come, first-served)' },
+  { valor: 'FIFO', nome: 'FIFO (first-in, first-out)' },
   { valor: 'HISTORICO', nome: 'Histórico de bits de referência' },
   { valor: 'SEGUNDA_CHANCE', nome: 'Segunda Chance' },
 ];
@@ -293,7 +293,7 @@ export class ExercicioPaginacaoService {
 
   /**
    * Página vítima de acordo com o algoritmo:
-   * - FIFO/FCFS: a carregada há mais tempo (menor timestamp);
+   * - FIFO: a carregada há mais tempo (menor timestamp);
    * - Histórico de bits (como no material): compara a partir de T4 (mais recente) e descarta quem tem 1,
    *   seguindo para T3, T2, T1; equivale ao menor valor lendo T4…T1 como binário; empate → menor timestamp;
    * - Segunda Chance: percorre em ordem de timestamp; bit 1 ganha segunda chance (vira 0 e vai para o fim);
