@@ -9,6 +9,39 @@
     <p class="hint mt-campo">{{ descricaoTipo }}</p>
   </os-panel>
 
+  @if (ex.tipo() === 'SEQUENCIA') {
+    <os-panel title="Algoritmo">
+      <select class="form-control" name="algoritmoSC" [ngModel]="sc.algoritmo()" (ngModelChange)="sc.definirAlgoritmo($event)">
+        @for (a of algoritmosSC; track a.valor) {
+          <option [ngValue]="a.valor">{{ a.nome }}</option>
+        }
+      </select>
+      <p class="hint mt-campo">
+        @if (sc.algoritmo() === 'SC') {
+          A partir do início da fila: com R = 1, a página ganha segunda chance (R vira 0, recebe o momento atual e vai para o fim); sai a primeira com R = 0.
+        } @else {
+          Classes (R,M): (0,0) → (0,1) → (1,0) → (1,1). 1ª volta: procura (0,0) sem alterar. 2ª volta: procura (0,1), zerando R de quem passa (vai para o fim com o momento atual). Repete se preciso.
+        }
+      </p>
+    </os-panel>
+
+    <os-panel title="Responder">
+      <select class="form-control" name="modo" [ngModel]="sc.modo()" (ngModelChange)="sc.definirModo($event)">
+        @for (m of modos; track m.valor) {
+          <option [ngValue]="m.valor">{{ m.nome }}</option>
+        }
+      </select>
+      <p class="hint mt-campo">A carga entra com bits 0; a leitura liga R e a escrita liga R e M. Cada segunda chance usa um momento, e a nova página entra no seguinte.</p>
+    </os-panel>
+
+    <os-panel title="Exercício">
+      <div class="proc-actions">
+        <os-button variant="p" size="sm" (click)="sc.novoExercicio()"><i class="fa-solid fa-shuffle"></i> {{ sc.gerado() ? 'Novo exercício' : 'Começar' }}</os-button>
+      </div>
+      <p class="hint mt-campo">Até {{ maxSituacoes }} situações encadeadas, com 6 a 8 páginas na memória. Pare quando quiser em <b>Encerrar</b>.</p>
+    </os-panel>
+  }
+
   @if (ex.tipo() === 'VITIMA') {
     <os-panel title="Algoritmo de substituição">
       <select class="form-control" name="algoritmo" [ngModel]="ex.algoritmo()" (ngModelChange)="ex.definirAlgoritmo($event)">
@@ -26,6 +59,7 @@
     </os-panel>
   }
 
+  @if (ex.tipo() !== 'SEQUENCIA') {
   <os-panel title="Gerar exercício">
     <label class="rotulo" for="qtdProcessos">Quantidade de processos</label>
     <select id="qtdProcessos" class="form-control" name="quantidade" [ngModel]="ex.quantidadeProcessos()" (ngModelChange)="ex.definirQuantidade($event)">
@@ -61,5 +95,6 @@
       <p class="empty">Nenhum exercício gerado.</p>
     }
   </os-panel>
+  }
 
 </div>

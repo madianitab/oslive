@@ -138,6 +138,11 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
   - Regra única em `paginacao/models/historico-bits.ts`, usada pelo simulador e pelos exercícios (internamente o vetor guarda o mais recente primeiro).
   - **Simulador:** cada página tem o bit **R** do instante atual. A carga conta como acesso (R = 1); acessar uma página V liga R. O botão **Avançar instante** leva R para T4, desloca o histórico (T1 sai) e zera R.
 - **Segunda Chance:** bit de referência 0 na carga. Quem tem bit 1 ganha uma segunda chance: o bit vira 0, o timestamp é atualizado e a página vai para o fim da fila.
+- **Segunda Chance em sequência (exercício):** regra única em `paginacao/models/segunda-chance-sequencia.ts`.
+  - Situações encadeadas (até 10): a fila resultante de uma é o início da próxima. Antes de cada falta há acessos (leitura liga R; escrita liga R e M).
+  - **Momentos:** a falta ocorre no momento t; cada página que ganha segunda chance recebe t, t+1…, e a nova página entra no momento seguinte (slide: A recebe 20 e X entra em 21).
+  - **Segunda Chance Melhorada:** classes (R,M) na ordem (0,0) → (0,1) → (1,0) → (1,1). 1ª volta procura (0,0) sem alterar; 2ª volta procura (0,1) e quem tem R = 1 e é ultrapassada fica com R = 0, recebe o momento atual e vai para o fim (M é mantido); repete se preciso.
+  - **Cenários variados:** o gerador testa conjuntos de acessos e escolhe um caso ainda não visto (SC: sai a primeira, do meio, a última, volta completa e FIFO; melhorada: pula até (0,0), (0,1) na 2ª volta, todas com R = 1 e, quando possível, sai a primeira).
 
 ### Segmentação
 - **Endereço lógico:** segmento (2 bits: 00 código, 01 dados, 10 pilha) + deslocamento (4 bits). Memória de 32 bytes, endereço físico de 5 bits.
