@@ -100,6 +100,19 @@ describe('Segunda Chance Melhorada', () => {
 });
 
 describe('Geração das situações', () => {
+  it('situação 1: a fila começa com bits 0 e todo bit ligado vem de um acesso mostrado', () => {
+    for (let s = 1; s <= 30; s++) {
+      for (const alg of ['SC', 'SCM'] as const) {
+        const rnd = semente(s);
+        const f = gerarFilaInicial(alg, rnd);
+        expect(f.every(p => p.r === 0 && p.m === 0)).toBeTrue();
+        const sit = gerarSituacao(f, alg, [], [], null, rnd);
+        const acessadas = new Set(sit.acessos.map(a => a.pagina));
+        sit.filaFalta.filter(p => p.r === 1 || p.m === 1).forEach(p => expect(acessadas.has(p.nome)).toBeTrue());
+      }
+    }
+  });
+
   for (const alg of ['SC', 'SCM'] as const) {
     it(`${alg}: 10 situações encadeadas cobrem os casos obrigatórios`, () => {
       // Várias sementes: a cobertura deve acontecer em todas.
