@@ -104,5 +104,10 @@
 
 @media (max-width: 640px) {
   .os-topbar { padding: 0 16px; gap: 12px; }
-  .os-tb-nav a { padding: 7px 9px; font-size: 12.5px; }
+  /* celular: os links não quebram linha nem empurram o botão de tema para fora da tela */
+  .os-tb-nav { min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .os-tb-nav a { padding: 7px 9px; font-size: 12.5px; white-space: nowrap; }
+}
+@media (max-width: 480px) {
+  .os-tb-nav a.os-tb-ds { display: none; }   /* Design System é para quem desenvolve */
 }

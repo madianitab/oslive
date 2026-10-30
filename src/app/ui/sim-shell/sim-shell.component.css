@@ -6,7 +6,10 @@
   flex-direction: column;
   min-height: calc(100vh - 60px); /* abaixo da topbar fixa */
   background: var(--bg);
+  /* altura visível do cabeçalho: some junto com a topbar ao rolar para baixo */
+  --os-head-visivel: var(--os-head-h, 69px);
 }
+:host-context(.os-tb-oculta) .os-sim { --os-head-visivel: 0px; }
 
 /* ───────── cabeçalho ───────── */
 .os-sim-head {
@@ -21,8 +24,15 @@
   position: sticky;
   top: var(--os-tb-visivel, 60px);
   z-index: 20;
-  transition: top .25s var(--ease);
+  transition: top .25s var(--ease), box-shadow .25s var(--ease);
 }
+/* ao rolar para baixo o cabeçalho sobe junto com a topbar, liberando a tela (zoom/projetor);
+   volta ao rolar para cima ou quando recebe foco pelo teclado (:focus-visible, não clique) */
+:host-context(.os-tb-oculta) .os-sim-head:not(:has(:focus-visible)) {
+  top: calc(-1 * var(--os-head-h, 69px) - 4px);
+  box-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) { .os-sim-head, .os-sim-side-scroll { transition: none; } }
 .os-sim-head-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
 .os-sim-head-center { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .os-sim-head-right { min-width: 0; }
@@ -85,8 +95,8 @@
   width: var(--os-side-w);
   /* fixa abaixo da topbar e do cabeçalho; rola sozinha, sem acompanhar a página */
   position: sticky;
-  top: calc(var(--os-tb-visivel, 60px) + var(--os-head-h, 69px));
-  height: calc(100vh - var(--os-tb-visivel, 60px) - var(--os-head-h, 69px));
+  top: calc(var(--os-tb-visivel, 60px) + var(--os-head-visivel));
+  height: calc(100vh - var(--os-tb-visivel, 60px) - var(--os-head-visivel));
   transition: top .25s var(--ease), height .25s var(--ease);
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -100,8 +110,20 @@
 .os-sim-main {
   flex: 1;
   min-width: 0;
-  overflow-x: auto;
   padding: 24px;
+  /* As áreas usam @container sim-main (e não @media): o layout acompanha a largura
+     real da área, que muda com o zoom do navegador e com a lateral aberta/recolhida.
+     Sem overflow aqui, para o position: sticky das áreas funcionar em relação à página;
+     conteúdo largo rola dentro de .viz-scroll. */
+  container: sim-main / inline-size;
+}
+
+/* ───────── telas estreitas ou com zoom: cabeçalho compacto ───────── */
+@media (max-width: 1280px) {
+  .os-sim-head { grid-template-columns: minmax(0, 1fr) auto; padding: 10px 20px; }
+  .os-sim-head-right { display: none; }
+  .os-sim-subtitle { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .os-sim-main { padding: 20px; }
 }
 
 /* scrim só aparece no mobile quando a sidebar (drawer) está aberta */
@@ -109,6 +131,7 @@
 
 /* ───────── responsivo: sidebar vira drawer ───────── */
 @media (max-width: 880px) {
+  .os-sim-main { padding: 16px; }
   .os-sim-side {
     position: absolute;
     top: 0; bottom: 0; left: 0;

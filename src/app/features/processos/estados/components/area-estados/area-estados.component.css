@@ -57,4 +57,4 @@
 .h-t { font-family: var(--f-mono); color: var(--text-3); }
 .h-r { font-style: italic; }
 
-@media (max-width: 900px) { .recursos { grid-template-columns: 1fr; } }
+@container sim-main (max-width: 620px) { .recursos { grid-template-columns: 1fr; } }

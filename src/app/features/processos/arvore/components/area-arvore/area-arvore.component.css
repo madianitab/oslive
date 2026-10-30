@@ -3,7 +3,7 @@
 .col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .col .viz-label { margin-bottom: 2px; }
 .duas.topo { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
-@media (max-width: 980px) { .duas, .duas.topo { grid-template-columns: minmax(0, 1fr); } }
+@container sim-main (max-width: 820px) { .duas, .duas.topo { grid-template-columns: minmax(0, 1fr); } }
 .obs-codigo { margin: 0; font-size: 12px; color: var(--text-3); font-style: italic; }
 
 .dica-alterado { margin: 0; font-size: 12.5px; color: var(--warn-deep, var(--text-2)); }
