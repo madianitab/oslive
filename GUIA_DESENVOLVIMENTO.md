@@ -43,6 +43,8 @@ Assuntos atuais: `processos`, `escalonamento`, `particoes`, `paginacao` e `segme
 
 O visual vem do design system criado no [PR #1](https://github.com/madianitab/oslive/pull/1), em `src/app/ui`. A página **`#/brandkit`** mostra todos os componentes em uso. **Todo módulo novo deve usar esse design system.** Não use Bootstrap, cores fixas nem componentes visuais próprios quando já existir um equivalente.
 
+**Ícones e recursos externos:** ícones só do Font Awesome 6 instalado pelo npm (`@fortawesome/fontawesome-free`, importado em `styles.css`), com as classes `fa-solid`/`fa-regular` (ex.: `fa-solid fa-gears`). Não adicione CSS, fontes ou scripts de CDN no `index.html`: tudo entra por dependência npm. A única exceção é o carregador do Google Charts (`gstatic.com/charts/loader.js`), usado no gráfico do escalonamento, porque o Google não permite hospedá-lo localmente. O `viewport` não bloqueia o zoom (sem `user-scalable=no`).
+
 ### 3.1 Componentes (`src/app/ui`, exportados em `ui/index.ts`)
 
 | Componente | Uso | Entradas principais |

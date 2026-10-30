@@ -11,7 +11,7 @@
       <input type="number" min="1" [max]="usuario" class="form-control" name="tamanho" placeholder="Tamanho (KB)" [(ngModel)]="tamanho">
       <div class="proc-actions">
         <os-button variant="p" size="sm" type="submit"><i class="fa-solid fa-circle-plus"></i> Criar</os-button>
-        <os-button variant="s" size="sm" type="button" (click)="sim.gerarAleatorio()"><i class="fa fa-cogs"></i> Aleatório</os-button>
+        <os-button variant="s" size="sm" type="button" (click)="sim.gerarAleatorio()"><i class="fa-solid fa-gears"></i> Aleatório</os-button>
       </div>
     </form>
     <p class="info-livre" style="margin-top: 10px">Livre: <b>{{ sim.livre() }} KB</b> · maior lacuna: <b>{{ sim.maiorLacuna() }} KB</b></p>

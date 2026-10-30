@@ -23,7 +23,7 @@
       <span>Gerar processos com valores aleatórios</span>
     </label>
     @if (aleatorio()) {
-      <os-button variant="s" size="sm" (click)="gerarAleatorio()"><i class="fa fa-cogs"></i> Gerar processos</os-button>
+      <os-button variant="s" size="sm" (click)="gerarAleatorio()"><i class="fa-solid fa-gears"></i> Gerar processos</os-button>
     } @else {
       <form class="proc-form" (ngSubmit)="criar()">
         <select class="form-control" name="nome" [(ngModel)]="nome">
