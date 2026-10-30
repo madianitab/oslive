@@ -6,7 +6,7 @@
       <span>Gerar processo com valores aleatórios</span>
     </label>
     @if (aleatorio()) {
-      <os-button variant="s" size="sm" (click)="gerar()"><i class="fa fa-cogs"></i> Gerar processo</os-button>
+      <os-button variant="s" size="sm" (click)="gerar()"><i class="fa-solid fa-gears"></i> Gerar processo</os-button>
     } @else {
       <form class="proc-form" (ngSubmit)="criar()">
         <input type="text" maxlength="1" class="form-control campo-nome" name="nome" placeholder="Nome do processo (letra)" [(ngModel)]="nome">
