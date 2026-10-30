@@ -145,6 +145,7 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
 - **Segunda Chance em sequência (exercício):** regra única em `paginacao/models/segunda-chance-sequencia.ts`.
   - Situações encadeadas (até 10): a fila resultante de uma é o início da próxima. A fila inicial começa com todos os bits em 0, então todo bit ligado vem de um acesso mostrado. Antes de cada falta há acessos (leitura liga R; escrita liga R e M).
   - **Momentos:** a falta ocorre no momento t; cada página que ganha segunda chance recebe t, t+1…, e a nova página entra no momento seguinte (slide: A recebe 20 e X entra em 21).
+  - **Nomes dos bits:** R = bit de referência; M = bit de modificação, também chamado de bit de sujeira (dirty bit). A tela do exercício tem uma legenda com esses significados.
   - **Segunda Chance Melhorada:** classes (R,M) na ordem (0,0) → (0,1) → (1,0) → (1,1). 1ª volta procura (0,0) sem alterar; 2ª volta procura (0,1) e quem tem R = 1 e é ultrapassada fica com R = 0, recebe o momento atual e vai para o fim (M é mantido); repete se preciso.
   - **Cenários variados:** o gerador testa conjuntos de acessos e escolhe um caso ainda não visto (SC: sai a primeira, do meio, a última, volta completa e FIFO; melhorada: pula até (0,0), (0,1) na 2ª volta, todas com R = 1 e, quando possível, sai a primeira).
 
