@@ -13,6 +13,8 @@ import { HomeExercicioPaginacaoSimplesComponent } from 'src/app/features/paginac
 import { HomeSimuladorPaginacaoDemandaComponent } from 'src/app/features/paginacao/simulador-demanda/components/home-simulador-paginacao-demanda/home-simulador-paginacao-demanda.component';
 import { HomeParticoesFixasComponent } from 'src/app/features/particoes/fixas/components/home-particoes-fixas/home-particoes-fixas.component';
 import { HomeParticoesVariaveisComponent } from 'src/app/features/particoes/variaveis/components/home-particoes-variaveis/home-particoes-variaveis.component';
+import { HomeExercicioParticoesFixasComponent } from 'src/app/features/particoes/exercicios-fixas/components/home-exercicio-particoes-fixas/home-exercicio-particoes-fixas.component';
+import { HomeExercicioParticoesVariaveisComponent } from 'src/app/features/particoes/exercicios-variaveis/components/home-exercicio-particoes-variaveis/home-exercicio-particoes-variaveis.component';
 import { HomeEstadosComponent } from 'src/app/features/processos/estados/components/home-estados/home-estados.component';
 import { exigirLogin } from './core/auth/auth.guard';
 import { HomeArvoreComponent } from 'src/app/features/processos/arvore/components/home-arvore/home-arvore.component';
@@ -33,6 +35,8 @@ const routes: Routes = [
   // Partições (alocação contígua)
   { path: "particoes/fixas", component: HomeParticoesFixasComponent },
   { path: "particoes/variaveis", component: HomeParticoesVariaveisComponent },
+  { path: "particoes/exercicios-fixas", component: HomeExercicioParticoesFixasComponent },
+  { path: "particoes/exercicios-variaveis", component: HomeExercicioParticoesVariaveisComponent },
 
   // Paginação
   { path: "paginacao/simulador-simples", component: HomeSimuladorPaginacaoSimplesComponent },
