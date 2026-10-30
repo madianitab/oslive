@@ -70,7 +70,15 @@
             }
           </table>
         </div>
-        <p class="hint-tabela">O início da fila fica à esquerda. Bits contornados foram ligados pelos acessos desta situação; os demais vêm da fila resultante da situação anterior (na situação 1, todas as páginas começam com bits 0).</p>
+        <dl class="legenda" aria-label="Legenda">
+          <div><dt>Bit R</dt><dd>bit de <b>referência</b>: liga a cada acesso (leitura ou escrita); a página entra com 0 e volta a 0 ao ganhar segunda chance.</dd></div>
+          @if (melhorada()) {
+            <div><dt>Bit M</dt><dd>bit de <b>modificação</b>, ou <b>bit de sujeira</b> (<i>dirty bit</i>): liga quando a página é escrita. Página suja (M = 1) precisa ser gravada no disco antes de sair; por isso a melhorada prefere tirar páginas limpas.</dd></div>
+            <div><dt>Classes (R,M)</dt><dd>(0,0) sem uso recente e limpa: melhor vítima · (0,1) sem uso recente, mas suja · (1,0) usada e limpa · (1,1) usada e suja.</dd></div>
+          }
+          <div><dt><span class="amostra amostra-ligado">1</span> <span class="amostra amostra-acessada">1</span></dt><dd>fundo amarelo: bit ligado; contorno: ligado por um acesso desta situação (os demais vêm da situação anterior; na situação 1, todas começam com 0).</dd></div>
+          <div><dt>Fila</dt><dd>o início fica à esquerda.</dd></div>
+        </dl>
       </section>
 
       @if (sc.modo() === 'FILA') {
