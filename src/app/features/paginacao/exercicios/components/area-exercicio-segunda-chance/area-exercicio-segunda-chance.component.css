@@ -1,0 +1,134 @@
+:host { display: block; }
+
+.passos {
+  font-family: var(--f-serif);
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--text-2);
+  padding-left: 20px;
+  margin: 0;
+  max-width: 640px;
+}
+
+/* eventos da situação (acessos e falta de página) */
+.eventos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text);
+}
+.eventos .mom {
+  display: inline-block;
+  min-width: 96px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--text-3);
+}
+.eventos .falta {
+  padding: 10px 14px;
+  margin-top: 4px;
+  background: var(--warn-soft);
+  border: 1px solid var(--warn-line);
+  border-radius: var(--r-md);
+}
+.chip-nova {
+  font-family: var(--f-mono);
+  padding: 2px 8px;
+  border-radius: var(--r-xs);
+  border: 1px solid var(--err);
+  color: var(--err-deep);
+  background: var(--surface);
+}
+
+/* fila */
+.fila td { min-width: 44px; }
+.td-pag, .td-campo { padding: 0 !important; }
+.btn-pag {
+  width: 100%;
+  min-width: 44px;
+  height: 34px;
+  font-family: var(--f-mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--text-3);
+  border-radius: var(--r-xs);
+  cursor: pointer;
+  transition: box-shadow .12s var(--ease), background .12s var(--ease);
+}
+.btn-pag:hover:not(:disabled) { box-shadow: var(--ring); }
+.btn-pag:disabled { cursor: default; }
+.btn-pag.escolhida { background: var(--a-soft); border-color: var(--a); color: var(--a); box-shadow: 0 0 0 1px var(--a); }
+.btn-pag.acerto { background: var(--ok-soft); border-color: var(--ok); color: var(--ok-deep); }
+.btn-pag.erro { background: var(--err-soft); border-color: var(--err); color: var(--err-deep); text-decoration: line-through; }
+.btn-pag.gabarito { background: var(--ok-soft); border: 2px dashed var(--ok); color: var(--ok-deep); }
+
+.bit-ligado { background: var(--warn-soft) !important; color: var(--warn-deep) !important; font-weight: 700; }
+.acessada { box-shadow: inset 0 0 0 2px var(--warn) !important; }
+.pos { font-size: 10px !important; color: var(--text-3) !important; }
+.pag-res { font-weight: 600; color: var(--text) !important; }
+.pag-res.nova { border: 1px solid var(--err) !important; color: var(--err-deep) !important; }
+
+.campo {
+  width: 100%;
+  min-width: 44px;
+  height: 32px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  text-align: center;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xs);
+  cursor: pointer;
+}
+.campo:focus { outline: none; border-color: var(--a); box-shadow: var(--ring); }
+.campo:disabled { cursor: default; opacity: 1; }
+.campo.acerto { border-color: var(--ok); background: var(--ok-soft); color: var(--ok-deep); }
+.campo.erro { border-color: var(--err); background: var(--err-soft); color: var(--err-deep); }
+
+.hint-tabela {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-3);
+  margin: 8px 0 0;
+}
+
+/* explicação */
+.explicacao {
+  padding: 12px 16px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 14px;
+  color: var(--text);
+}
+.explicacao.ok { border-color: var(--ok); background: var(--ok-soft); }
+.explicacao.nok { border-color: var(--err); background: var(--err-soft); }
+.explicacao p { margin: 0; }
+.veredito i { margin-right: 4px; }
+.volta {
+  margin-top: 10px !important;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.passos-sc { margin: 4px 0 0; padding-left: 22px; line-height: 1.7; }
+.passo-vitima { font-weight: 600; }
+.resumo { margin-top: 8px !important; }
+
+.caso { text-align: left !important; }
+.txt-ok { color: var(--ok-deep) !important; }
+.txt-err { color: var(--err-deep) !important; }
+.resumo-final { margin: 10px 0 0; font-size: 14px; color: var(--text); }
+
+.acoes { display: flex; flex-wrap: wrap; gap: 8px; }

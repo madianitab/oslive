@@ -9,8 +9,9 @@ import { valorHistoricoBits, vitimaHistorico } from '../models/historico-bits';
  *  2. Preencher a memória física: a partir das tabelas de páginas, dizer qual página está em cada quadro;
  *  3. Determinar a página vítima: com a memória cheia, escolher quem sai por FIFO,
  *     Histórico de bits de referência ou Segunda Chance.
+ *  4. Segunda Chance em sequência: situações encadeadas (serviço próprio: ExercicioSegundaChanceService).
  */
-export type TipoExercicio = 'LOGICA' | 'FISICA' | 'VITIMA';
+export type TipoExercicio = 'LOGICA' | 'FISICA' | 'VITIMA' | 'SEQUENCIA';
 export type AlgoritmoVitima = 'FIFO' | 'HISTORICO' | 'SEGUNDA_CHANCE';
 
 export const TIPOS_EXERCICIO: { valor: TipoExercicio; nome: string; descricao: string }[] = [
@@ -20,6 +21,8 @@ export const TIPOS_EXERCICIO: { valor: TipoExercicio; nome: string; descricao: s
     descricao: 'Observe as tabelas de páginas e indique qual página está em cada quadro da memória física.' },
   { valor: 'VITIMA', nome: 'Determinar a página vítima',
     descricao: 'A memória física está cheia e uma nova página precisa entrar: escolha a página que será substituída.' },
+  { valor: 'SEQUENCIA', nome: 'Segunda Chance em sequência',
+    descricao: 'Até 10 situações encadeadas: aplique os acessos e escolha a vítima pela Segunda Chance ou pela Segunda Chance Melhorada.' },
 ];
 
 export const ALGORITMOS_VITIMA: { valor: AlgoritmoVitima; nome: string }[] = [

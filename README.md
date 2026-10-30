@@ -17,7 +17,7 @@ Simulador didático de Sistemas Operacionais.
 | Paginação | Simulador de Paginação Simples | `#/paginacao/simulador-simples` | `src/app/features/paginacao/simulador-simples` |
 | Paginação | Exercícios de Paginação Simples | `#/paginacao/exercicios-simples` | `src/app/features/paginacao/exercicios-simples` |
 | Paginação | Simulador de Paginação por Demanda | `#/paginacao/simulador-demanda` | `src/app/features/paginacao/simulador-demanda` |
-| Paginação | Exercícios de Paginação por Demanda | `#/paginacao/exercicios` | `src/app/features/paginacao/exercicios` |
+| Paginação | Exercícios de Paginação por Demanda (inclui Segunda Chance e Segunda Chance Melhorada em sequência) | `#/paginacao/exercicios` | `src/app/features/paginacao/exercicios` |
 | Segmentação | Simulador | `#/segmentacao/simulador` | `src/app/features/segmentacao/simulador` |
 | Segmentação | Exercícios | `#/segmentacao/exercicios` | `src/app/features/segmentacao/exercicios` |
 | Avaliações | Área do aluno (login) | `#/avaliacoes` | `src/app/features/avaliacoes` |

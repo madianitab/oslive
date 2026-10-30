@@ -1,0 +1,220 @@
+<div class="viz">
+
+  @if (!sc.gerado()) {
+    <section>
+      <div class="viz-label">Como resolver</div>
+      <ol class="passos">
+        <li>Escolha o <b>algoritmo</b> e o <b>tipo de resposta</b> na configuração.</li>
+        <li>Clique em <b>Novo exercício</b>.</li>
+        <li>Em cada situação, aplique os acessos, clique na <b>página vítima</b> e em <b>Corrigir</b>.</li>
+        <li>Clique em <b>Próxima situação</b>: ela continua da fila resultante. São até {{ max }} situações.</li>
+      </ol>
+    </section>
+  } @else {
+    @let s = sc.atual()!;
+
+    <section>
+      <div class="viz-stats">
+        <os-stat label="Algoritmo" [value]="nomeAlgoritmo()"></os-stat>
+        <os-stat label="Situação" [value]="sc.numeroAtual() + ' / ' + max"></os-stat>
+        <os-stat label="Acertos" [value]="sc.placar().acertos + ' / ' + sc.placar().total"
+          [hint]="sc.placar().total ? sc.placar().percentual + '%' : 'nenhuma corrigida'" [accent]="true"></os-stat>
+      </div>
+    </section>
+
+    @if (!sc.encerrado() || sc.respondida()) {
+      <section>
+        <div class="viz-label">Situação {{ sc.numeroAtual() }}</div>
+        <ul class="eventos">
+          @for (a of s.acessos; track a.momento) {
+            <li><span class="mom">Momento {{ a.momento }}</span> {{ a.pagina }} é acessada{{ melhorada() ? (a.escrita ? ' (escrita)' : ' (leitura)') : '' }}.</li>
+          }
+          <li class="falta">
+            <span class="mom">Momento {{ s.momentoFalta }}</span>
+            a página <b class="chip-nova">{{ s.nova }}</b> é solicitada e não está na memória: <b>qual página será a vítima?</b>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <div class="viz-label">Fila no momento da falta</div>
+        <div class="viz-scroll">
+          <table class="viz-table fila">
+            <tr>
+              <td class="t-lbl">Mom. carga</td>
+              @for (p of s.filaFalta; track p.nome) { <td class="t-val">{{ p.carga }}</td> }
+            </tr>
+            <tr>
+              <td class="t-lbl">Página</td>
+              @for (p of s.filaFalta; track p.nome) {
+                <td class="td-pag">
+                  <button type="button" class="btn-pag" [ngClass]="classeVitima(p.nome)" [disabled]="sc.respondida()"
+                    (click)="sc.escolherVitima(p.nome)" [attr.aria-label]="'Escolher ' + p.nome + ' como vítima'"
+                    [attr.aria-pressed]="sc.respostaVitima() === p.nome">{{ p.nome }}</button>
+                </td>
+              }
+            </tr>
+            <tr>
+              <td class="t-lbl">Bit R</td>
+              @for (p of s.filaFalta; track p.nome) {
+                <td class="t-val" [class.bit-ligado]="p.r === 1" [class.acessada]="acessadas().has(p.nome)" [title]="tituloAcesso(p)">{{ p.r }}</td>
+              }
+            </tr>
+            @if (melhorada()) {
+              <tr>
+                <td class="t-lbl">Bit M</td>
+                @for (p of s.filaFalta; track p.nome) {
+                  <td class="t-val" [class.bit-ligado]="p.m === 1">{{ p.m }}</td>
+                }
+              </tr>
+            }
+          </table>
+        </div>
+        <p class="hint-tabela">O início da fila fica à esquerda. Bits contornados foram ligados pelos acessos desta situação.</p>
+      </section>
+
+      @if (sc.modo() === 'FILA') {
+        <section>
+          <div class="viz-label">Nova fila (depois da substituição)</div>
+          <div class="viz-scroll">
+            <table class="viz-table fila">
+              <tr>
+                <td class="t-lbl">Posição</td>
+                @for (r of sc.respostaFila(); track $index; let i = $index) {
+                  <td class="t-val pos">{{ i === 0 ? 'início' : (i === sc.respostaFila().length - 1 ? 'fim' : i + 1) }}</td>
+                }
+              </tr>
+              <tr>
+                <td class="t-lbl">Página</td>
+                @for (r of sc.respostaFila(); track $index; let i = $index) {
+                  <td class="td-campo">
+                    <select class="campo" [ngClass]="classeCampo(i, 'pagina')" [disabled]="sc.respondida()"
+                      [ngModel]="r.pagina" (ngModelChange)="sc.responderFila(i, 'pagina', $event)" [attr.aria-label]="'Página na posição ' + (i + 1)">
+                      <option value="">?</option>
+                      @for (n of sc.opcoesPaginas(); track n) { <option [value]="n">{{ n }}</option> }
+                    </select>
+                  </td>
+                }
+              </tr>
+              <tr>
+                <td class="t-lbl">Bit R</td>
+                @for (r of sc.respostaFila(); track $index; let i = $index) {
+                  <td class="td-campo">
+                    <select class="campo" [ngClass]="classeCampo(i, 'r')" [disabled]="sc.respondida()"
+                      [ngModel]="r.r" (ngModelChange)="sc.responderFila(i, 'r', $event)" [attr.aria-label]="'Bit R na posição ' + (i + 1)">
+                      <option value="">?</option><option value="0">0</option><option value="1">1</option>
+                    </select>
+                  </td>
+                }
+              </tr>
+              @if (melhorada()) {
+                <tr>
+                  <td class="t-lbl">Bit M</td>
+                  @for (r of sc.respostaFila(); track $index; let i = $index) {
+                    <td class="td-campo">
+                      <select class="campo" [ngClass]="classeCampo(i, 'm')" [disabled]="sc.respondida()"
+                        [ngModel]="r.m" (ngModelChange)="sc.responderFila(i, 'm', $event)" [attr.aria-label]="'Bit M na posição ' + (i + 1)">
+                        <option value="">?</option><option value="0">0</option><option value="1">1</option>
+                      </select>
+                    </td>
+                  }
+                </tr>
+              }
+            </table>
+          </div>
+        </section>
+      }
+
+      @if (sc.respondida()) {
+        <section class="explicacao" [class.ok]="acertouSituacao()" [class.nok]="!acertouSituacao()">
+          <p class="veredito">
+            @if (sc.revelada()) {
+              Resposta: a vítima é <b>{{ s.resultado.vitima.nome }}</b>.
+            } @else if (acertouSituacao()) {
+              <i class="fa-solid fa-circle-check"></i> Correto! A vítima é <b>{{ s.resultado.vitima.nome }}</b>.
+            } @else if (sc.ultimoRegistro()?.acertoVitima) {
+              <i class="fa-solid fa-circle-xmark"></i> A vítima <b>{{ s.resultado.vitima.nome }}</b> está certa, mas a nova fila tem erros (campos em vermelho).
+            } @else {
+              <i class="fa-solid fa-circle-xmark"></i> Não é {{ sc.respostaVitima() }}: a vítima é <b>{{ s.resultado.vitima.nome }}</b>.
+            }
+          </p>
+          @for (v of voltas(); track v.volta) {
+            <p class="volta">{{ v.titulo }}</p>
+            <ol class="passos-sc">
+              @for (p of v.passos; track $index) { <li [class.passo-vitima]="p.acao === 'vitima'">{{ textoPasso(p) }}</li> }
+            </ol>
+          }
+          <p class="resumo">{{ resumo() }}</p>
+        </section>
+
+        <section>
+          <div class="viz-label">Fila resultante</div>
+          <div class="viz-scroll">
+            <table class="viz-table fila">
+              <tr>
+                <td class="t-lbl">Mom. carga</td>
+                @for (p of s.resultado.filaFinal; track p.nome) { <td class="t-val">{{ p.carga }}</td> }
+              </tr>
+              <tr>
+                <td class="t-lbl">Página</td>
+                @for (p of s.resultado.filaFinal; track p.nome) {
+                  <td class="t-val pag-res" [class.nova]="p.nome === s.nova">{{ p.nome }}</td>
+                }
+              </tr>
+              <tr>
+                <td class="t-lbl">Bit R</td>
+                @for (p of s.resultado.filaFinal; track p.nome) { <td class="t-val" [class.bit-ligado]="p.r === 1">{{ p.r }}</td> }
+              </tr>
+              @if (melhorada()) {
+                <tr>
+                  <td class="t-lbl">Bit M</td>
+                  @for (p of s.resultado.filaFinal; track p.nome) { <td class="t-val" [class.bit-ligado]="p.m === 1">{{ p.m }}</td> }
+                </tr>
+              }
+            </table>
+          </div>
+        </section>
+      }
+    }
+
+    @if (sc.encerrado()) {
+      <section>
+        <div class="viz-label">Resultado final</div>
+        <div class="res-card">
+          <table class="res-table">
+            <tr><th>Situação</th><th>Caso</th><th>Vítima</th><th>Sua resposta</th>@if (sc.modo() === 'FILA') { <th>Nova fila</th> }</tr>
+            @for (r of sc.registros(); track r.numero) {
+              <tr>
+                <td>{{ r.numero }}</td>
+                <td class="caso">{{ nomesCasos[r.caso] }}</td>
+                <td>{{ r.vitima }}</td>
+                <td [class.txt-ok]="r.acertoVitima" [class.txt-err]="!r.acertoVitima">
+                  {{ r.revelada ? 'viu a resposta' : r.respostaVitima }} <i [class]="r.acertoVitima ? 'fa-solid fa-check' : 'fa-solid fa-xmark'"></i>
+                </td>
+                @if (sc.modo() === 'FILA') {
+                  <td [class.txt-ok]="r.acertoFila" [class.txt-err]="!r.acertoFila"><i [class]="r.acertoFila ? 'fa-solid fa-check' : 'fa-solid fa-xmark'"></i></td>
+                }
+              </tr>
+            }
+          </table>
+        </div>
+        <p class="resumo-final">Acertos: <b>{{ sc.placar().acertos }} / {{ sc.placar().total }}</b> ({{ sc.placar().percentual }}%).</p>
+      </section>
+    }
+
+    <div class="acoes">
+      @if (!sc.respondida() && !sc.encerrado()) {
+        <os-button variant="p" size="sm" (click)="corrigir()"><i class="fa-solid fa-check"></i> Corrigir</os-button>
+        <os-button variant="s" size="sm" (click)="sc.verResposta()"><i class="fa-solid fa-eye"></i> Ver resposta</os-button>
+        <os-button variant="g" size="sm" (click)="sc.limparResposta()"><i class="fa-solid fa-eraser"></i> Limpar</os-button>
+      }
+      @if (sc.podeAvancar()) {
+        <os-button variant="p" size="sm" (click)="sc.proxima()"><i class="fa-solid fa-forward"></i> Próxima situação</os-button>
+      }
+      @if (!sc.encerrado()) {
+        <os-button variant="g" size="sm" (click)="sc.encerrar()"><i class="fa-solid fa-flag-checkered"></i> Encerrar</os-button>
+      }
+      <os-button variant="g" size="sm" (click)="sc.novoExercicio()"><i class="fa-solid fa-shuffle"></i> Novo exercício</os-button>
+    </div>
+  }
+</div>

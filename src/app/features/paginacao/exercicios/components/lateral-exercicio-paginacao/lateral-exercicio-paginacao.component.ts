@@ -8,6 +8,12 @@ import {
   ExercicioPaginacaoService,
   TIPOS_EXERCICIO,
 } from 'src/app/features/paginacao/services/exercicio-paginacao.service';
+import {
+  ALGORITMOS_SC,
+  ExercicioSegundaChanceService,
+  MAX_SITUACOES,
+  MODOS_RESPOSTA,
+} from 'src/app/features/paginacao/services/exercicio-segunda-chance.service';
 
 @Component({
   selector: 'app-lateral-exercicio-paginacao',
@@ -19,8 +25,11 @@ import {
 export class LateralExercicioPaginacaoComponent {
   public readonly tipos = TIPOS_EXERCICIO;
   public readonly algoritmos = ALGORITMOS_VITIMA;
+  public readonly algoritmosSC = ALGORITMOS_SC;
+  public readonly modos = MODOS_RESPOSTA;
+  public readonly maxSituacoes = MAX_SITUACOES;
 
-  constructor(public ex: ExercicioPaginacaoService) {}
+  constructor(public ex: ExercicioPaginacaoService, public sc: ExercicioSegundaChanceService) {}
 
   get descricaoTipo(): string {
     return this.tipos.find(t => t.valor === this.ex.tipo())?.descricao ?? '';
