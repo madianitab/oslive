@@ -64,7 +64,7 @@ export const CASOS_OBRIGATORIOS: Record<AlgoritmoSC, CasoSC[]> = {
 /**
  * Acessos só ligam bits; quem zera R é a própria substituição. Por isso alguns casos dependem do histórico:
  * - SC 'fifo' (todas com R = 0) aparece depois de uma volta completa ('volta');
- * - melhorada 'primeira' só ocorre enquanto a mais antiga for (0,0); quando possível, é escolhida logo.
+ * - melhorada 'primeira' só ocorre enquanto a mais antiga for (0,0) (no início, todas são); quando possível, tem prioridade.
  */
 const PREPARO: Partial<Record<AlgoritmoSC, { caso: CasoSC; via: CasoSC }>> = {
   SC: { caso: 'fifo', via: 'volta' },
@@ -208,17 +208,16 @@ function inteiro(rnd: Aleatorio, min: number, max: number): number {
   return Math.floor(rnd() * (max - min + 1)) + min;
 }
 
-/** Fila inicial: páginas em ordem alfabética de carga, momentos crescentes e bits aleatórios. */
-export function gerarFilaInicial(algoritmo: AlgoritmoSC, rnd: Aleatorio = Math.random): PaginaFila[] {
+/**
+ * Fila inicial: páginas em ordem alfabética de carga e momentos crescentes, com todos os bits em 0
+ * (a carga zera R e M). Assim, todo bit ligado na situação 1 vem de um acesso mostrado ao aluno.
+ */
+export function gerarFilaInicial(_algoritmo: AlgoritmoSC, rnd: Aleatorio = Math.random): PaginaFila[] {
   const n = inteiro(rnd, 6, 8);
   let momento = 0;
   return LETRAS.slice(0, n).map((nome, i) => {
     if (i > 0) momento += inteiro(rnd, 1, 4);
-    let r = (rnd() < 0.45 ? 1 : 0) as 0 | 1;
-    let m = (algoritmo === 'SCM' && rnd() < 0.4 ? 1 : 0) as 0 | 1;
-    // Melhorada: muitas vezes a mais antiga começa (0,0), para o caso "sai a primeira" ser possível.
-    if (algoritmo === 'SCM' && i === 0 && rnd() < 0.6) { r = 0; m = 0; }
-    return { nome, carga: momento, r, m };
+    return { nome, carga: momento, r: 0, m: 0 };
   });
 }
 
@@ -304,7 +303,10 @@ export function gerarSituacao(
   const possiveis = Array.from(new Set(candidatos.map(c => c.caso)));
   const faltando = CASOS_OBRIGATORIOS[algoritmo].filter(c => !casosVistos.includes(c) && possiveis.includes(c));
   let alvo: CasoSC;
-  const raro = RAROS[algoritmo].find(c => !casosVistos.includes(c) && possiveis.includes(c));
+  // Casos raros têm prioridade quando possíveis; na 1ª situação só às vezes, para não começar sempre igual.
+  const raro = casosVistos.length > 0 || rnd() < 0.5
+    ? RAROS[algoritmo].find(c => !casosVistos.includes(c) && possiveis.includes(c))
+    : undefined;
   if (raro) {
     alvo = raro;
   } else if (faltando.length) {
