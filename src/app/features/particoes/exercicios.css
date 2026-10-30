@@ -1,0 +1,58 @@
+/* Estilos comuns aos exercícios de partições (fixas e variáveis). */
+:host { display: block; }
+
+.layout-ex { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 24px; align-items: start; }
+.coluna { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.barra-ex { --altura: 420px; }
+
+.passos {
+  font-family: var(--f-serif);
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--text-2);
+  padding-left: 20px;
+  margin: 0 0 12px;
+  max-width: 640px;
+}
+.descricao { font-family: var(--f-serif); font-style: italic; font-size: 14px; color: var(--text-2); margin: 0; }
+
+.ev-tabela td { vertical-align: middle; }
+.ev-tabela .ev { text-align: left; white-space: nowrap; }
+.ev-tabela .expl { text-align: left; font-family: var(--f-sans); font-size: 12.5px; color: var(--text-2); min-width: 220px; }
+.tag-chega { color: var(--ok-deep); font-weight: 600; }
+.tag-termina { color: var(--text-3); font-weight: 600; }
+
+.campo {
+  width: 100%;
+  min-width: 70px;
+  height: 30px;
+  padding: 0 6px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  text-align: center;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xs);
+}
+select.campo { cursor: pointer; }
+.campo:focus { outline: none; border-color: var(--a); box-shadow: var(--ring); }
+.campo:disabled { background: var(--surface-2); color: var(--text-3); }
+.campo.acerto { border-color: var(--ok); background: var(--ok-soft); color: var(--ok-deep); }
+.campo.erro { border-color: var(--err); background: var(--err-soft); color: var(--err-deep); }
+.gab { display: block; margin-top: 3px; font-size: 11px; color: var(--warn-deep); font-weight: 600; }
+.inline { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; }
+.inline .campo { width: 110px; }
+
+.btn-ic {
+  display: inline-grid; place-items: center; width: 28px; height: 28px;
+  border: none; background: transparent; color: var(--text-3); border-radius: var(--r-sm); cursor: pointer;
+}
+.btn-ic:hover { color: var(--err); background: var(--err-soft); }
+
+.acoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.info-mem { font-size: 13px; color: var(--text-2); margin: 0 0 10px; }
+
+@container sim-main (max-width: 600px) {
+  .layout-ex { grid-template-columns: 1fr; }
+}

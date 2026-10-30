@@ -1,0 +1,95 @@
+<div class="viz">
+  @if (!ex.gerado()) {
+    <section>
+      <div class="viz-label">Como resolver</div>
+      <ol class="passos">
+        <li>Escolha como o SO escolhe a partição na configuração.</li>
+        <li>Clique em <b>Gerar exercício</b>.</li>
+        <li>Siga os eventos em ordem: em cada chegada, informe a <b>partição</b> (ou <b>fila</b>) e a <b>fragmentação interna</b>; em cada término, diga <b>quem sai da fila</b>.</li>
+        <li>Clique em <b>Corrigir</b>. Use <b>Ver resposta</b> para conferir o gabarito.</li>
+      </ol>
+    </section>
+  } @else {
+    @let e = ex.ex()!;
+    <section>
+      <div class="viz-stats">
+        <os-stat label="Escolha" [value]="nomePolitica()"></os-stat>
+        <os-stat label="Partições" [value]="e.particoes.length" [hint]="e.particoes.join(', ') + ' KB'"></os-stat>
+        <os-stat label="Eventos" [value]="e.eventos.length"></os-stat>
+        @if (ex.placar(); as r) {
+          <os-stat label="Acertos" [value]="r.acertos + ' / ' + r.total" [hint]="r.percentual + '%'" [accent]="true"></os-stat>
+        }
+      </div>
+    </section>
+
+    <div class="layout-ex">
+      <section>
+        <div class="viz-label">{{ mostrarGabarito() ? 'Memória ao final' : 'Memória (início)' }}</div>
+        <app-barra-memoria class="barra-ex" [blocos]="mostrarGabarito() ? blocosFinais() : blocosIniciais()" [total]="total"></app-barra-memoria>
+      </section>
+
+      <div class="coluna">
+        <section>
+          <div class="viz-label">Sequência de eventos</div>
+          <div class="viz-scroll">
+            <table class="res-table ev-tabela">
+              <tr><th>#</th><th>Evento</th><th>Partição / quem entra</th><th>Frag. interna (KB)</th>@if (mostrarGabarito()) { <th>Explicação</th> }</tr>
+              @for (ev of e.eventos; track $index; let i = $index) {
+                <tr>
+                  <td>{{ i + 1 }}</td>
+                  @if (ev.tipo === 'chegada') {
+                    <td class="ev"><span class="tag-chega">{{ ev.processo.nome }}</span> chega ({{ ev.processo.tamanho }} KB)</td>
+                    <td>
+                      <select class="campo" [ngClass]="classe(ex.correto(i, 'particao'))" [ngModel]="resp(i).particao" (ngModelChange)="ex.responder(i, 'particao', $event)"
+                        [attr.aria-label]="'Partição de ' + ev.processo.nome">
+                        <option value="">?</option>
+                        @for (t of e.particoes; track $index; let k = $index) { <option [value]="'' + (k + 1)">Partição {{ k + 1 }}</option> }
+                        <option value="fila">Fila</option>
+                      </select>
+                      @if (ex.mostrarResposta()) { <span class="gab">{{ ex.esperado(i, 'particao') === 'fila' ? 'Fila' : 'Partição ' + ex.esperado(i, 'particao') }}</span> }
+                    </td>
+                    <td>
+                      <input type="number" min="0" class="campo" [ngClass]="ev.particao !== null ? classe(ex.correto(i, 'frag')) : {}"
+                        [disabled]="resp(i).particao === 'fila'" [ngModel]="resp(i).frag" (ngModelChange)="ex.responder(i, 'frag', $event)"
+                        [attr.aria-label]="'Fragmentação interna de ' + ev.processo.nome">
+                      @if (ex.mostrarResposta()) { <span class="gab">{{ ex.esperado(i, 'frag') }}</span> }
+                    </td>
+                  } @else {
+                    <td class="ev"><span class="tag-termina">{{ ev.processo }}</span> termina</td>
+                    <td>
+                      <select class="campo" [ngClass]="classe(ex.correto(i, 'entra'))" [ngModel]="resp(i).entra" (ngModelChange)="ex.responder(i, 'entra', $event)"
+                        [attr.aria-label]="'Quem entra quando ' + ev.processo + ' termina'">
+                        <option value="">?</option>
+                        <option value="ninguem">Ninguém entra</option>
+                        @for (n of candidatos(i); track n) { <option [value]="n">{{ n }} entra</option> }
+                      </select>
+                      @if (ex.mostrarResposta()) { <span class="gab">{{ ex.esperado(i, 'entra') === 'ninguem' ? 'Ninguém' : ex.esperado(i, 'entra') }}</span> }
+                    </td>
+                    <td>—</td>
+                  }
+                  @if (mostrarGabarito()) { <td class="expl">{{ explicacao(ev) }}</td> }
+                </tr>
+              }
+            </table>
+          </div>
+        </section>
+
+        <section>
+          <div class="inline">
+            Fragmentação interna total ao final:
+            <input type="number" min="0" class="campo" [ngClass]="classe(ex.corretoFragFinal())" [ngModel]="ex.respostaFragFinal()"
+              (ngModelChange)="ex.responderFragFinal($event)" aria-label="Fragmentação interna total ao final"> KB
+            @if (ex.mostrarResposta()) { <span class="gab">{{ e.fragFinal }} KB</span> }
+          </div>
+        </section>
+
+        <div class="acoes">
+          <os-button variant="p" size="sm" (click)="ex.corrigir()"><i class="fa-solid fa-check"></i> Corrigir</os-button>
+          <os-button variant="s" size="sm" (click)="ex.alternarResposta()"><i class="fa-solid fa-eye"></i> {{ ex.mostrarResposta() ? 'Ocultar resposta' : 'Ver resposta' }}</os-button>
+          <os-button variant="g" size="sm" (click)="ex.limpar()"><i class="fa-solid fa-eraser"></i> Limpar</os-button>
+          <os-button variant="g" size="sm" (click)="ex.gerar()"><i class="fa-solid fa-shuffle"></i> Novo exercício</os-button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

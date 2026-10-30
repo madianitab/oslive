@@ -125,6 +125,10 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
   - **Fragmentação externa** em destaque quando há memória livre suficiente no total, mas nenhuma lacuna comporta o processo.
   - **Compactação** com relocação: as bases mudam.
 - **Fixas:** a sobra dentro da partição é **fragmentação interna**, sempre em destaque. As partições só mudam com a memória vazia.
+- **Exercícios** (`particoes/models/exercicios-particoes.ts`, mesmas regras dos simuladores):
+  - Fixas: para cada chegada, partição (ou fila) e fragmentação interna; em cada término, quem sai da fila (o primeiro, em ordem de chegada, que cabe na partição liberada); no fim, a fragmentação interna total. O gerador garante fila, saída da fila e fragmentação interna.
+  - Variáveis, três tipos: **alocação** (resultado e endereço inicial; nos términos, quem entra da fila e onde; no máximo um processo entra por término), **tabela de lacunas** (início e tamanho em ordem de endereço, vizinhas unidas) e **compactação** (novas bases e lacuna final). Na alocação há sempre fragmentação externa e, fora do first-fit, ao menos uma escolha diferente do first-fit.
+  - Mapas de memória dos exercícios usam `particoes/components/barra-memoria`; estilos comuns em `particoes/exercicios.css`.
 - **Régua da memória física:** mostra os endereços reais de início de cada região (SO, partições, processos, sobras, lacunas) e o fim da memória (`particoes/models/escala-memoria.ts`), não marcas fixas de 100 em 100.
 
 ### Paginação

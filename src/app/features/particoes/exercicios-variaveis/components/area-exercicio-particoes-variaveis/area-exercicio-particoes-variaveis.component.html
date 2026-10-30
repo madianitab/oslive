@@ -1,0 +1,184 @@
+<div class="viz">
+  @if (!ex.gerado()) {
+    <section>
+      <div class="viz-label">Como resolver</div>
+      <ol class="passos">
+        <li>Escolha o <b>tipo de exercício</b> (e o algoritmo, na alocação) na configuração.</li>
+        <li>Clique em <b>Gerar exercício</b>.</li>
+        <li>Preencha as respostas e clique em <b>Corrigir</b>. Use <b>Ver resposta</b> para conferir o gabarito.</li>
+      </ol>
+      <p class="descricao">{{ descricaoTipo() }}</p>
+    </section>
+  } @else {
+    <section>
+      <div class="viz-stats">
+        <os-stat label="Exercício" [value]="nomeTipo()"></os-stat>
+        @if (ex.tipo() === 'ALOCACAO') { <os-stat label="Algoritmo" [value]="nomeAlgoritmo()"></os-stat> }
+        <os-stat label="Memória" [value]="total" unit="KB" [hint]="'SO: 0 a ' + (so - 1)"></os-stat>
+        @if (ex.placar(); as r) {
+          <os-stat label="Acertos" [value]="r.acertos + ' / ' + r.total" [hint]="r.percentual + '%'" [accent]="true"></os-stat>
+        }
+      </div>
+    </section>
+
+    <p class="descricao">{{ descricaoTipo() }}</p>
+
+    <!-- ───────── ALOCAÇÃO ───────── -->
+    @if (ex.tipo() === 'ALOCACAO' && ex.alocacao(); as a) {
+      <div class="layout-ex">
+        <section>
+          <div class="viz-label">{{ mostrarGabarito() ? 'Memória ao final' : 'Memória (início)' }}</div>
+          <app-barra-memoria class="barra-ex"
+            [blocos]="mostrarGabarito() ? blocos(a.final.alocados) : blocos(a.inicial.alocados, ex.algoritmo() === 'CIRCULAR' ? a.inicial.ponteiro : undefined)"
+            [total]="total"></app-barra-memoria>
+          @if (ex.algoritmo() === 'CIRCULAR') {
+            <p class="hint-ponteiro info-mem">Circular-fit: a busca começa em <b>{{ a.inicial.ponteiro }} KB</b> (após a última alocação).</p>
+          }
+        </section>
+
+        <div class="coluna">
+          <section>
+            <div class="viz-label">Sequência de eventos</div>
+            <div class="viz-scroll">
+              <table class="res-table ev-tabela">
+                <tr><th>#</th><th>Evento</th><th>Resultado / quem entra</th><th>Endereço inicial (KB)</th>@if (mostrarGabarito()) { <th>Explicação</th> }</tr>
+                @for (ev of a.eventos; track $index; let i = $index) {
+                  <tr>
+                    <td>{{ i + 1 }}</td>
+                    @if (ev.tipo === 'chegada') {
+                      <td class="ev"><span class="tag-chega">{{ ev.processo.nome }}</span> chega ({{ ev.processo.tamanho }} KB)</td>
+                      <td>
+                        <select class="campo" [ngClass]="classe(ex.corretoAloc(i, 'resultado'))" [ngModel]="resp(i).resultado"
+                          (ngModelChange)="ex.responderAloc(i, 'resultado', $event)" [attr.aria-label]="'Resultado de ' + ev.processo.nome">
+                          <option value="">?</option>
+                          <option value="alocado">Alocado</option>
+                          <option value="fragmentacao">Fragmentação externa</option>
+                          <option value="insuficiente">Memória insuficiente</option>
+                        </select>
+                        @if (ex.mostrarResposta()) { <span class="gab">{{ nomeResultado(ex.esperadoAloc(i, 'resultado')) }}</span> }
+                      </td>
+                      <td>
+                        <input type="number" min="0" class="campo" [ngClass]="ev.resultado === 'alocado' ? classe(ex.corretoAloc(i, 'base')) : {}"
+                          [disabled]="resp(i).resultado !== '' && resp(i).resultado !== 'alocado'"
+                          [ngModel]="resp(i).base" (ngModelChange)="ex.responderAloc(i, 'base', $event)" [attr.aria-label]="'Endereço de ' + ev.processo.nome">
+                        @if (ex.mostrarResposta()) { <span class="gab">{{ ex.esperadoAloc(i, 'base') }}</span> }
+                      </td>
+                    } @else {
+                      <td class="ev"><span class="tag-termina">{{ ev.processo }}</span> termina</td>
+                      <td>
+                        <select class="campo" [ngClass]="classe(ex.corretoAloc(i, 'entra'))" [ngModel]="resp(i).entra"
+                          (ngModelChange)="ex.responderAloc(i, 'entra', $event)" [attr.aria-label]="'Quem entra quando ' + ev.processo + ' termina'">
+                          <option value="">?</option>
+                          <option value="ninguem">Ninguém entra</option>
+                          @for (n of candidatos(i); track n) { <option [value]="n">{{ n }} entra</option> }
+                        </select>
+                        @if (ex.mostrarResposta()) { <span class="gab">{{ ex.esperadoAloc(i, 'entra') === 'ninguem' ? 'Ninguém' : ex.esperadoAloc(i, 'entra') }}</span> }
+                      </td>
+                      <td>
+                        <input type="number" min="0" class="campo" [ngClass]="ev.entra ? classe(ex.corretoAloc(i, 'baseEntra')) : {}"
+                          [disabled]="resp(i).entra === 'ninguem'"
+                          [ngModel]="resp(i).baseEntra" (ngModelChange)="ex.responderAloc(i, 'baseEntra', $event)" aria-label="Endereço de quem entra">
+                        @if (ex.mostrarResposta()) { <span class="gab">{{ ex.esperadoAloc(i, 'baseEntra') }}</span> }
+                      </td>
+                    }
+                    @if (mostrarGabarito()) { <td class="expl">{{ explicacao(ev) }}</td> }
+                  </tr>
+                }
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+    }
+
+    <!-- ───────── TABELA DE LACUNAS ───────── -->
+    @if (ex.tipo() === 'LACUNAS' && ex.lacunas(); as l) {
+      <div class="layout-ex">
+        <section>
+          <div class="viz-label">Processos na memória</div>
+          <table class="res-table">
+            <tr><th>Processo</th><th>Base</th><th>Tamanho</th></tr>
+            @for (p of ex.ordemProcessos(); track p.nome) {
+              <tr><td>{{ p.nome }}</td><td>{{ p.base }}</td><td>{{ p.tamanho }} KB</td></tr>
+            }
+          </table>
+          <p class="info-mem" style="margin-top: 10px">SO: 0 a {{ so - 1 }}. Memória até {{ total - 1 }}.</p>
+          @if (mostrarGabarito()) {
+            <app-barra-memoria class="barra-ex" [blocos]="blocos(l.alocados)" [total]="total"></app-barra-memoria>
+          }
+        </section>
+
+        <div class="coluna">
+          <section>
+            <div class="viz-label">Tabela de lacunas (em ordem de endereço)</div>
+            <table class="res-table">
+              <tr><th>#</th><th>Início (KB)</th><th>Tamanho (KB)</th><th></th></tr>
+              @for (r of ex.respLacunas(); track $index; let i = $index) {
+                <tr>
+                  <td>{{ i + 1 }}</td>
+                  <td><input type="number" min="0" class="campo" [ngClass]="classe(ex.corretoLacuna(i, 'inicio'))" [ngModel]="r.inicio"
+                    (ngModelChange)="ex.responderLacuna(i, 'inicio', $event)" [attr.aria-label]="'Início da lacuna ' + (i + 1)"></td>
+                  <td><input type="number" min="0" class="campo" [ngClass]="classe(ex.corretoLacuna(i, 'tamanho'))" [ngModel]="r.tamanho"
+                    (ngModelChange)="ex.responderLacuna(i, 'tamanho', $event)" [attr.aria-label]="'Tamanho da lacuna ' + (i + 1)"></td>
+                  <td><button type="button" class="btn-ic" (click)="ex.removerLacuna(i)" [attr.aria-label]="'Remover lacuna ' + (i + 1)" title="Remover"><i class="fa-solid fa-xmark"></i></button></td>
+                </tr>
+              }
+            </table>
+            <div class="acoes" style="margin-top: 10px">
+              <os-button variant="s" size="sm" (click)="ex.adicionarLacuna()"><i class="fa-solid fa-plus"></i> Adicionar lacuna</os-button>
+            </div>
+            @if (ex.mostrarResposta()) {
+              <p class="gab" style="margin-top: 10px">Gabarito: @for (g of l.lacunas; track g.inicio) { [início {{ g.inicio }}, {{ g.tamanho }} KB] }</p>
+            }
+          </section>
+        </div>
+      </div>
+    }
+
+    <!-- ───────── COMPACTAÇÃO ───────── -->
+    @if (ex.tipo() === 'COMPACTACAO' && ex.compactacao(); as c) {
+      <div class="layout-ex">
+        <section>
+          <div class="viz-label">{{ mostrarGabarito() ? 'Depois da compactação' : 'Antes da compactação' }}</div>
+          <app-barra-memoria class="barra-ex" [blocos]="mostrarGabarito() ? blocosCompactados() : blocos(c.alocados)" [total]="total"></app-barra-memoria>
+        </section>
+
+        <div class="coluna">
+          <section>
+            <div class="viz-label">Novas bases</div>
+            <table class="res-table">
+              <tr><th>Processo</th><th>Base atual</th><th>Tamanho</th><th>Nova base (KB)</th></tr>
+              @for (p of ex.ordemProcessos(); track p.nome) {
+                <tr>
+                  <td>{{ p.nome }}</td><td>{{ p.base }}</td><td>{{ p.tamanho }} KB</td>
+                  <td>
+                    <input type="number" min="0" class="campo" [ngClass]="classe(ex.corretoBase(p.nome))" [ngModel]="ex.respBases()[p.nome]"
+                      (ngModelChange)="ex.responderBase(p.nome, $event)" [attr.aria-label]="'Nova base de ' + p.nome">
+                    @if (ex.mostrarResposta()) { <span class="gab">{{ c.novasBases[p.nome] }}</span> }
+                  </td>
+                </tr>
+              }
+            </table>
+          </section>
+          <section>
+            <div class="viz-label">Lacuna depois da compactação</div>
+            <div class="inline">
+              Início: <input type="number" min="0" class="campo" [ngClass]="classe(ex.corretoLacunaFinal('inicio'))" [ngModel]="ex.respLacunaFinal().inicio"
+                (ngModelChange)="ex.responderLacunaFinal('inicio', $event)" aria-label="Início da lacuna final"> KB
+              Tamanho: <input type="number" min="0" class="campo" [ngClass]="classe(ex.corretoLacunaFinal('tamanho'))" [ngModel]="ex.respLacunaFinal().tamanho"
+                (ngModelChange)="ex.responderLacunaFinal('tamanho', $event)" aria-label="Tamanho da lacuna final"> KB
+              @if (ex.mostrarResposta()) { <span class="gab">início {{ c.lacunaFinal.inicio }}, {{ c.lacunaFinal.tamanho }} KB</span> }
+            </div>
+          </section>
+        </div>
+      </div>
+    }
+
+    <div class="acoes">
+      <os-button variant="p" size="sm" (click)="ex.corrigir()"><i class="fa-solid fa-check"></i> Corrigir</os-button>
+      <os-button variant="s" size="sm" (click)="ex.alternarResposta()"><i class="fa-solid fa-eye"></i> {{ ex.mostrarResposta() ? 'Ocultar resposta' : 'Ver resposta' }}</os-button>
+      <os-button variant="g" size="sm" (click)="ex.limpar()"><i class="fa-solid fa-eraser"></i> Limpar</os-button>
+      <os-button variant="g" size="sm" (click)="ex.gerar()"><i class="fa-solid fa-shuffle"></i> Novo exercício</os-button>
+    </div>
+  }
+</div>
