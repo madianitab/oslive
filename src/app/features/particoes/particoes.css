@@ -1,6 +1,6 @@
 /* Estilos comuns às simulações de partições (barra de memória, alertas e diário). */
 :host { display: block; }
-.layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 32px; align-items: start; }
+.layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 24px; align-items: start; }
 .coluna { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
 
 .memoria { display: flex; gap: 6px; }
@@ -89,4 +89,4 @@
 .diario li.info { border-left: 4px solid var(--line); }
 .hint-tabela { font-family: var(--f-serif); font-style: italic; font-size: 13px; color: var(--text-3); margin: 6px 0 0; }
 
-@media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } }
+@container sim-main (max-width: 560px) { .layout { grid-template-columns: 1fr; } }

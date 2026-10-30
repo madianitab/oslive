@@ -179,6 +179,6 @@
   gap: 20px;
   align-items: flex-start;
 }
-@media (max-width: 880px) {
+@container sim-main (max-width: 560px) {
   .viz-stats { grid-template-columns: 1fr 1fr; }
 }

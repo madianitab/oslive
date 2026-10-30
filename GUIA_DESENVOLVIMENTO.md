@@ -4,7 +4,7 @@ Este guia reúne os padrões do projeto. Quem for alterar o OSLive (pessoa ou as
 
 **Pedido-modelo para um novo chat:**
 
-> Repositório: https://github.com/madianitab/oslive. Leia o `README.md` e o `GUIA_DESENVOLVIMENTO.md` e siga os padrões. Quero [descreva o pedido]. Entregue como patch com autora madianitab &lt;madianitab@gmail.com&gt;.
+> Repositório: https://github.com/madianitab/oslive. Leia o `README.md` e o `GUIA_DESENVOLVIMENTO.md` e siga os padrões. Quero [descreva o pedido]. Entregue numa branch com pull request, autora madianitab &lt;madianitab@gmail.com&gt;.
 
 ---
 
@@ -75,6 +75,8 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
 
 **Topbar:** ela se oculta ao rolar para baixo e volta ao rolar para cima. A altura visível fica na variável `--os-tb-visivel` (60px ou 0). Elementos fixos ou `sticky` abaixo dela usam `top: var(--os-tb-visivel, 60px)`, nunca `60px` fixo.
 
+**Cabeçalho da simulação (`os-sim-shell`):** some junto com a topbar ao rolar para baixo e volta ao rolar para cima (ou com foco pelo teclado), para liberar a tela com zoom ou projetor. A altura visível dele fica em `--os-head-visivel` (altura medida ou 0). Algo `sticky` dentro da área usa `top: calc(var(--os-tb-visivel, 60px) + var(--os-head-visivel, 0px) + 16px)`. Em telas até 1280px o cabeçalho fica compacto (subtítulo em uma linha).
+
 **Tailwind:** prefixo `tw-` (ex.: `tw-grid`). O tema escuro é ativado por `[data-theme="dark"]`. **Teste sempre nos dois temas.**
 
 ### 3.4 Padrão de tela
@@ -90,6 +92,8 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
 - **Serviço por tela:** o componente "home" fornece o serviço com `providers: [MeuService]`, e a lateral e a área o injetam. Cada visita à tela começa do zero.
 - **Topo da área:** cartões `os-stat` com os números principais.
 - **Seções:** separadas por `div.viz-label`, cada uma com um título curto.
+- **Responsividade (sala de aula com zoom):** a área principal é um container (`container: sim-main`). Layouts das áreas mudam com **`@container sim-main (max-width: …)`**, não com `@media`, porque a largura útil depende do zoom e da lateral aberta ou recolhida. Mantenha a **memória física ao lado** da memória lógica sempre que couber (colunas `minmax(300px, 1fr)` ou coluna lateral `sticky`, como na paginação por demanda). A `.os-sim-main` não tem `overflow`; conteúdo largo rola dentro de `.viz-scroll`.
+- **Botão Sugestão:** em telas até 1280px de largura ou 760px de altura vira só ícone, para não cobrir a simulação.
 - **Exercícios:** tipos escolhidos na lateral; botões **Corrigir**, **Ver resposta**, **Limpar** e **Novo exercício**; campos verdes ou vermelhos na correção (`.acerto` / `.erro`); placar "acertos / total (%)"; gabarito com explicação curta.
 - **Notificações:** `MatSnackBar` com duração de 2,5 a 5 s.
 - **Textos:** português do Brasil e linguagem didática. Menos texto é melhor: a professora prefere informar com o mínimo, sem poluir a tela.
@@ -185,26 +189,16 @@ npx ng test --watch=false                  # testes unitários (Karma)
 ```
 
 - **Testes unitários:** todos devem passar. Teste as regras conceituais no `models/` com exemplos do material das aulas.
-- **Navegador:** confira a tela nos temas claro e escuro, sem erros no console.
+- **Navegador:** confira a tela nos temas claro e escuro, sem erros no console. Confira também com **zoom de 150 a 175%** (ou janela de cerca de 1100 × 560 px), com a lateral aberta e recolhida: sem rolagem horizontal na página e com a memória física visível ao lado.
 - **Exercícios:** responder certo deve dar 100%, e uma resposta errada deve ser marcada.
 
 ## 7. Entrega (fluxo da professora)
 
-As mudanças são entregues como **patch** e aplicadas pela professora:
+1. **Nunca commitar direto na `main`.** Crie uma branch a partir da `main` atual (ex.: `responsividade-sala-de-aula`).
+2. **Commits em português:** título curto e corpo explicando o que mudou e por quê. **Autoria:** `madianitab <madianitab@gmail.com>`.
+3. **Abra um pull request** para a `main`; a professora revisa e faz o merge.
+4. **Documentação na mesma branch:** atualize o `README.md` (funcionalidade, instalação, módulos) e este guia (arquitetura, padrões, pastas, dependências) quando for o caso, e diga no PR o que mudou neles.
+5. **Segurança:** nada de segredos no código nem dependências inseguras.
+6. **Após o merge:** o GitHub Actions publica o site em cerca de 3 minutos. Recarregue com Ctrl + F5.
 
-1. **Um commit por pedido**, com mensagem em português: título curto e corpo explicando o que mudou e por quê.
-2. **Autoria:** `madianitab <madianitab@gmail.com>`.
-3. **Geração do patch:** `git format-patch -1 HEAD --stdout > oslive-<assunto>.patch`. **Confira que ele se aplica** sobre a `main` atual do GitHub, numa cópia limpa.
-4. **Aplicação pela professora:**
-
-   ```bash
-   git status            # a pasta precisa estar limpa (arquivos .patch soltos não atrapalham)
-   git pull
-   git am oslive-<assunto>.patch
-   git push
-   ```
-
-5. **Se o `git am` falhar:** rodar `git am --abort`, conferir com `git log --oneline -1` se o commit já está no GitHub e, se a mudança for só no `README.md`, usar `git am --exclude=README.md`.
-6. **Após o push:** o GitHub Actions publica o site em cerca de 3 minutos. Recarregue com Ctrl + F5.
-
-**Colaboradores:** mudanças grandes chegam por pull request, como o PR #1. Antes de entregar um patch, verifique se não há PR aberto mexendo nos mesmos arquivos.
+**Colaboradores:** antes de abrir um PR, verifique se não há outro PR aberto mexendo nos mesmos arquivos.

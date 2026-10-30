@@ -9,7 +9,7 @@
   max-width: 640px;
 }
 .descricao { font-family: var(--f-serif); font-style: italic; font-size: 14px; color: var(--text-2); margin: 0; }
-.layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 32px; align-items: start; }
+.layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; align-items: start; }
 .col-tabelas { display: flex; flex-direction: column; gap: 32px; }
 .processo { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--sh-xs); padding: 12px 14px; }
 .processo.destaque { border-color: var(--a); box-shadow: var(--ring); }

@@ -29,7 +29,14 @@ import { filter, map } from 'rxjs';
     .botao:hover { color: var(--a); border-color: var(--a); }
     .botao:focus-visible { outline: none; box-shadow: var(--ring); }
     .botao i { font-size: 15px; }
-    @media (max-width: 640px) { .botao span { display: none; } .botao { padding: 11px; } }
+    /* Telas estreitas, baixas ou com zoom (projetor): só o ícone, mais discreto, para não cobrir
+       a simulação; o texto aparece ao passar o mouse ou com foco pelo teclado. */
+    @media (max-width: 1280px), (max-height: 760px) {
+      .botao { right: 14px; bottom: 14px; padding: 10px; opacity: .8; }
+      .botao span { display: none; }
+      .botao:hover, .botao:focus-visible { opacity: 1; padding: 9px 14px; }
+      .botao:hover span, .botao:focus-visible span { display: inline; }
+    }
   `],
 })
 export class BotaoSugestaoComponent {

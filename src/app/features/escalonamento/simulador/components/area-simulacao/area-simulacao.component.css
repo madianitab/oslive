@@ -90,7 +90,7 @@
 /* ───────── grid resultado: tabela | gráfico ───────── */
 .res-grid {
   display: grid;
-  grid-template-columns: minmax(320px, 1fr) 1.35fr;
+  grid-template-columns: minmax(280px, 1fr) minmax(0, 1.35fr);
   gap: 16px;
   align-items: stretch;
 }
@@ -147,9 +147,11 @@
   margin: 4px 0;
 }
 
-@media (max-width: 880px) {
-  .viz-stats { grid-template-columns: 1fr; }
+@container sim-main (max-width: 720px) {
   .res-grid { grid-template-columns: 1fr; }
+}
+@container sim-main (max-width: 480px) {
+  .viz-stats { grid-template-columns: 1fr; }
 }
 
 .fila-vazia {

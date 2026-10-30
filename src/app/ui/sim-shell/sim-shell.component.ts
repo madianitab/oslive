@@ -32,7 +32,7 @@ import { NgIf } from '@angular/common';
           </button>
           <div class="os-sim-head-titles">
             <h1 class="os-sim-title">{{ title }}</h1>
-            <p *ngIf="subtitle" class="os-sim-subtitle">{{ subtitle }}</p>
+            <p *ngIf="subtitle" class="os-sim-subtitle" [title]="subtitle">{{ subtitle }}</p>
           </div>
         </div>
         <div class="os-sim-head-center">
@@ -76,8 +76,8 @@ export class OsSimShellComponent implements AfterViewInit, OnDestroy {
     this.observador?.disconnect();
   }
 
-  /** estado do painel de config (recolhido?) */
-  readonly collapsed = signal(false);
+  /** estado do painel de config (recolhido?); no celular a lateral (drawer) começa fechada para não cobrir a simulação */
+  readonly collapsed = signal(typeof matchMedia !== 'undefined' && matchMedia('(max-width: 880px)').matches);
 
   toggle(): void {
     this.collapsed.set(!this.collapsed());
