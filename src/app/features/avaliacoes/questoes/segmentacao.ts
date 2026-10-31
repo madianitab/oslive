@@ -11,18 +11,8 @@ import {
   traduzir,
 } from '../../segmentacao/models/segmentacao';
 import { gerarSegmentacao } from '../../segmentacao/models/exercicio-segmentacao';
-import { NAO_SE_APLICA } from './corrigir';
+import { Montador } from './montador';
 import { Campo, Celula, QuestaoGerada, Tabela, TipoQuestao } from './tipos';
-
-class Montador {
-  readonly campos: Campo[] = [];
-  readonly gabarito: Record<string, string> = {};
-  campo(c: Campo, valor: string | number | null): Celula {
-    this.campos.push(c);
-    this.gabarito[c.id] = valor === null ? NAO_SE_APLICA : String(valor);
-    return { campo: c.id };
-  }
-}
 
 const MODELO =
   `Memória física de ${TAMANHO_MEMORIA} bytes (endereço físico de ${BITS_FISICO} bits). ` +

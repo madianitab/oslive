@@ -12,19 +12,8 @@ import {
   gerarLacunas,
   iniciosParticoes,
 } from '../../particoes/models/exercicios-particoes';
-import { NAO_SE_APLICA } from './corrigir';
+import { Montador } from './montador';
 import { Campo, Celula, QuestaoGerada, Tabela, TipoQuestao } from './tipos';
-
-/** Ajuda a montar campos e gabarito ao mesmo tempo. */
-class Montador {
-  readonly campos: Campo[] = [];
-  readonly gabarito: Record<string, string> = {};
-  campo(c: Campo, valor: string | number | null): Celula {
-    this.campos.push(c);
-    this.gabarito[c.id] = valor === null ? NAO_SE_APLICA : String(valor);
-    return { campo: c.id };
-  }
-}
 
 function tabelaProcessos(alocados: AlocadoEx[]): Tabela {
   return {

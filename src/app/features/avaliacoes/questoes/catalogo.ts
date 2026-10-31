@@ -1,4 +1,5 @@
 import { criarAleatorio, embaralhar, Aleatorio } from '../../../core/aleatorio';
+import { QUESTOES_PROCESSOS } from './processos';
 import { QUESTOES_ESCALONAMENTO } from './escalonamento';
 import { QUESTOES_PARTICOES } from './particoes';
 import { QUESTOES_PAGINACAO } from './paginacao';
@@ -10,6 +11,7 @@ import { ItemModelo, QuestaoGerada, TipoQuestao } from './tipos';
  * Para incluir um novo: crie o gerador (com rnd, sem Angular) e acrescente aqui.
  */
 export const CATALOGO: TipoQuestao[] = [
+  ...QUESTOES_PROCESSOS,
   ...QUESTOES_ESCALONAMENTO,
   ...QUESTOES_PARTICOES,
   ...QUESTOES_PAGINACAO,
