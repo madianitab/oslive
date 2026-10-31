@@ -553,3 +553,91 @@ grant execute on function public.salvar_avaliacao(bigint, bigint, text, timestam
 grant execute on function public.iniciar_tentativa(bigint, uuid, text, text, text), public.salvar_respostas(bigint, uuid, jsonb),
   public.tentativa_para_correcao(bigint, uuid),
   public.finalizar_tentativa(bigint, uuid, jsonb, numeric, jsonb, text, text) to service_role;
+
+-- ============================================================
+-- 10. Resultados das avaliações (professor e admin)
+-- ============================================================
+
+-- todos os alunos da turma, tenham começado ou não
+drop function if exists public.resultados_avaliacao(bigint);
+create or replace function public.resultados_avaliacao(p_avaliacao bigint)
+returns table (tentativa bigint, email text, nome text, situacao text, iniciada_em timestamptz,
+               prazo timestamptz, enviada_em timestamptz, envio text, nota numeric,
+               ip_inicio text, ip_envio text, navegador text, notas_questoes jsonb)
+language plpgsql stable security definer set search_path = public as $$
+declare v_turma bigint;
+begin
+  select a.turma_id into v_turma from public.avaliacoes a where a.id = p_avaliacao;
+  if v_turma is null or not public.gerencia_turma(v_turma) then raise exception 'Avaliação não encontrada'; end if;
+  return query
+    select x.id, m.email, p.nome,
+           case when x.id is null then 'nao_iniciou'
+                when x.enviada_em is not null then 'enviada'
+                when now() <= x.prazo then 'em_andamento'
+                else 'tempo_esgotado' end,
+           x.iniciada_em, x.prazo, x.enviada_em, x.envio, x.nota, x.ip_inicio, x.ip_envio, x.navegador,
+           (select jsonb_agg(q->'nota') from jsonb_array_elements(x.correcao->'questoes') q)
+      from public.turma_alunos m
+      left join public.tentativas x on x.avaliacao_id = p_avaliacao and x.email = m.email
+      left join public.perfis p on lower(p.email) = m.email
+     where m.turma_id = v_turma
+    union all
+    -- quem fez a prova e depois saiu da turma continua aparecendo
+    select x.id, x.email, p.nome,
+           case when x.enviada_em is not null then 'enviada' when now() <= x.prazo then 'em_andamento' else 'tempo_esgotado' end,
+           x.iniciada_em, x.prazo, x.enviada_em, x.envio, x.nota, x.ip_inicio, x.ip_envio, x.navegador,
+           (select jsonb_agg(q->'nota') from jsonb_array_elements(x.correcao->'questoes') q)
+      from public.tentativas x left join public.perfis p on p.id = x.aluno_id
+     where x.avaliacao_id = p_avaliacao
+       and not exists (select 1 from public.turma_alunos m where m.turma_id = v_turma and m.email = x.email)
+     order by 2;
+end $$;
+
+-- prova de um aluno para revisão: a semente permite gerar de novo as mesmas questões no navegador da professora
+create or replace function public.tentativa_detalhe(p_tentativa bigint)
+returns jsonb language plpgsql stable security definer set search_path = public as $$
+declare r jsonb;
+begin
+  select jsonb_build_object(
+      'id', x.id, 'email', x.email, 'semente', x.semente, 'modelo', a.modelo, 'valor_total', a.valor_total,
+      'respostas', x.respostas, 'correcao', x.correcao, 'nota', x.nota, 'iniciada_em', x.iniciada_em,
+      'prazo', x.prazo, 'enviada_em', x.enviada_em, 'envio', x.envio, 'turma_id', a.turma_id)
+    into r
+    from public.tentativas x join public.avaliacoes a on a.id = x.avaliacao_id
+   where x.id = p_tentativa;
+  if r is null or not public.gerencia_turma((r->>'turma_id')::bigint) then raise exception 'Prova não encontrada'; end if;
+  return r - 'turma_id';
+end $$;
+
+-- encerra, com as respostas salvas, uma prova cujo tempo acabou sem envio
+-- (a nota é calculada no navegador da professora com o mesmo código da função do servidor)
+create or replace function public.encerrar_por_tempo(p_tentativa bigint, p_nota numeric, p_correcao jsonb)
+returns void language plpgsql security definer set search_path = public as $$
+declare x public.tentativas; v_turma bigint; v_valor numeric;
+begin
+  select * into x from public.tentativas where id = p_tentativa;
+  select a.turma_id, a.valor_total into v_turma, v_valor from public.avaliacoes a where a.id = x.avaliacao_id;
+  if x.id is null or not public.gerencia_turma(v_turma) then raise exception 'Prova não encontrada'; end if;
+  if x.enviada_em is not null then raise exception 'Esta prova já foi enviada'; end if;
+  if now() <= x.prazo + interval '1 minute' then raise exception 'O tempo deste aluno ainda não acabou'; end if;
+  if p_nota < 0 or p_nota > v_valor then raise exception 'Nota inválida'; end if;
+  update public.tentativas
+     set nota = p_nota, correcao = p_correcao, enviada_em = now(), envio = 'tempo'
+   where id = p_tentativa and enviada_em is null;
+end $$;
+
+-- libera uma nova tentativa (ex.: problema técnico): apaga a tentativa do aluno
+create or replace function public.liberar_nova_tentativa(p_tentativa bigint)
+returns void language plpgsql security definer set search_path = public as $$
+declare v_turma bigint;
+begin
+  select a.turma_id into v_turma
+    from public.tentativas x join public.avaliacoes a on a.id = x.avaliacao_id where x.id = p_tentativa;
+  if v_turma is null or not public.gerencia_turma(v_turma) then raise exception 'Prova não encontrada'; end if;
+  delete from public.tentativas where id = p_tentativa;
+end $$;
+
+revoke all on function public.resultados_avaliacao(bigint), public.tentativa_detalhe(bigint),
+  public.encerrar_por_tempo(bigint, numeric, jsonb), public.liberar_nova_tentativa(bigint) from public, anon;
+grant execute on function public.resultados_avaliacao(bigint), public.tentativa_detalhe(bigint),
+  public.encerrar_por_tempo(bigint, numeric, jsonb), public.liberar_nova_tentativa(bigint) to authenticated;

@@ -67,7 +67,10 @@ interface Formulario {
               <td class="mono">{{ a.modelo.length }}</td>
               <td><os-badge [variant]="a.liberada ? 's' : 'n'">{{ a.liberada ? 'liberada' : 'rascunho' }}</os-badge></td>
               <td class="mono">{{ a.iniciadas }} / {{ a.enviadas }}</td>
-              <td class="acao"><os-button variant="s" size="sm" (click)="editar(a)">Abrir</os-button></td>
+              <td class="acao">
+                <a [routerLink]="['/admin/avaliacoes', a.id, 'resultados']"><os-button variant="p" size="sm">Resultados</os-button></a>
+                <os-button variant="s" size="sm" (click)="editar(a)">Editar</os-button>
+              </td>
             </tr>
           } @empty {
             <tr><td colspan="8" class="vazio">{{ carregando() ? 'Carregando…' : 'Nenhuma prova ainda.' }}</td></tr>

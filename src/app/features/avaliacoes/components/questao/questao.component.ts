@@ -6,7 +6,8 @@ import { Campo, Celula, QuestaoPublica, Tabela } from '../../questoes/tipos';
  * Mostra uma questão de avaliação (qualquer tipo): enunciado, tabelas de dados
  * e tabelas com os campos de resposta.
  * - modo "responder": campos editáveis (prova do aluno);
- * - modo "gabarito": mostra a resposta certa em cada campo (prévia da professora).
+ * - modo "gabarito": mostra a resposta certa em cada campo (prévia da professora);
+ * - modo "revisao": resposta do aluno em verde (certa) ou vermelho (errada), com a certa ao lado.
  */
 @Component({
   selector: 'app-questao',
@@ -16,7 +17,8 @@ import { Campo, Celula, QuestaoPublica, Tabela } from '../../questoes/tipos';
   <header class="q-head">
     <span class="q-num">Questão {{ numero }}</span>
     <h3 class="q-tit">{{ questao.titulo }}</h3>
-    @if (valor !== null) { <span class="q-valor">{{ valorTexto() }}</span> }
+    @if (notaTexto) { <span class="q-valor q-nota">{{ notaTexto }}</span> }
+    @else if (valor !== null) { <span class="q-valor">{{ valorTexto() }}</span> }
   </header>
   <p class="q-enun">{{ questao.enunciado }}</p>
   @if (questao.codigo) { <pre class="q-cod"><code>{{ questao.codigo }}</code></pre> }
@@ -38,6 +40,13 @@ import { Campo, Celula, QuestaoPublica, Tabela } from '../../questoes/tipos';
                     <td class="q-campo">
                       @if (modo === 'gabarito') {
                         <span class="q-gab">{{ rotuloResposta(c, gabarito?.[c.id] ?? '') }}</span>
+                      } @else if (modo === 'revisao') {
+                        @if (certos?.[c.id]) {
+                          <span class="q-gab" title="Certo">{{ rotuloResposta(c, respostas?.[c.id] ?? '') }}</span>
+                        } @else {
+                          <span class="q-err" title="Resposta do aluno (errada)">{{ rotuloResposta(c, respostas?.[c.id] ?? '') || 'em branco' }}</span>
+                          <span class="q-certa" title="Resposta certa">{{ rotuloResposta(c, gabarito?.[c.id] ?? '') }}</span>
+                        }
                       } @else if (c.tipo === 'opcao') {
                         <select [value]="respostas?.[c.id] ?? ''" (change)="mudar(c, $any($event.target).value)"
                                 [attr.aria-label]="c.rotulo" [disabled]="bloqueado">
@@ -90,6 +99,10 @@ import { Campo, Celula, QuestaoPublica, Tabela } from '../../questoes/tipos';
     }
     input:focus, select:focus { outline: none; border-color: var(--a); box-shadow: var(--ring); }
     input:disabled, select:disabled { opacity: .6; }
+    .q-err { display: inline-block; padding: 3px 8px; border-radius: var(--r-xs); background: var(--err-soft); color: var(--err-deep); font-weight: 600; text-decoration: line-through; }
+    .q-certa { display: inline-block; margin-left: 6px; color: var(--ok-deep); font-weight: 600; }
+    .q-certa::before { content: '→ '; color: var(--text-3); font-weight: 400; }
+    .q-nota { color: var(--a); font-weight: 600; }
     .q-gab { display: inline-block; padding: 3px 8px; border-radius: var(--r-xs); background: var(--ok-soft); color: var(--ok-deep); font-weight: 600; }
   `],
 })
@@ -97,7 +110,11 @@ export class QuestaoComponent implements OnChanges {
   @Input({ required: true }) questao!: QuestaoPublica;
   @Input() numero = 1;
   @Input() valor: number | null = null;
-  @Input() modo: 'responder' | 'gabarito' = 'responder';
+  @Input() modo: 'responder' | 'gabarito' | 'revisao' = 'responder';
+  /** Revisão: campo → acertou? */
+  @Input() certos: Record<string, boolean> | null = null;
+  /** Revisão: "1,5 de 2 pontos". */
+  @Input() notaTexto = '';
   @Input() respostas: Record<string, string> | null = null;
   @Input() gabarito: Record<string, string> | null = null;
   @Input() bloqueado = false;
