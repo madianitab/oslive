@@ -21,6 +21,7 @@ Simulador didático de Sistemas Operacionais.
 | Segmentação | Simulador | `#/segmentacao/simulador` | `src/app/features/segmentacao/simulador` |
 | Segmentação | Exercícios | `#/segmentacao/exercicios` | `src/app/features/segmentacao/exercicios` |
 | Avaliações | Área do aluno (login) | `#/avaliacoes` | `src/app/features/avaliacoes` |
+| Avaliações | Turmas e matrícula por e-mail (professor e admin) | `#/admin/turmas` | `src/app/pages/admin-turmas` |
 | Sugestões | Enviar sugestão (login) — botão flutuante em todas as páginas | `#/sugestao` | `src/app/pages/sugestao` |
 | Administração | Usuários (só admin) | `#/admin/usuarios` | `src/app/pages/admin-usuarios` |
 | Administração | Sugestões recebidas (só admin) | `#/admin/sugestoes` | `src/app/pages/admin-sugestoes` |

@@ -150,6 +150,14 @@ export class AuthService {
     if (error) throw error;
   }
 
+  /**
+   * Cliente do Supabase para os serviços das avaliações (turmas, provas).
+   * As regras de acesso ficam no banco (RLS e funções), nunca no navegador.
+   */
+  db(): Promise<SupabaseClient> {
+    return comPrazo(this.supabase());
+  }
+
   // ───────── internos ─────────
 
   private supabase(): Promise<SupabaseClient> {

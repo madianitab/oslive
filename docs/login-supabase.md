@@ -5,7 +5,8 @@ Só as rotas de avaliação e de sugestão exigem login. Simuladores e exercíci
 | Rota | Quem acessa |
 |---|---|
 | `#/entrar` | todos (botão "Entrar com Google") |
-| `#/avaliacoes` | qualquer usuário logado |
+| `#/avaliacoes` | qualquer usuário logado (o aluno vê as turmas em que o e-mail dele está) |
+| `#/admin/turmas` | professor e admin (cria turmas e inclui alunos pelo e-mail) |
 | `#/sugestao` | qualquer usuário logado (envia sugestão, erro ou dúvida) |
 | `#/admin/usuarios` | só a administradora |
 | `#/admin/sugestoes` | só a administradora |
@@ -27,6 +28,7 @@ Só as rotas de avaliação e de sugestão exigem login. Simuladores e exercíci
    - Essas duas podem ficar no repositório público.
    - **Nunca** coloque a chave *secret* / *service_role* no código.
 6. **Teste:** abra `#/avaliacoes`, entre com sua conta (deve aparecer o papel **admin**) e depois com outra conta (deve aparecer **aluno**). Promova a segunda em *Gerenciar usuários*.
+7. **Turmas:** depois de rodar o `schema.sql` atualizado, abra *Turmas* no menu da conta, crie uma turma e cole os e-mails. Entre com uma conta da lista (deve aparecer o nome da turma) e com uma fora dela (deve aparecer "Você não está em nenhuma turma").
 
 ## Segurança
 
@@ -34,7 +36,8 @@ As regras ficam no banco (RLS), não no navegador:
 
 - cada usuário lê só o próprio perfil; professor e admin leem todos;
 - ninguém altera a tabela `perfis` diretamente;
-- só a admin muda papéis, pela função `definir_papel` (aluno ↔ professor; a admin não pode ser rebaixada).
+- só a admin muda papéis, pela função `definir_papel` (aluno ↔ professor; a admin não pode ser rebaixada);
+- turmas: ninguém altera `turmas` e `turma_alunos` diretamente; só pelas funções `criar_turma`, `renomear_turma`, `excluir_turma`, `matricular` e `desmatricular`, que conferem o papel. O professor gerencia só as turmas dele; a admin, todas. O aluno lê só as turmas e a matrícula do próprio e-mail.
 
 ## Plano gratuito
 

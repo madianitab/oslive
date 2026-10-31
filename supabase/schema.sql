@@ -156,3 +156,145 @@ end $$;
 
 revoke all on function public.listar_sugestoes() from public, anon;
 grant execute on function public.listar_sugestoes() to authenticated;
+
+-- ============================================================
+-- 8. Turmas e matrícula por e-mail (avaliações)
+--    Professor (ou a admin) cria a turma e cola os e-mails dos alunos.
+--    O aluno vê só as turmas em que o e-mail da conta Google dele está.
+--    Ninguém altera as tabelas diretamente: só pelas funções abaixo.
+-- ============================================================
+create table if not exists public.turmas (
+  id           bigint generated always as identity primary key,
+  nome         text not null check (char_length(btrim(nome)) between 2 and 120),
+  professor_id uuid not null references auth.users(id) on delete cascade,
+  criado_em    timestamptz not null default now()
+);
+
+create table if not exists public.turma_alunos (
+  turma_id    bigint not null references public.turmas(id) on delete cascade,
+  email       text not null
+              check (email = lower(btrim(email)) and email ~ '^[^@\s]+@[^@\s]+\.[^@\s]+$'
+                     and char_length(email) <= 254),
+  incluido_em timestamptz not null default now(),
+  primary key (turma_id, email)
+);
+create index if not exists turma_alunos_email on public.turma_alunos (email);
+
+alter table public.turmas enable row level security;
+alter table public.turma_alunos enable row level security;
+revoke all on public.turmas, public.turma_alunos from anon, authenticated;
+grant select on public.turmas, public.turma_alunos to authenticated;
+
+-- e-mail de quem está logado (vem de auth.users, pelo perfil)
+create or replace function public.meu_email()
+returns text language sql stable security definer set search_path = public as $$
+  select lower(email) from public.perfis where id = auth.uid()
+$$;
+
+-- a admin gerencia todas as turmas; o professor, só as dele
+create or replace function public.gerencia_turma(t bigint)
+returns boolean language sql stable security definer set search_path = public as $$
+  select public.meu_papel() = 'admin'
+      or (public.meu_papel() = 'professor'
+          and exists (select 1 from public.turmas where id = t and professor_id = auth.uid()))
+$$;
+
+drop policy if exists turmas_select on public.turmas;
+create policy turmas_select on public.turmas
+  for select to authenticated
+  using (public.gerencia_turma(id)
+         or exists (select 1 from public.turma_alunos a
+                     where a.turma_id = id and a.email = public.meu_email()));
+
+drop policy if exists turma_alunos_select on public.turma_alunos;
+create policy turma_alunos_select on public.turma_alunos
+  for select to authenticated
+  using (public.gerencia_turma(turma_id) or email = public.meu_email());
+
+-- cria turma (admin ou professor); devolve o id
+create or replace function public.criar_turma(nome_turma text)
+returns bigint language plpgsql security definer set search_path = public as $$
+declare novo bigint;
+begin
+  if public.meu_papel() not in ('admin', 'professor') then
+    raise exception 'Apenas professores podem criar turmas';
+  end if;
+  insert into public.turmas (nome, professor_id) values (btrim(nome_turma), auth.uid())
+  returning id into novo;
+  return novo;
+end $$;
+
+create or replace function public.renomear_turma(t bigint, nome_turma text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not public.gerencia_turma(t) then raise exception 'Sem permissão para esta turma'; end if;
+  update public.turmas set nome = btrim(nome_turma) where id = t;
+end $$;
+
+create or replace function public.excluir_turma(t bigint)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not public.gerencia_turma(t) then raise exception 'Sem permissão para esta turma'; end if;
+  delete from public.turmas where id = t;
+end $$;
+
+-- inclui e-mails (normaliza; ignora repetidos); devolve quantos entraram
+create or replace function public.matricular(t bigint, emails text[])
+returns integer language plpgsql security definer set search_path = public as $$
+declare n integer;
+begin
+  if not public.gerencia_turma(t) then raise exception 'Sem permissão para esta turma'; end if;
+  if coalesce(array_length(emails, 1), 0) > 500 then
+    raise exception 'No máximo 500 e-mails por vez';
+  end if;
+  insert into public.turma_alunos (turma_id, email)
+  select distinct t, lower(btrim(e)) from unnest(emails) e
+   where lower(btrim(e)) ~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' and char_length(btrim(e)) <= 254
+  on conflict do nothing;
+  get diagnostics n = row_count;
+  return n;
+end $$;
+
+create or replace function public.desmatricular(t bigint, email_aluno text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not public.gerencia_turma(t) then raise exception 'Sem permissão para esta turma'; end if;
+  delete from public.turma_alunos where turma_id = t and email = lower(btrim(email_aluno));
+end $$;
+
+-- turmas que a pessoa gerencia, com professor e número de alunos
+create or replace function public.listar_turmas()
+returns table (id bigint, nome text, professor_email text, alunos bigint, criado_em timestamptz)
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if public.meu_papel() not in ('admin', 'professor') then
+    raise exception 'Apenas professores podem ver as turmas';
+  end if;
+  return query
+    select t.id, t.nome, p.email, (select count(*) from public.turma_alunos a where a.turma_id = t.id), t.criado_em
+      from public.turmas t left join public.perfis p on p.id = t.professor_id
+     where public.gerencia_turma(t.id)
+     order by t.criado_em desc;
+end $$;
+
+-- alunos da turma; "entrou" diz se o e-mail já fez login no OSLive
+create or replace function public.alunos_da_turma(t bigint)
+returns table (email text, nome text, entrou boolean, incluido_em timestamptz)
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not public.gerencia_turma(t) then raise exception 'Sem permissão para esta turma'; end if;
+  return query
+    select a.email, p.nome, p.id is not null, a.incluido_em
+      from public.turma_alunos a left join public.perfis p on lower(p.email) = a.email
+     where a.turma_id = t
+     order by a.email;
+end $$;
+
+revoke all on function public.meu_email(), public.gerencia_turma(bigint),
+  public.criar_turma(text), public.renomear_turma(bigint, text), public.excluir_turma(bigint),
+  public.matricular(bigint, text[]), public.desmatricular(bigint, text),
+  public.listar_turmas(), public.alunos_da_turma(bigint) from public, anon;
+grant execute on function public.meu_email(), public.gerencia_turma(bigint),
+  public.criar_turma(text), public.renomear_turma(bigint, text), public.excluir_turma(bigint),
+  public.matricular(bigint, text[]), public.desmatricular(bigint, text),
+  public.listar_turmas(), public.alunos_da_turma(bigint) to authenticated;
