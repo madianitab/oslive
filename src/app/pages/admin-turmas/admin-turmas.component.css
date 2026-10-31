@@ -1,0 +1,27 @@
+.linha { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 16px; }
+.linha .form-control { flex: 1 1 240px; max-width: 420px; }
+.linha .filtro { margin: 0; }
+
+.tab tr.sel td { background: var(--a-soft); }
+
+.turma {
+  margin-top: 28px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+.turma-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.turma-head .nome { flex: 1 1 220px; max-width: 420px; font-weight: 600; }
+
+.rot {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.emails { width: 100%; margin-bottom: 10px; font-family: var(--f-mono); font-size: 13px; resize: vertical; }
+.turma os-alert { display: block; margin-bottom: 16px; }
