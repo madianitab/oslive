@@ -56,3 +56,4 @@ select.campo { cursor: pointer; }
 @container sim-main (max-width: 600px) {
   .layout-ex { grid-template-columns: 1fr; }
 }
+.aviso-so { display: block; margin: 0 0 16px; }

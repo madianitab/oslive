@@ -4,6 +4,7 @@ import { NgClass } from '@angular/common';
 import { gera_cor } from 'src/app/core/utils';
 import { OsStatComponent } from 'src/app/ui/stat/stat.component';
 import { OsButtonComponent } from 'src/app/ui/button/button.component';
+import { OsAlertComponent } from 'src/app/ui/alert/alert.component';
 import { BarraMemoriaComponent, BlocoBarra } from 'src/app/features/particoes/components/barra-memoria/barra-memoria.component';
 import { ALGORITMOS_FIT } from 'src/app/features/particoes/models/particoes';
 import { AlocadoEx, EventoVar, SO_VAR, TOTAL_VAR, lacunasVar } from 'src/app/features/particoes/models/exercicios-particoes';
@@ -19,7 +20,7 @@ import {
   templateUrl: './area-exercicio-particoes-variaveis.component.html',
   styleUrls: ['../../../../../ui/styles/sim-viz.css', '../../../exercicios.css'],
   standalone: true,
-  imports: [FormsModule, NgClass, OsStatComponent, OsButtonComponent, BarraMemoriaComponent],
+  imports: [FormsModule, NgClass, OsStatComponent, OsButtonComponent, OsAlertComponent, BarraMemoriaComponent],
 })
 export class AreaExercicioParticoesVariaveisComponent {
   readonly total = TOTAL_VAR;

@@ -23,6 +23,11 @@
 
     <p class="descricao">{{ descricaoTipo() }}</p>
 
+    <os-alert variant="info" class="aviso-so">
+      <i slot="icon" class="fa-solid fa-circle-info"></i>
+      O <b>SO ocupa de 0 a {{ so - 1 }} KB</b>. A área dos processos começa em <b>{{ so }} KB</b> e vai até {{ total - 1 }} KB.
+    </os-alert>
+
     <!-- ───────── ALOCAÇÃO ───────── -->
     @if (ex.tipo() === 'ALOCACAO' && ex.alocacao(); as a) {
       <div class="layout-ex">
@@ -102,7 +107,6 @@
               <tr><td>{{ p.nome }}</td><td>{{ p.base }}</td><td>{{ p.tamanho }} KB</td></tr>
             }
           </table>
-          <p class="info-mem" style="margin-top: 10px">SO: 0 a {{ so - 1 }}. Memória até {{ total - 1 }}.</p>
           @if (mostrarGabarito()) {
             <app-barra-memoria class="barra-ex" [blocos]="blocos(l.alocados)" [total]="total"></app-barra-memoria>
           }
