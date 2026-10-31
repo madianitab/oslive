@@ -6,6 +6,7 @@ import { OsButtonComponent } from 'src/app/ui/button/button.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Processo } from 'src/app/features/escalonamento/models/processo';
 import { gera_cor } from 'src/app/core/utils';
+import { gerarProcessosEscalonamento } from 'src/app/features/escalonamento/models/exercicio-escalonamento';
 import {
   ALGORITMOS_EXERCICIO,
   AlgoritmoExercicio,
@@ -22,7 +23,6 @@ export interface ConfiguracaoExercicio {
   tipo: TipoResposta;
 }
 
-const NOMES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 @Component({
   selector: 'app-lateral-exercicio-escalonamento',
@@ -110,17 +110,15 @@ export class LateralExercicioEscalonamentoComponent {
   }
 
   geradorAleatorio(): void {
+    // regras de geração em models/exercicio-escalonamento.ts (as mesmas das avaliações)
+    const { processos, quantum } = gerarProcessosEscalonamento();
     const lista: Processo[] = [];
-    for (let i = 0; i < 4; i++) {
-      // chegadas de 0 a 8; podem coincidir (chegadas simultâneas) e a CPU pode começar ociosa
-      const chegada = Math.floor(Math.random() * 9);
-      const p = new Processo(NOMES[i], chegada, Math.floor(Math.random() * 7) + 1,
-        Math.floor(Math.random() * 4), '');
+    for (const p of processos) {
       p.cor = gera_cor(lista);
       lista.push(p);
     }
-    this.listaProcessos.set(lista.sort((a, b) => a.chegada - b.chegada));
-    this.quantum = Math.floor(Math.random() * 3) + 1;
+    this.listaProcessos.set(lista);
+    this.quantum = quantum;
     this.limparForm();
     this.limparExercicio.emit();
   }

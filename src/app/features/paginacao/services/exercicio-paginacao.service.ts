@@ -1,86 +1,39 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { gera_cor } from 'src/app/core/utils';
-import { TAM, TAM_HISTORICO_REF, TIMESTAMP_INICIAL } from 'src/app/core/constantes';
-import { valorHistoricoBits, vitimaHistorico } from '../models/historico-bits';
+import { TAM } from 'src/app/core/constantes';
+import {
+  ALGORITMOS_VITIMA,
+  AlgoritmoVitima,
+  BITS_HISTORICO,
+  Correcao,
+  NOMES_PROCESSOS,
+  PaginaExercicio,
+  ProcessoExercicio,
+  RespostaPagina,
+  TIPOS_EXERCICIO,
+  TipoExercicio,
+  calcularVitimaPaginacao,
+  gerarPaginacaoDemanda,
+  nomePagina,
+  valorHistorico,
+} from '../models/exercicio-paginacao-demanda';
 
-/**
- * Exercícios de Paginação por Demanda (ideia original do módulo de Carlos Bruno):
- *  1. Preencher a memória lógica: a partir da memória física, completar a tabela de páginas (End. MF e bit V/I);
- *  2. Preencher a memória física: a partir das tabelas de páginas, dizer qual página está em cada quadro;
- *  3. Determinar a página vítima: com a memória cheia, escolher quem sai por FIFO,
- *     Histórico de bits de referência ou Segunda Chance.
- *  4. Segunda Chance em sequência: situações encadeadas (serviço próprio: ExercicioSegundaChanceService).
- */
-export type TipoExercicio = 'LOGICA' | 'FISICA' | 'VITIMA' | 'SEQUENCIA';
-export type AlgoritmoVitima = 'FIFO' | 'HISTORICO' | 'SEGUNDA_CHANCE';
-
-export const TIPOS_EXERCICIO: { valor: TipoExercicio; nome: string; descricao: string }[] = [
-  { valor: 'LOGICA', nome: 'Preencher a tabela de páginas',
-    descricao: 'Observe a memória física e complete a tabela de páginas de cada processo (quadro e bit V/I).' },
-  { valor: 'FISICA', nome: 'Preencher a memória física',
-    descricao: 'Observe as tabelas de páginas e indique qual página está em cada quadro da memória física.' },
-  { valor: 'VITIMA', nome: 'Determinar a página vítima',
-    descricao: 'A memória física está cheia e uma nova página precisa entrar: escolha a página que será substituída.' },
-  { valor: 'SEQUENCIA', nome: 'Segunda Chance em sequência',
-    descricao: 'Até 10 situações encadeadas: aplique os acessos e escolha a vítima pela Segunda Chance ou pela Segunda Chance Melhorada.' },
-];
-
-export const ALGORITMOS_VITIMA: { valor: AlgoritmoVitima; nome: string }[] = [
-  { valor: 'FIFO', nome: 'FIFO (first-in, first-out)' },
-  { valor: 'HISTORICO', nome: 'Histórico de bits de referência' },
-  { valor: 'SEGUNDA_CHANCE', nome: 'Segunda Chance' },
-];
-
-export const NOMES_PROCESSOS = ['A', 'B', 'C', 'D'];
-export const BITS_HISTORICO = TAM_HISTORICO_REF;
-
-export interface PaginaExercicio {
-  processo: string;
-  indice: number;
-  cor: string;
-  /** Quadro da memória física (null = página só no disco, bit I). */
-  quadro: number | null;
-  /** Momento da carga na memória física. */
-  timestamp: number | null;
-  /** Segunda Chance: bit de referência. */
-  bitRef: 0 | 1;
-  /** Histórico de bits de referência (posição 0 = acesso mais recente). */
-  historico: number[];
-}
-
-export interface ProcessoExercicio {
-  nome: string;
-  cor: string;
-  paginas: PaginaExercicio[];
-}
-
-export type Correcao = boolean | null;
-
-export interface RespostaPagina {
-  quadro: string;   // '' = não respondido, '-' = fora da memória, '0'..'7' = quadro
-  bit: string;      // '' = não respondido, 'V' ou 'I'
-}
-
-export function nomePagina(p: PaginaExercicio): string {
-  return `${p.processo}${p.indice}`;
-}
-
-export function valorHistorico(p: PaginaExercicio): number {
-  return valorHistoricoBits(p.historico);
-}
-
-function embaralhar<T>(lista: T[]): T[] {
-  const copia = [...lista];
-  for (let i = copia.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copia[i], copia[j]] = [copia[j], copia[i]];
-  }
-  return copia;
-}
-
-function aleatorio(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+export {
+  TIPOS_EXERCICIO,
+  ALGORITMOS_VITIMA,
+  NOMES_PROCESSOS,
+  BITS_HISTORICO,
+  nomePagina,
+  valorHistorico,
+} from '../models/exercicio-paginacao-demanda';
+export type {
+  TipoExercicio,
+  AlgoritmoVitima,
+  PaginaExercicio,
+  ProcessoExercicio,
+  Correcao,
+  RespostaPagina,
+} from '../models/exercicio-paginacao-demanda';
 
 /** Estado do exercício, fornecido pela tela (cada visita começa do zero). */
 @Injectable()
@@ -155,60 +108,18 @@ export class ExercicioPaginacaoService {
 
   // ───────────────────────── geração ─────────────────────────
 
+  /** Regras em models/exercicio-paginacao-demanda.ts; aqui só as cores. */
   gerar(): void {
-    const tipo = this.tipo();
-    const n = this.quantidadeProcessos();
-    const nomes = NOMES_PROCESSOS.slice(0, n);
-
-    // Na página vítima a memória precisa ficar cheia e sobrar ao menos uma página no disco.
-    let tamanhos: number[];
-    do {
-      tamanhos = nomes.map(() => tipo === 'VITIMA' ? aleatorio(2, 4) : aleatorio(1, 4));
-    } while (tipo === 'VITIMA' && tamanhos.reduce((a, b) => a + b, 0) <= TAM);
-
-    const processos: ProcessoExercicio[] = [];
-    nomes.forEach((nome, i) => {
-      const cor = gera_cor(processos);
-      const paginas: PaginaExercicio[] = [];
-      for (let k = 0; k < tamanhos[i]; k++) {
-        paginas.push({ processo: nome, indice: k, cor, quadro: null, timestamp: null, bitRef: 0, historico: [] });
-      }
-      processos.push({ nome, cor, paginas });
-    });
-
-    const todas = processos.flatMap(p => p.paginas);
-    const total = todas.length;
-
-    // Quantas páginas ficam carregadas:
-    // - exercícios 1 e 2: parte das páginas (sempre sobra ao menos uma no disco quando possível);
-    // - exercício 3: a memória física fica cheia.
-    let carregadas: number;
-    if (tipo === 'VITIMA') {
-      carregadas = TAM;
-    } else if (total === 1) {
-      carregadas = 1;
-    } else {
-      const maximo = Math.min(TAM, total - 1);
-      const minimo = Math.max(1, Math.min(maximo, Math.ceil(total / 2)));
-      carregadas = aleatorio(minimo, maximo);
+    const ex = gerarPaginacaoDemanda(this.tipo(), this.quantidadeProcessos());
+    const usadas: ProcessoExercicio[] = [];
+    for (const p of ex.processos) {
+      p.cor = gera_cor(usadas);
+      p.paginas.forEach(pg => pg.cor = p.cor);
+      usadas.push(p);
     }
-
-    const ordemCarga = embaralhar(todas).slice(0, carregadas);
-    const quadrosLivres = embaralhar([...Array(TAM).keys()]);
-    const quadros: (PaginaExercicio | null)[] = Array(TAM).fill(null);
-
-    ordemCarga.forEach((pagina, i) => {
-      const quadro = quadrosLivres[i];
-      pagina.quadro = quadro;
-      pagina.timestamp = TIMESTAMP_INICIAL + i;
-      pagina.bitRef = Math.random() < 0.5 ? 0 : 1;
-      pagina.historico = Array.from({ length: BITS_HISTORICO }, () => (Math.random() < 0.5 ? 0 : 1));
-      quadros[quadro] = pagina;
-    });
-
-    this.processos.set(processos);
-    this.quadros.set(quadros);
-    this.paginaSolicitada.set(tipo === 'VITIMA' ? (embaralhar(todas.filter(p => p.quadro === null))[0] ?? null) : null);
+    this.processos.set(ex.processos);
+    this.quadros.set(ex.quadros);
+    this.paginaSolicitada.set(ex.paginaSolicitada);
     this.limparRespostas();
   }
 
@@ -304,15 +215,6 @@ export class ExercicioPaginacaoService {
    *   a primeira com bit 0 sai. Se todas tiverem bit 1, a mais antiga sai depois da volta completa.
    */
   private calcularVitima(): PaginaExercicio | null {
-    const fila = this.filaCarga();
-    if (fila.length === 0) return null;
-    switch (this.algoritmo()) {
-      case 'FIFO':
-        return fila[0];
-      case 'HISTORICO':
-        return vitimaHistorico(fila);
-      case 'SEGUNDA_CHANCE':
-        return fila.find(p => p.bitRef === 0) ?? fila[0];
-    }
+    return calcularVitimaPaginacao(this.quadros(), this.algoritmo());
   }
 }

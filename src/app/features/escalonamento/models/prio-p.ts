@@ -1,9 +1,5 @@
 import { Processo } from "./processo";
-import { Injectable } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root'
-})
 export class PrioP {
     listaProcessos: Processo[];
 

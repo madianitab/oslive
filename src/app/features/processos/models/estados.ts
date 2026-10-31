@@ -1,3 +1,4 @@
+import { Aleatorio } from '../../../core/aleatorio';
 /**
  * Diagrama de estados do processo (livro, seção "Estados de um processo", Figura 4.2).
  *
@@ -99,8 +100,8 @@ export interface OpcoesCenario {
 
 const CORES = ['#2563eb', '#16a34a', '#d97706', '#9333ea', '#db2777'];
 
-function aleatorio(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function aleatorio(rnd: Aleatorio, min: number, max: number): number {
+  return Math.floor(rnd() * (max - min + 1)) + min;
 }
 
 export function totalCpu(p: ProcessoEstados): number {
@@ -113,28 +114,28 @@ export function totalCpu(p: ProcessoEstados): number {
  * A 1ª fase de CPU é maior que o quantum: o processo usa a CPU duas vezes, voltando para a
  * fila de aptos entre elas (preempção). Depois faz uma E/S e volta para uma fase curta de CPU.
  */
-export function gerarProcessos(op: OpcoesCenario): ProcessoEstados[] {
+export function gerarProcessos(op: OpcoesCenario, rnd: Aleatorio = Math.random): ProcessoEstados[] {
   const q = Math.max(1, op.quantum);
   const processos: ProcessoEstados[] = [];
   for (let i = 0; i < op.quantidade; i++) {
     const passos: Passo[] = [
-      { tipo: 'CPU', duracao: aleatorio(q + 1, 2 * q) },
-      { tipo: 'ES', duracao: aleatorio(2, 4), dispositivo: DISPOSITIVOS[aleatorio(0, DISPOSITIVOS.length - 1)] },
-      { tipo: 'CPU', duracao: aleatorio(1, q) },
+      { tipo: 'CPU', duracao: aleatorio(rnd, q + 1, 2 * q) },
+      { tipo: 'ES', duracao: aleatorio(rnd, 2, 4), dispositivo: DISPOSITIVOS[aleatorio(rnd, 0, DISPOSITIVOS.length - 1)] },
+      { tipo: 'CPU', duracao: aleatorio(rnd, 1, q) },
     ];
     processos.push({
       nome: `P${i + 1}`, cor: CORES[i % CORES.length],
-      chegada: i === 0 ? 0 : aleatorio(0, 4),
+      chegada: i === 0 ? 0 : aleatorio(rnd, 0, 4),
       passos, chamadaSistema: null, encerramento: null,
     });
   }
   if (op.especiais) {
     // retorno imediato por chamada de sistema durante a 1ª fase de CPU de um processo
-    const p = processos[aleatorio(0, processos.length - 1)];
+    const p = processos[aleatorio(rnd, 0, processos.length - 1)];
     p.chamadaSistema = 1;
     // um outro processo é encerrado enquanto espera a E/S (kill ou exceção)
-    const outro = processos.filter(x => x !== p)[aleatorio(0, processos.length - 2)];
-    outro.encerramento = { passo: 1, apos: aleatorio(1, outro.passos[1].duracao - 1), motivo: Math.random() < 0.5 ? 'kill' : 'excecao' };
+    const outro = processos.filter(x => x !== p)[aleatorio(rnd, 0, processos.length - 2)];
+    outro.encerramento = { passo: 1, apos: aleatorio(rnd, 1, outro.passos[1].duracao - 1), motivo: rnd() < 0.5 ? 'kill' : 'excecao' };
   }
   return processos;
 }

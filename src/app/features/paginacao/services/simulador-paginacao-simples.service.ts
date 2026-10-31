@@ -1,10 +1,9 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { gera_cor } from 'src/app/core/utils';
+import { MAX_BYTES_PROCESSO, NOMES_PROCESSOS_SIMPLES, QUANTIDADE_QUADROS, TAMANHO_PAGINA, binario } from '../models/paginacao-simples';
 
-export const TAMANHO_PAGINA = 4;          // bytes por página/quadro
-export const QUANTIDADE_QUADROS = 8;      // memória física de 32 bytes
-export const MAX_BYTES_PROCESSO = 16;     // até 4 páginas por processo
-export const NOMES_PROCESSOS_SIMPLES = ['A', 'B', 'C', 'D', 'E', 'F'];
+export { MAX_BYTES_PROCESSO, NOMES_PROCESSOS_SIMPLES, QUANTIDADE_QUADROS, TAMANHO_PAGINA, binario } from '../models/paginacao-simples';
+
 
 const BITS_PAGINA = 2;       // 4 páginas lógicas
 const BITS_QUADRO = 3;       // 8 quadros
@@ -39,9 +38,6 @@ export interface Traducao {
   quadro: number;
 }
 
-export function binario(valor: number, bits: number): string {
-  return valor.toString(2).padStart(bits, '0');
-}
 
 @Injectable()
 export class SimuladorPaginacaoSimplesService {
