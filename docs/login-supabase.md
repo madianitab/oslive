@@ -7,6 +7,8 @@ Só as rotas de avaliação e de sugestão exigem login. Simuladores e exercíci
 | `#/entrar` | todos (botão "Entrar com Google") |
 | `#/avaliacoes` | qualquer usuário logado (o aluno vê as turmas em que o e-mail dele está) |
 | `#/admin/turmas` | professor e admin (cria turmas e inclui alunos pelo e-mail) |
+| `#/admin/avaliacoes` | professor e admin (cria, gera e libera provas) |
+| `#/avaliacoes/:id` | aluno da turma da prova (faz a prova) |
 | `#/sugestao` | qualquer usuário logado (envia sugestão, erro ou dúvida) |
 | `#/admin/usuarios` | só a administradora |
 | `#/admin/sugestoes` | só a administradora |
@@ -30,6 +32,11 @@ Só as rotas de avaliação e de sugestão exigem login. Simuladores e exercíci
 6. **Teste:** abra `#/avaliacoes`, entre com sua conta (deve aparecer o papel **admin**) e depois com outra conta (deve aparecer **aluno**). Promova a segunda em *Gerenciar usuários*.
 7. **Turmas:** depois de rodar o `schema.sql` atualizado, abra *Turmas* no menu da conta, crie uma turma e cole os e-mails. Entre com uma conta da lista (deve aparecer o nome da turma) e com uma fora dela (deve aparecer "Você não está em nenhuma turma").
 
+8. **Função das provas (uma vez):**
+   - No Supabase, em *Account → Access Tokens*, gere um token do tipo **Project**, só para o projeto `oslive`, com **Edge Functions: Read-write** e **Project Settings: Read** (todo o resto em *None*). Dê uma validade (ex.: 1 ano).
+   - No GitHub, em *Settings → Secrets and variables → Actions*, crie os secrets `SUPABASE_ACCESS_TOKEN` (o token) e `SUPABASE_PROJECT_REF` (o ID do projeto, o trecho antes de `.supabase.co`).
+   - O workflow *Publicar função das avaliações no Supabase* roda a cada merge que muda as questões ou os geradores; também dá para rodar à mão em *Actions → Run workflow*. Quando o token vencer, gere outro e atualize o secret.
+
 ## Segurança
 
 As regras ficam no banco (RLS), não no navegador:
@@ -37,6 +44,7 @@ As regras ficam no banco (RLS), não no navegador:
 - cada usuário lê só o próprio perfil; professor e admin leem todos;
 - ninguém altera a tabela `perfis` diretamente;
 - só a admin muda papéis, pela função `definir_papel` (aluno ↔ professor; a admin não pode ser rebaixada);
+- provas: as tabelas `avaliacoes`, `tentativas` e `senha_falhas` não têm acesso direto. A professora usa `salvar_avaliacao`, `listar_avaliacoes` e `excluir_avaliacao`; o aluno, `minhas_avaliacoes`. Começar, salvar e enviar passam pela função `avaliacao`, que chama funções que só o `service_role` executa (`iniciar_tentativa`, `salvar_respostas`, `tentativa_para_correcao`, `finalizar_tentativa`). O banco confere turma, horário, senha (guardada com bcrypt; 5 erros bloqueiam por 10 minutos), uma tentativa por aluno e o prazo (1 minuto de tolerância). A semente de cada aluno nunca sai do servidor. Depois que alguém começa, as questões, o valor e a turma não mudam. O IP de início e de envio fica registrado;
 - turmas: ninguém altera `turmas` e `turma_alunos` diretamente; só pelas funções `criar_turma`, `renomear_turma`, `excluir_turma`, `matricular` e `desmatricular`, que conferem o papel. O professor gerencia só as turmas dele; a admin, todas. O aluno lê só as turmas e a matrícula do próprio e-mail.
 
 ## Plano gratuito

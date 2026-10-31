@@ -1,0 +1,54 @@
+name: Publicar função das avaliações no Supabase
+
+# Gera supabase/functions/avaliacao/questoes.js a partir dos geradores do site
+# e publica a função "avaliacao". Roda quando muda algo que a prova usa.
+# Secrets necessários (Settings → Secrets and variables → Actions):
+#   SUPABASE_ACCESS_TOKEN  token do Supabase só com "Edge Functions: read-write"
+#                          e "Project Settings: read", restrito ao projeto oslive
+#   SUPABASE_PROJECT_REF   ID do projeto (ex.: o trecho antes de .supabase.co)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+      - 'src/app/features/avaliacoes/questoes/**'
+      - 'src/app/features/*/models/**'
+      - 'src/app/core/aleatorio.ts'
+      - 'src/app/core/constantes.ts'
+      - '.github/workflows/supabase-funcoes.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-funcoes
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Testes das questões
+        run: npx ng test --watch=false --browsers=ChromeHeadless
+      - name: Empacotar geradores e correção
+        run: npm run questoes:servidor
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Publicar a função
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        # --no-verify-jwt: a função confere o usuário ela mesma (auth.getUser),
+        # o que funciona também com as chaves novas do Supabase
+        run: >
+          supabase functions deploy avaliacao
+          --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
+          --no-verify-jwt --use-api
