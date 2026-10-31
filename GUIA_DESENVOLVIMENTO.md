@@ -36,6 +36,8 @@ Assuntos atuais: `processos`, `escalonamento`, `particoes`, `paginacao` e `segme
 
 **Separação obrigatória:**
 - O algoritmo fica no `models/` e não depende do Angular.
+- **Geradores de exercício** também ficam no `models/` (ex.: `gerarSegmentacao(tipo, rnd)`), recebem `rnd: Aleatorio = Math.random` (`core/aleatorio.ts`) e nunca chamam `Math.random` direto. Assim a mesma semente gera o mesmo exercício, e a função das avaliações no servidor reaproveita o código. As **cores** não entram no gerador: o serviço da tela atribui com `gera_cor` depois de gerar.
+- Nada no `models/` importa Angular, RxJS ou arquivos de `services/`/`components/` (o teste `core/geradores-semente.spec.ts` cobre os geradores).
 - O serviço guarda o estado com `signals`.
 - Os componentes só exibem e repassam ações.
 
@@ -186,7 +188,7 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
 
 ## 5. Como adicionar um módulo novo
 
-1. **Modelo:** crie `features/<assunto>/models/<nome>.ts` com a lógica pura e um `.spec.ts` com casos do material.
+1. **Modelo:** crie `features/<assunto>/models/<nome>.ts` com a lógica pura e um `.spec.ts` com casos do material. Se houver exercício, o gerador entra aqui, com `rnd` (veja a seção 2), e ganha uma linha em `core/geradores-semente.spec.ts`.
 2. **Serviço:** crie `services/<nome>.service.ts` com `@Injectable()` (sem `providedIn`), guardando o estado em signals.
 3. **Componentes:** crie os componentes `home-…`, `lateral-…` e `area-…` no padrão da seção 3.4.
 4. **Rota:** registre a rota em `app-routing.module.ts`, no grupo do assunto.

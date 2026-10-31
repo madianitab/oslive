@@ -1,9 +1,5 @@
-import { Injectable } from '@angular/core';
 import { Processo } from './processo'; 
 
-@Injectable({
-  providedIn: 'root'
-})
 
 export class SJF {
   private listaProcessos: Processo[];

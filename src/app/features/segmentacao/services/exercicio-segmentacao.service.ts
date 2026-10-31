@@ -12,65 +12,32 @@ import {
   ocupacao,
   traduzir,
 } from '../models/segmentacao';
+import {
+  Correcao,
+  NOMES_EX_SEG,
+  PerguntaTraducaoSeg,
+  QTD_PERGUNTAS_TRADUCAO,
+  TIPOS_EXERCICIO_SEG,
+  TipoExercicioSeg,
+  gerarSegmentacao,
+  normalizarBinario,
+  normalizarByte,
+  normalizarResposta,
+} from '../models/exercicio-segmentacao';
 
-/**
- * Exercícios de Segmentação (mesmo padrão dos exercícios de paginação simples):
- * sempre 3 processos (A, B e C) com segmentos de tamanhos aleatórios, alocados por best-fit.
- */
-export type TipoExercicioSeg = 'TRADUCAO' | 'TABELA' | 'MEMORIA_FISICA' | 'ALOCACAO';
-
-export const TIPOS_EXERCICIO_SEG: { valor: TipoExercicioSeg; nome: string; descricao: string }[] = [
-  { valor: 'TRADUCAO', nome: 'Traduzir endereços',
-    descricao: 'Use as tabelas de segmentos para converter endereços lógicos em físicos. Se o deslocamento não for menor que o limite (ou o segmento não existir), responda "erro": ocorre uma interrupção.' },
-  { valor: 'TABELA', nome: 'Preencher a tabela de segmentos',
-    descricao: 'Observe a memória física e complete a base e o limite de cada segmento do processo A.' },
-  { valor: 'MEMORIA_FISICA', nome: 'Preencher a memória física',
-    descricao: 'Parte da memória está ocupada por outros processos. Use a tabela de segmentos para digitar cada byte do processo no endereço físico correto, entre os espaços livres.' },
-  { valor: 'ALOCACAO', nome: 'Alocar um processo (best-fit)',
-    descricao: 'Um novo processo vai ser criado. Aloque cada segmento por best-fit (na ordem código, dados, pilha) e registre o resultado preenchendo a BASE na tabela de segmentos do processo.' },
-];
-
-export const NOMES_EX_SEG = ['A', 'B', 'C'];
-export const QTD_PERGUNTAS_TRADUCAO = 4;
-
-export interface PerguntaTraducaoSeg {
-  processo: ProcessoSegmentado;
-  segmento: number;
-  deslocamento: number;
-}
-
-export type Correcao = boolean | null;
-
-function aleatorio(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function embaralhar<T>(lista: T[]): T[] {
-  const c = [...lista];
-  for (let i = c.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [c[i], c[j]] = [c[j], c[i]];
-  }
-  return c;
-}
-
-function tamanhosAleatorios(max = 4): Record<TipoSegmento, number> {
-  return { C: aleatorio(1, max), D: aleatorio(1, max), P: aleatorio(1, max) };
-}
-
-export function normalizarBinario(v: string | null | undefined): string {
-  return (v ?? '').replace(/[\s|_.-]/g, '');
-}
-
-function normalizarResposta(v: string | null | undefined): string {
-  const t = (v ?? '').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  if (['ERRO', 'INTERRUPCAO', 'INT', 'X'].includes(t)) return 'erro';
-  return normalizarBinario(t);
-}
-
-function normalizarByte(v: string | null | undefined): string {
-  return (v ?? '').trim().toUpperCase().replace(/\s/g, '');
-}
+export {
+  TIPOS_EXERCICIO_SEG,
+  NOMES_EX_SEG,
+  QTD_PERGUNTAS_TRADUCAO,
+  normalizarBinario,
+  normalizarResposta,
+  normalizarByte,
+} from '../models/exercicio-segmentacao';
+export type {
+  TipoExercicioSeg,
+  PerguntaTraducaoSeg,
+  Correcao,
+} from '../models/exercicio-segmentacao';
 
 @Injectable()
 export class ExercicioSegmentacaoService {
@@ -106,76 +73,21 @@ export class ExercicioSegmentacaoService {
 
   // ───────────────────────── geração ─────────────────────────
 
-  /**
-   * Monta a memória com A, B e C alocados por best-fit, intercalados com processos
-   * temporários que depois são removidos, para deixar lacunas espalhadas.
-   */
-  private montarCenario(minLivre: number): ProcessoSegmentado[] | null {
-    let processos: ProcessoSegmentado[] = [];
-    const ordem = ['A', 'X', 'B', 'Y', 'C'];
-    for (const nome of ordem) {
-      const temporario = nome === 'X' || nome === 'Y';
-      const r = alocar(processos, nome, temporario ? '#000000' : gera_cor(processos), tamanhosAleatorios(temporario ? 3 : 4));
-      if (!r.ok) return null;
-      processos = [...processos, r.processo!];
-    }
-    processos = processos.filter(p => NOMES_EX_SEG.includes(p.nome));
-    const livre = ocupacao(processos).filter(b => !b.processo).length;
-    return livre >= minLivre ? processos : null;
-  }
-
+  /** Regras em models/exercicio-segmentacao.ts; aqui só as cores. */
   gerar(): void {
-    const tipo = this.tipo();
-    let processos: ProcessoSegmentado[] | null = null;
-    let novo: { nome: string; cor: string; tamanhos: Record<TipoSegmento, number> } | null = null;
-    let gabarito: ResultadoAlocacao | null = null;
-
-    // alocação: ~70% dos exercícios o processo cabe; nos demais, falha por fragmentação externa
-    let querFragmentacao = Math.random() < 0.3;
-    for (let tentativa = 0; tentativa < 2000; tentativa++) {
-      if (tentativa === 1500) querFragmentacao = false; // garantia: sempre gera um exercício
-      processos = this.montarCenario(tipo === 'MEMORIA_FISICA' ? 6 : 3);
-      if (!processos) continue;
-      if (tipo !== 'ALOCACAO') break;
-
-      const tamanhos = tamanhosAleatorios(querFragmentacao ? 6 : 4);
-      const cor = gera_cor(processos);
-      const r = alocar(processos, 'D', cor, tamanhos);
-      const serve = querFragmentacao ? (!r.ok && r.motivo === 'fragmentacao') : r.ok;
-      if (serve) {
-        novo = { nome: 'D', cor, tamanhos };
-        gabarito = r;
-        break;
-      }
-      processos = null;
+    const ex = gerarSegmentacao(this.tipo());
+    const usadas: ProcessoSegmentado[] = [];
+    for (const p of ex.processos) { p.cor = gera_cor(usadas); usadas.push(p); }
+    if (ex.novo) {
+      ex.novo.cor = gera_cor(ex.processos);
+      if (ex.gabaritoAlocacao?.processo) ex.gabaritoAlocacao.processo.cor = ex.novo.cor;
     }
-    if (!processos) return;
-
-    this.processos.set(processos);
-    this.alvo.set(tipo === 'TABELA' ? 0 : aleatorio(0, processos.length - 1));
-    this.perguntas.set(this.sortearPerguntas(processos));
-    this.novo.set(novo);
-    this.gabaritoAlocacao.set(gabarito);
+    this.processos.set(ex.processos);
+    this.alvo.set(ex.alvo);
+    this.perguntas.set(ex.perguntas);
+    this.novo.set(ex.novo);
+    this.gabaritoAlocacao.set(ex.gabaritoAlocacao);
     this.limparRespostas();
-  }
-
-  /** 4 perguntas de processos variados; uma delas gera interrupção (deslocamento ≥ limite). */
-  private sortearPerguntas(processos: ProcessoSegmentado[]): PerguntaTraducaoSeg[] {
-    const validas: PerguntaTraducaoSeg[] = [];
-    processos.forEach(p => p.segmentos.forEach(s => {
-      for (let d = 0; d < s.tamanho; d++) validas.push({ processo: p, segmento: s.numero, deslocamento: d });
-    }));
-    const escolhidas: PerguntaTraducaoSeg[] = [];
-    for (const p of embaralhar(processos)) {
-      if (escolhidas.length >= QTD_PERGUNTAS_TRADUCAO - 1) break;
-      const c = embaralhar(validas.filter(v => v.processo === p))[0];
-      if (c) escolhidas.push(c);
-    }
-    // pergunta com erro de proteção: deslocamento igual ou maior que o limite
-    const p = embaralhar(processos)[0];
-    const s = embaralhar(p.segmentos)[0];
-    escolhidas.push({ processo: p, segmento: s.numero, deslocamento: aleatorio(s.tamanho, Math.min(15, s.tamanho + 3)) });
-    return embaralhar(escolhidas);
   }
 
   limparRespostas(): void {
