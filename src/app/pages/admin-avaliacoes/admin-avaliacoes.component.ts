@@ -134,19 +134,20 @@ interface Formulario {
         <div class="cartao-tit">Prévia com gabarito ({{ modelo().length }} questões · {{ valorQuestao() }} cada)</div>
         <p class="hint">É assim que um aluno vê a prova, com outros valores. As respostas em verde aparecem só aqui.</p>
         <div class="questoes">
-          @for (q of previa(); track $index) {
+          @for (q of previa(); track $index; let qi = $index) {
+            <!-- qi = número da questão; dentro dos @for internos, $index é o índice da opção -->
             <div class="q-linha">
-              <app-questao [questao]="q.publica" [numero]="$index + 1" [valor]="valorNumerico()" modo="gabarito" [gabarito]="q.gabarito"></app-questao>
+              <app-questao [questao]="q.publica" [numero]="qi + 1" [valor]="valorNumerico()" modo="gabarito" [gabarito]="q.gabarito"></app-questao>
               @if (!travada()) {
                 <div class="q-acoes">
-                  <select class="form-control" [value]="modelo()[$index].tipo" (change)="trocarTipo($index, $any($event.target).value)" aria-label="Trocar o tipo desta questão">
+                  <select class="form-control" [value]="modelo()[qi]?.tipo" (change)="trocarTipo(qi, $any($event.target).value)" aria-label="Trocar o tipo desta questão">
                     @for (g of grupos; track g.assunto) {
                       <optgroup [label]="g.assunto">
-                        @for (t of g.tipos; track t.id) { <option [value]="t.id" [selected]="t.id === modelo()[$index].tipo">{{ t.nome }}</option> }
+                        @for (t of g.tipos; track t.id) { <option [value]="t.id" [selected]="t.id === modelo()[qi]?.tipo">{{ t.nome }}</option> }
                       </optgroup>
                     }
                   </select>
-                  <os-button variant="g" size="sm" (click)="removerQuestao($index)" [attr.aria-label]="'Remover questão ' + ($index + 1)">Remover</os-button>
+                  <os-button variant="g" size="sm" (click)="removerQuestao(qi)" [attr.aria-label]="'Remover questão ' + (qi + 1)">Remover</os-button>
                 </div>
               }
             </div>
