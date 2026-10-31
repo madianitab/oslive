@@ -23,7 +23,7 @@ type Etapa = 'carregando' | 'senha' | 'prova' | 'enviada' | 'indisponivel';
   providers: [AvaliacoesService],
   styleUrls: ['../../../../ui/styles/pagina.css'],
   styles: [`
-    .pg-larga { max-width: 1000px; }
+    .pg-larga { max-width: 1240px; }
     .barra {
       position: sticky; top: var(--os-tb-visivel, 60px); z-index: 20;
       display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: space-between;

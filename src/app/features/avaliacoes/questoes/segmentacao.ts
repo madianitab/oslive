@@ -10,21 +10,31 @@ import {
   ocupacao,
   traduzir,
 } from '../../segmentacao/models/segmentacao';
-import { gerarSegmentacao } from '../../segmentacao/models/exercicio-segmentacao';
+import { gerarSegmentacao, gerarTabelaSegmentos4 } from '../../segmentacao/models/exercicio-segmentacao';
 import { Montador } from './montador';
 import { Campo, Celula, QuestaoGerada, Tabela, TipoQuestao } from './tipos';
 
 const MODELO =
   `Memória física de ${TAMANHO_MEMORIA} bytes (endereço físico de ${BITS_FISICO} bits). ` +
-  `Endereço lógico = segmento (${BITS_SEGMENTO} bits: 00 código, 01 dados, 10 pilha) + deslocamento (${BITS_DESLOCAMENTO} bits).`;
+  `Endereço lógico = segmento (${BITS_SEGMENTO} bits: 00 código, 01 dados, 10 pilha) + deslocamento (${BITS_DESLOCAMENTO} bits). ` +
+  `Base e limite em binário (${BITS_FISICO} bits); o limite é o tamanho do segmento.`;
 
 function tabelaSegmentos(p: ProcessoSegmentado): Tabela {
   return {
     titulo: `Tabela de segmentos de ${p.nome}`,
     cabecalho: ['Segmento', 'Base', 'Limite'],
     linhas: p.segmentos.map(s => [`${binario(s.numero, BITS_SEGMENTO)} · ${s.nome}`,
-      `${binario(s.base, BITS_FISICO)} (${s.base})`, String(s.tamanho)]),
+      binario(s.base, BITS_FISICO), binario(s.tamanho, BITS_FISICO)]),
   };
+}
+
+/** Cola de conversão: 0 a 31 em decimal e em binário (5 bits), em 4 blocos de 8. */
+function colaBinario(): Tabela {
+  const linhas: Celula[][] = [];
+  for (let i = 0; i < 8; i++) {
+    linhas.push([0, 8, 16, 24].flatMap(b => [String(b + i), binario(b + i, BITS_FISICO)]));
+  }
+  return { titulo: 'Consulta: decimal → binário', cabecalho: ['Dec', 'Bin', 'Dec', 'Bin', 'Dec', 'Bin', 'Dec', 'Bin'], linhas };
 }
 
 /** Memória física em linhas de 8 bytes: "A:C0" = byte 0 do código de A; "·" = livre. */
@@ -51,9 +61,10 @@ function traducao(rnd: () => number): QuestaoGerada {
       enunciado: `${MODELO} Traduza cada endereço lógico em físico (${BITS_FISICO} bits). Se o deslocamento não for menor ` +
         'que o limite (ou o segmento não existir), responda "erro": ocorre uma interrupção.',
       dados: ex.processos.map(tabelaSegmentos),
+      apoio: [colaBinario()],
       respostas: [{
         titulo: 'Endereços',
-        cabecalho: ['Processo', 'Endereço lógico (seg · desloc.)', 'Endereço físico ou "erro"'],
+        cabecalho: ['Processo', 'Lógico (seg · desloc.)', 'Físico ou "erro"'],
         linhas: ex.perguntas.map((q, i) => {
           const r = traduzir(q.processo, q.segmento, q.deslocamento);
           return [q.processo.nome, `${binario(q.segmento, BITS_SEGMENTO)} ${binario(q.deslocamento, BITS_DESLOCAMENTO)}`,
@@ -68,25 +79,28 @@ function traducao(rnd: () => number): QuestaoGerada {
 }
 
 function tabela(rnd: () => number): QuestaoGerada {
-  const ex = gerarSegmentacao('TABELA', rnd);
+  const ex = gerarTabelaSegmentos4(rnd);
   const m = new Montador();
-  const alvo = ex.processos[0];
+  const nomes = ex.alvos.map(p => p.nome).join(' e ');
   return {
     publica: {
       tipo: 'seg-tabela',
       titulo: 'Segmentação — tabela de segmentos',
-      enunciado: `${MODELO} Observe a memória física e complete a base (${BITS_FISICO} bits) e o limite de cada segmento do processo ${alvo.nome}.`,
+      enunciado: `${MODELO} Observe a memória física e complete as tabelas de segmentos dos processos ${nomes}.`,
       dados: [memoriaFisica(ex.processos)],
-      respostas: [{
+      apoio: [colaBinario()],
+      respostas: ex.alvos.map(alvo => ({
         titulo: `Tabela de segmentos de ${alvo.nome}`,
-        cabecalho: ['Segmento', 'Base (5 bits)', 'Limite'],
+        cabecalho: ['Segmento', 'Base (5 bits)', 'Limite (5 bits)'],
         linhas: (['C', 'D', 'P'] as TipoSegmento[]).map(t => {
           const s = alvo.segmentos.find(x => x.tipo === t)!;
           return [`${binario(s.numero, BITS_SEGMENTO)} · ${s.nome}`,
-            m.campo({ id: `${t}-base`, tipo: 'binario', rotulo: `Base de ${s.nome}`, dica: '5 bits' }, binario(s.base, BITS_FISICO)),
-            m.campo({ id: `${t}-limite`, tipo: 'numero', rotulo: `Limite de ${s.nome}` }, s.tamanho)];
+            m.campo({ id: `${alvo.nome}-${t}-base`, tipo: 'binario', rotulo: `Base de ${s.nome} de ${alvo.nome}`, dica: '5 bits' },
+              binario(s.base, BITS_FISICO)),
+            m.campo({ id: `${alvo.nome}-${t}-limite`, tipo: 'binario', rotulo: `Limite de ${s.nome} de ${alvo.nome}`, dica: '5 bits' },
+              binario(s.tamanho, BITS_FISICO))];
         }),
-      }],
+      })),
       campos: m.campos,
     },
     gabarito: m.gabarito,
@@ -107,6 +121,7 @@ function alocacao(rnd: () => number): QuestaoGerada {
         '(menor lacuna que comporta; empate: menor endereço). É tudo ou nada: se um segmento não couber, o processo não é criado. ' +
         'Diga se o processo é criado e a base de cada segmento ("-" se não for criado).',
       dados: [memoriaFisica(ex.processos)],
+      apoio: [colaBinario()],
       respostas: [
         {
           cabecalho: ['O processo é criado?'],
@@ -124,7 +139,7 @@ function alocacao(rnd: () => number): QuestaoGerada {
           cabecalho: ['Segmento', 'Limite', 'Base (5 bits)'],
           linhas: SEGMENTOS.map(info => {
             const base = g.processo?.segmentos.find(s => s.tipo === info.tipo)?.base;
-            return [`${binario(info.numero, BITS_SEGMENTO)} · ${info.nome}`, String(novo.tamanhos[info.tipo]),
+            return [`${binario(info.numero, BITS_SEGMENTO)} · ${info.nome}`, binario(novo.tamanhos[info.tipo], BITS_FISICO),
               m.campo({ id: `${info.tipo}-base`, tipo: 'binario', rotulo: `Base de ${info.nome}`, dica: '5 bits ou -' },
                 base === undefined ? null : binario(base, BITS_FISICO))];
           }),

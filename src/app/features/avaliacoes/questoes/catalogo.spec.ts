@@ -65,4 +65,20 @@ describe('questões das avaliações', () => {
     // alunos diferentes, provas diferentes
     expect(JSON.stringify(gerarProva(modelo, 'prova:outro'))).not.toBe(JSON.stringify(prova));
   });
+
+  it('tabela de segmentos: 4 processos na memória, 2 tabelas, base e limite em binário de 5 bits', () => {
+    const t = CATALOGO.find(x => x.id === 'seg-tabela')!;
+    for (let s = 0; s < 15; s++) {
+      const q = t.gerar(criarAleatorio(`tab:${s}`));
+      const mem = q.publica.dados[0].linhas.flat().join(' ');
+      ['A:', 'B:', 'C:', 'D:'].forEach(n => expect(mem).withContext(n).toContain(n));
+      expect(q.publica.respostas.length).toBe(2);
+      expect(q.publica.campos.length).toBe(12);
+      q.publica.campos.forEach(c => {
+        expect(c.tipo).toBe('binario');
+        expect(q.gabarito[c.id]).toMatch(/^[01]{5}$/);
+      });
+      expect(q.publica.apoio?.[0].linhas.length).toBe(8);
+    }
+  });
 });

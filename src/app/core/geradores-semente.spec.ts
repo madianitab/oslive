@@ -2,7 +2,7 @@ import { criarAleatorio } from './aleatorio';
 import { gerarProcessosEscalonamento } from '../features/escalonamento/models/exercicio-escalonamento';
 import { gerarPaginacaoSimples, paginasNecessarias } from '../features/paginacao/models/exercicio-paginacao-simples';
 import { calcularVitimaPaginacao, gerarPaginacaoDemanda } from '../features/paginacao/models/exercicio-paginacao-demanda';
-import { gerarSegmentacao } from '../features/segmentacao/models/exercicio-segmentacao';
+import { gerarSegmentacao, gerarTabelaSegmentos4 } from '../features/segmentacao/models/exercicio-segmentacao';
 import { gerarAlocacao, gerarCompactacao, gerarFixas, gerarLacunas } from '../features/particoes/models/exercicios-particoes';
 import { gerarProcessos } from '../features/processos/models/estados';
 import { gerarFilaInicial } from '../features/paginacao/models/segunda-chance-sequencia';
@@ -21,6 +21,7 @@ const GERADORES: [string, (s: string) => unknown][] = [
   ['segunda chance (fila inicial)', s => gerarFilaInicial('SC', criarAleatorio(s))],
   ['segmentação (tradução)', s => gerarSegmentacao('TRADUCAO', criarAleatorio(s))],
   ['segmentação (alocação)', s => gerarSegmentacao('ALOCACAO', criarAleatorio(s))],
+  ['segmentação (tabela com 4 processos)', s => gerarTabelaSegmentos4(criarAleatorio(s))],
   ['partições fixas', s => gerarFixas('FIRST', criarAleatorio(s))],
   ['partições variáveis (alocação)', s => gerarAlocacao('BEST', criarAleatorio(s))],
   ['partições variáveis (lacunas)', s => gerarLacunas(criarAleatorio(s))],

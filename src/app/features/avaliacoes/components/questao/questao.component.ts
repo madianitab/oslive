@@ -3,8 +3,8 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Campo, Celula, QuestaoPublica, Tabela } from '../../questoes/tipos';
 
 /**
- * Mostra uma questão de avaliação (qualquer tipo): enunciado, tabelas de dados
- * e tabelas com os campos de resposta.
+ * Mostra uma questão de avaliação (qualquer tipo): enunciado, tabelas de dados,
+ * tabelas com os campos de resposta e tabelas de consulta, lado a lado quando cabem.
  * - modo "responder": campos editáveis (prova do aluno);
  * - modo "gabarito": mostra a resposta certa em cada campo (prévia da professora);
  * - modo "revisao": resposta do aluno em verde (certa) ou vermelho (errada), com a certa ao lado.
@@ -23,8 +23,22 @@ import { Campo, Celula, QuestaoPublica, Tabela } from '../../questoes/tipos';
   <p class="q-enun">{{ questao.enunciado }}</p>
   @if (questao.codigo) { <pre class="q-cod"><code>{{ questao.codigo }}</code></pre> }
 
-  @for (t of questao.dados; track $index) { <ng-container *ngTemplateOutlet="tabela; context: { t: t }"></ng-container> }
-  @for (t of questao.respostas; track $index) { <ng-container *ngTemplateOutlet="tabela; context: { t: t }"></ng-container> }
+  <!-- dados, respostas e consulta lado a lado; cada grupo desce para a linha de baixo quando não cabe -->
+  <div class="q-corpo">
+    @if (questao.dados.length) {
+      <div class="q-grupo">
+        @for (t of questao.dados; track $index) { <ng-container *ngTemplateOutlet="tabela; context: { t: t }"></ng-container> }
+      </div>
+    }
+    <div class="q-grupo q-resp">
+      @for (t of questao.respostas; track $index) { <ng-container *ngTemplateOutlet="tabela; context: { t: t }"></ng-container> }
+    </div>
+    @if (questao.apoio?.length) {
+      <div class="q-grupo q-apoio">
+        @for (t of questao.apoio; track $index) { <ng-container *ngTemplateOutlet="tabela; context: { t: t }"></ng-container> }
+      </div>
+    }
+  </div>
 
   <ng-template #tabela let-t="t">
     <div class="q-tab">
@@ -57,6 +71,7 @@ import { Campo, Celula, QuestaoPublica, Tabela } from '../../questoes/tipos';
                         </select>
                       } @else {
                         <input type="text" autocomplete="off" spellcheck="false" maxlength="40"
+                               [class.q-curto]="(c.tipo === 'numero' || c.tipo === 'binario') && (c.dica?.length ?? 0) <= 10"
                                [attr.inputmode]="c.tipo === 'numero' || c.tipo === 'binario' ? 'decimal' : null"
                                [value]="respostas?.[c.id] ?? ''" [placeholder]="c.dica ?? ''"
                                (input)="mudar(c, $any($event.target).value)" [attr.aria-label]="c.rotulo" [disabled]="bloqueado">
@@ -86,17 +101,25 @@ import { Campo, Celula, QuestaoPublica, Tabela } from '../../questoes/tipos';
     .q-enun { margin: 0 0 16px; font-size: 14px; line-height: 1.6; color: var(--text-2); }
     .q-cod { margin: 0 0 14px; padding: 12px 14px; overflow-x: auto; background: var(--surface-2); border: 1px solid var(--line-soft);
              border-radius: var(--r-sm); font-family: var(--f-mono); font-size: 13px; line-height: 1.5; color: var(--text); }
-    .q-tab { margin-top: 14px; }
+    .q-corpo { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 18px 32px; }
+    .q-grupo { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 14px 20px; flex: 0 1 auto; min-width: 0; max-width: 100%; }
+    /* as respostas ocupam o espaço que sobra ao lado dos dados; as tabelas delas descem uma sob a outra */
+    .q-resp { flex: 1 1 300px; }
+    .q-tab { flex: 0 1 auto; min-width: 0; max-width: 100%; }
+    .q-apoio td, .q-apoio th { padding: 3px 8px; font-size: 12px; }
+    .q-apoio td:nth-child(odd), .q-apoio th:nth-child(odd) { color: var(--text-3); }
     .q-tab-tit { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 6px; }
     .q-scroll { overflow-x: auto; }
-    table { border-collapse: collapse; font-size: 13px; color: var(--text); min-width: 50%; }
+    table { border-collapse: collapse; font-size: 13px; color: var(--text); }
     th { text-align: left; font-family: var(--f-mono); font-size: 11px; font-weight: 500; color: var(--text-3);
          padding: 6px 10px; border-bottom: 1px solid var(--line); background: var(--surface-2); white-space: nowrap; }
     td { padding: 5px 10px; border-bottom: 1px solid var(--line-soft); font-family: var(--f-mono); white-space: nowrap; }
     input, select {
-      width: 100%; min-width: 96px; height: 32px; padding: 0 8px; border: 1px solid var(--line); border-radius: var(--r-sm);
+      width: calc(16ch + 18px); max-width: 100%; height: 32px; padding: 0 8px; border: 1px solid var(--line); border-radius: var(--r-sm);
       background: var(--surface); color: var(--text); font-family: var(--f-mono); font-size: 13px;
     }
+    input.q-curto { width: calc(10ch + 18px); }
+    select { width: auto; min-width: 96px; }
     input:focus, select:focus { outline: none; border-color: var(--a); box-shadow: var(--ring); }
     input:disabled, select:disabled { opacity: .6; }
     .q-err { display: inline-block; padding: 3px 8px; border-radius: var(--r-xs); background: var(--err-soft); color: var(--err-deep); font-weight: 600; text-decoration: line-through; }
