@@ -19,6 +19,7 @@ import { Campo, Celula, QuestaoPublica, Tabela } from '../../questoes/tipos';
     @if (valor !== null) { <span class="q-valor">{{ valorTexto() }}</span> }
   </header>
   <p class="q-enun">{{ questao.enunciado }}</p>
+  @if (questao.codigo) { <pre class="q-cod"><code>{{ questao.codigo }}</code></pre> }
 
   @for (t of questao.dados; track $index) { <ng-container *ngTemplateOutlet="tabela; context: { t: t }"></ng-container> }
   @for (t of questao.respostas; track $index) { <ng-container *ngTemplateOutlet="tabela; context: { t: t }"></ng-container> }
@@ -74,6 +75,8 @@ import { Campo, Celula, QuestaoPublica, Tabela } from '../../questoes/tipos';
     .q-tit { margin: 0; font-size: 16px; font-weight: 600; color: var(--text); flex: 1 1 auto; }
     .q-valor { font-family: var(--f-mono); font-size: 12px; color: var(--text-3); }
     .q-enun { margin: 0 0 16px; font-size: 14px; line-height: 1.6; color: var(--text-2); }
+    .q-cod { margin: 0 0 14px; padding: 12px 14px; overflow-x: auto; background: var(--surface-2); border: 1px solid var(--line-soft);
+             border-radius: var(--r-sm); font-family: var(--f-mono); font-size: 13px; line-height: 1.5; color: var(--text); }
     .q-tab { margin-top: 14px; }
     .q-tab-tit { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 6px; }
     .q-scroll { overflow-x: auto; }

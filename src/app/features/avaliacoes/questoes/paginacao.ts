@@ -16,19 +16,17 @@ import {
   nomePagina,
 } from '../../paginacao/models/exercicio-paginacao-demanda';
 import { bitsT1aT4 } from '../../paginacao/models/historico-bits';
+import {
+  AlgoritmoSC,
+  CasoSC,
+  PaginaFila,
+  Situacao,
+  gerarFilaInicial,
+  gerarSituacao,
+} from '../../paginacao/models/segunda-chance-sequencia';
 import { TAM } from '../../../core/constantes';
-import { NAO_SE_APLICA } from './corrigir';
+import { Montador } from './montador';
 import { Campo, Celula, QuestaoGerada, Tabela, TipoQuestao } from './tipos';
-
-class Montador {
-  readonly campos: Campo[] = [];
-  readonly gabarito: Record<string, string> = {};
-  campo(c: Campo, valor: string | number | null): Celula {
-    this.campos.push(c);
-    this.gabarito[c.id] = valor === null ? NAO_SE_APLICA : String(valor);
-    return { campo: c.id };
-  }
-}
 
 // ───────────────────────── paginação simples ─────────────────────────
 
@@ -224,6 +222,70 @@ function demandaVitima(alg: AlgoritmoVitima, rnd: () => number): QuestaoGerada {
   };
 }
 
+// ───────────────────────── Segunda Chance em sequência ─────────────────────────
+
+const SITUACOES_SC = 3;
+
+const REGRA_SC: Record<AlgoritmoSC, string> = {
+  SC: 'Segunda Chance: percorra a fila a partir do início; com R = 1 a página ganha segunda chance ' +
+    '(R vira 0, recebe o momento atual e vai para o fim); a primeira com R = 0 sai.',
+  SCM: 'Segunda Chance Melhorada, classes (R,M) na ordem (0,0) → (0,1) → (1,0) → (1,1): ' +
+    '1ª volta procura (0,0) sem alterar nada; 2ª volta procura (0,1), e quem tem R = 1 e é ultrapassada fica com R = 0, ' +
+    'recebe o momento atual e vai para o fim (M é mantido); repita se preciso.',
+};
+
+function tabelaFila(fila: PaginaFila[], alg: AlgoritmoSC, titulo: string): Tabela {
+  return {
+    titulo,
+    cabecalho: ['Posição', 'Página', 'Carga', 'R', ...(alg === 'SCM' ? ['M'] : [])],
+    linhas: fila.map((p, i) => [String(i + 1), p.nome, String(p.carga), String(p.r), ...(alg === 'SCM' ? [String(p.m)] : [])]),
+  };
+}
+
+function segundaChanceSequencia(alg: AlgoritmoSC, rnd: () => number): QuestaoGerada {
+  let fila = gerarFilaInicial(alg, rnd);
+  const vistos: CasoSC[] = [];
+  const vitimas: string[] = [];
+  const situacoes: Situacao[] = [];
+  for (let i = 0; i < SITUACOES_SC; i++) {
+    const s = gerarSituacao(fila, alg, vistos, vitimas, vistos[vistos.length - 1] ?? null, rnd);
+    situacoes.push(s);
+    vistos.push(s.resultado.caso);
+    vitimas.push(s.resultado.vitima.nome);
+    fila = s.resultado.filaFinal;
+  }
+  const m = new Montador();
+  const dados = situacoes.map((s, i) => {
+    const acessos = s.acessos.length
+      ? s.acessos.map(a => `t=${a.momento}: ${a.escrita ? 'escrita em' : 'leitura de'} ${a.pagina}`).join('; ')
+      : 'nenhum acesso';
+    return tabelaFila(s.filaInicial, alg,
+      `Situação ${i + 1}. Acessos: ${acessos}. Em t=${s.momentoFalta}, falta de página para ${s.nova}.`);
+  });
+  return {
+    publica: {
+      tipo: `sc-${alg}`,
+      titulo: `Paginação por demanda — ${alg === 'SC' ? 'Segunda Chance' : 'Segunda Chance Melhorada'} em sequência`,
+      enunciado: `${REGRA_SC[alg]} Em cada situação, aplique os acessos (leitura liga R${alg === 'SCM' ? '; escrita liga R e M' : ''}) ` +
+        'à fila mostrada e responda qual página sai e quantas páginas ganham segunda chance (vão para o fim com R = 0).',
+      dados,
+      respostas: [{
+        titulo: 'Respostas',
+        cabecalho: ['Situação', 'Página vítima', 'Segundas chances'],
+        linhas: situacoes.map((s, i) => [String(i + 1),
+          m.campo({
+            id: `vit${i}`, tipo: 'opcao', rotulo: `Vítima da situação ${i + 1}`,
+            opcoes: s.filaInicial.map(p => ({ valor: p.nome, rotulo: p.nome })),
+          }, s.resultado.vitima.nome),
+          m.campo({ id: `sc${i}`, tipo: 'numero', rotulo: `Segundas chances na situação ${i + 1}` },
+            s.resultado.passos.filter(x => x.acao === 'segunda-chance').length)]),
+      }],
+      campos: m.campos,
+    },
+    gabarito: m.gabarito,
+  };
+}
+
 export const QUESTOES_PAGINACAO: TipoQuestao[] = [
   { id: 'pag-traducao', assunto: 'Paginação simples', nome: 'Tradução de endereços', gerar: simplesTraducao },
   { id: 'pag-tabela', assunto: 'Paginação simples', nome: 'Tabela de páginas', gerar: simplesTabela },
@@ -233,4 +295,6 @@ export const QUESTOES_PAGINACAO: TipoQuestao[] = [
     id: `dem-${a}`, assunto: 'Paginação por demanda', nome: `Página vítima: ${NOME_VITIMA[a]}`,
     gerar: (rnd: () => number) => demandaVitima(a, rnd),
   })),
+  { id: 'sc-SC', assunto: 'Paginação por demanda', nome: 'Segunda Chance em sequência', gerar: rnd => segundaChanceSequencia('SC', rnd) },
+  { id: 'sc-SCM', assunto: 'Paginação por demanda', nome: 'Segunda Chance Melhorada em sequência', gerar: rnd => segundaChanceSequencia('SCM', rnd) },
 ];

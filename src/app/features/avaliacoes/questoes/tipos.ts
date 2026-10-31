@@ -37,6 +37,8 @@ export interface QuestaoPublica {
   tipo: string;
   titulo: string;
   enunciado: string;
+  /** Código-fonte mostrado antes das tabelas (ex.: programa em C com fork). */
+  codigo?: string;
   /** Tabelas só de dados (antes das respostas). */
   dados: Tabela[];
   /** Tabelas com campos de resposta. */
