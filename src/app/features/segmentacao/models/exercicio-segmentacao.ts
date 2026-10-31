@@ -72,18 +72,32 @@ export interface ExercicioSegmentacao {
  * Monta a memória com A, B e C alocados por best-fit, intercalados com processos
  * temporários que depois são removidos, para deixar lacunas espalhadas.
  */
-function montarCenario(rnd: Aleatorio, minLivre: number): ProcessoSegmentado[] | null {
+function montarCenario(rnd: Aleatorio, minLivre: number, ordem = ['A', 'X', 'B', 'Y', 'C'], maxTamanho = 4): ProcessoSegmentado[] | null {
   let processos: ProcessoSegmentado[] = [];
-  const ordem = ['A', 'X', 'B', 'Y', 'C'];
   for (const nome of ordem) {
     const temporario = nome === 'X' || nome === 'Y';
-    const r = alocar(processos, nome, temporario ? '#000000' : '', tamanhosAleatorios(rnd, temporario ? 3 : 4));
+    const r = alocar(processos, nome, temporario ? '#000000' : '', tamanhosAleatorios(rnd, temporario ? 3 : maxTamanho));
     if (!r.ok) return null;
     processos = [...processos, r.processo!];
   }
-  processos = processos.filter(p => NOMES_EX_SEG.includes(p.nome));
+  processos = processos.filter(p => p.nome !== 'X' && p.nome !== 'Y');
   const livre = ocupacao(processos).filter(b => !b.processo).length;
   return livre >= minLivre ? processos : null;
+}
+
+/**
+ * Memória com 4 processos (A, B, C e D, segmentos de 1 a 3 bytes) alocados por best-fit,
+ * com lacunas entre eles, e 2 processos sorteados para o aluno preencher a tabela
+ * de segmentos (usado na questão "tabela de segmentos" das avaliações).
+ */
+export function gerarTabelaSegmentos4(rnd: Aleatorio = Math.random): { processos: ProcessoSegmentado[]; alvos: ProcessoSegmentado[] } {
+  for (let tentativa = 0; tentativa < 2000; tentativa++) {
+    const processos = montarCenario(rnd, 2, ['A', 'X', 'B', 'Y', 'C', 'D'], 3);
+    if (!processos) continue;
+    const alvos = embaralharR(rnd, processos).slice(0, 2).sort((a, b) => a.nome.localeCompare(b.nome));
+    return { processos, alvos };
+  }
+  throw new Error('Não foi possível gerar o exercício de segmentação.');
 }
 
 /** Sempre 3 processos (A, B e C) alocados por best-fit. Cores ficam por conta da tela. */

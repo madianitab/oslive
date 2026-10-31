@@ -43,6 +43,8 @@ export interface QuestaoPublica {
   dados: Tabela[];
   /** Tabelas com campos de resposta. */
   respostas: Tabela[];
+  /** Tabelas de consulta, mostradas depois das respostas (ex.: decimal → binário). */
+  apoio?: Tabela[];
   /** Todos os campos de resposta da questão, na ordem de correção. */
   campos: Campo[];
 }
