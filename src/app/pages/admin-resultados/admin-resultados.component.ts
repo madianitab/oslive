@@ -71,6 +71,29 @@ interface Revisao {
     }
   </div>
 
+  @if (avaliacao(); as a) {
+    <div class="liberar">
+      <span class="lib-tit">Para os alunos</span>
+      <os-button [variant]="a.notas_liberadas ? 's' : 'p'" size="sm" [disabled]="ocupado() || (!fechou() && !a.notas_liberadas)" (click)="alternar('notas')">
+        <i class="fa-solid" [class.fa-eye]="!a.notas_liberadas" [class.fa-eye-slash]="a.notas_liberadas"></i>
+        {{ a.notas_liberadas ? 'Ocultar notas' : 'Liberar notas' }}
+      </os-button>
+      <os-button [variant]="a.correcao_liberada ? 's' : 'p'" size="sm" [disabled]="ocupado() || (!fechou() && !a.correcao_liberada)" (click)="alternar('correcao')">
+        <i class="fa-solid" [class.fa-eye]="!a.correcao_liberada" [class.fa-eye-slash]="a.correcao_liberada"></i>
+        {{ a.correcao_liberada ? 'Ocultar correção' : 'Liberar correção' }}
+      </os-button>
+      <span class="lib-estado">
+        <os-badge [variant]="a.notas_liberadas ? 's' : 'n'">notas {{ a.notas_liberadas ? 'liberadas' : 'ocultas' }}</os-badge>
+        <os-badge [variant]="a.correcao_liberada ? 's' : 'n'">correção {{ a.correcao_liberada ? 'liberada' : 'oculta' }}</os-badge>
+      </span>
+      @if (!fechou()) {
+        <span class="hint">Disponível depois que a prova fechar ({{ dataHora(a.fim) }}).</span>
+      } @else if (contar('tempo_esgotado')) {
+        <span class="hint aviso">Corrija antes as provas com tempo esgotado: sem isso, esses alunos não veem nota nem correção.</span>
+      }
+    </div>
+  }
+
   <div class="tab-wrap">
     <table class="tab">
       <thead>
@@ -146,6 +169,12 @@ export class AdminResultadosComponent implements OnInit {
   readonly carregando = signal(true);
   readonly ocupado = signal(false);
   readonly erro = signal('');
+  /** Hora da última atualização: a liberação só vale depois do fechamento + 1 minuto (o banco confere). */
+  private readonly agora = signal(Date.now());
+  readonly fechou = computed(() => {
+    const a = this.avaliacao();
+    return !!a && this.agora() > new Date(a.fim).getTime() + 60_000;
+  });
 
   readonly media = computed(() => {
     const notas = this.alunos().filter(a => a.situacao === 'enviada' && a.nota !== null).map(a => Number(a.nota));
@@ -166,6 +195,7 @@ export class AdminResultadosComponent implements OnInit {
       const [lista, alunos] = await Promise.all([this.svc.listar(), this.svc.resultados(this.id)]);
       this.avaliacao.set(lista.find(a => a.id === this.id) ?? null);
       this.alunos.set(alunos);
+      this.agora.set(Date.now());
       this.erro.set('');
     } catch (e) {
       this.erro.set(msg(e));
@@ -241,6 +271,25 @@ export class AdminResultadosComponent implements OnInit {
     this.ocupado.set(false);
     this.avisar(`${ok} prova(s) corrigida(s).`);
     await this.carregar();
+  }
+
+  /** Libera ou oculta as notas ou a correção para os alunos desta prova. */
+  async alternar(o: 'notas' | 'correcao'): Promise<void> {
+    const a = this.avaliacao();
+    if (!a) return;
+    const liberar = o === 'notas' ? !a.notas_liberadas : !a.correcao_liberada;
+    if (liberar && o === 'correcao' && !confirm(
+      'Os alunos que enviaram vão ver a própria prova corrigida, com as respostas certas. ' +
+      'Enquanto a correção estiver liberada, a prova não pode ser reaberta nem ganhar nova tentativa. Liberar?')) return;
+    this.ocupado.set(true);
+    try {
+      await this.svc.liberarResultados(a.id, o === 'notas' ? liberar : null, o === 'correcao' ? liberar : null);
+      this.avaliacao.set(o === 'notas' ? { ...a, notas_liberadas: liberar } : { ...a, correcao_liberada: liberar });
+      this.avisar(`${o === 'notas' ? 'Notas' : 'Correção'} ${liberar ? 'liberada(s) para' : 'oculta(s) dos'} alunos.`);
+    } catch (e) {
+      this.avisar(msg(e), 5000);
+    }
+    this.ocupado.set(false);
   }
 
   async novaTentativa(a: ResultadoAluno): Promise<void> {

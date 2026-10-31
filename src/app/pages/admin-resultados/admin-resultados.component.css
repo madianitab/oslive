@@ -20,3 +20,8 @@ os-alert { display: block; margin-bottom: 16px; }
 .rev-nota small { font-size: 14px; color: var(--text-3); }
 .questoes { display: flex; flex-direction: column; gap: 14px; margin: 12px 0 16px; }
 .hint { font-size: 12px; color: var(--text-3); margin: 0; }
+.liberar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 16px; padding: 12px 14px;
+           background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); }
+.lib-tit { font-family: var(--f-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--a); }
+.lib-estado { display: flex; gap: 6px; flex-wrap: wrap; }
+.hint.aviso { color: var(--warn-deep); }

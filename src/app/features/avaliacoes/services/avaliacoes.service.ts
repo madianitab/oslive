@@ -16,6 +16,10 @@ export interface Avaliacao {
   liberada: boolean;
   iniciadas: number;
   enviadas: number;
+  /** O aluno vê a nota (só depois que a prova fecha). */
+  notas_liberadas: boolean;
+  /** O aluno vê a própria prova corrigida (só depois que a prova fecha). */
+  correcao_liberada: boolean;
 }
 
 export type SituacaoAluno = 'em_breve' | 'aberta' | 'em_andamento' | 'tempo_esgotado' | 'enviada' | 'encerrada';
@@ -30,6 +34,24 @@ export interface AvaliacaoAluno {
   questoes: number;
   situacao: SituacaoAluno;
   prazo: string | null;
+  /** Só com as notas liberadas e a prova enviada. */
+  nota: number | null;
+  valor_total: number | null;
+  /** Pode ver a prova corrigida. */
+  correcao: boolean;
+}
+
+/** Prova corrigida do próprio aluno (com a correção liberada). */
+export interface MinhaCorrecao {
+  titulo: string;
+  semente: string;
+  modelo: ItemModelo[];
+  respostas: RespostasProva;
+  /** null quando as notas não foram liberadas. */
+  nota: number | null;
+  valor_total: number | null;
+  /** Por questão: campos certos; nota, valor e acertos só com as notas liberadas. */
+  questoes: { campos: Record<string, boolean>; nota?: number; valor?: number; acertos?: number; total?: number }[];
 }
 
 export interface NovaAvaliacao {
@@ -130,6 +152,11 @@ export class AvaliacoesService {
     return this.rpc<void>('encerrar_por_tempo', { p_tentativa: tentativa, p_nota: nota, p_correcao: correcao });
   }
 
+  /** Libera ou oculta as notas e a correção (null = não muda). O banco só libera depois que a prova fecha. */
+  liberarResultados(avaliacao: number, notas: boolean | null, correcao: boolean | null): Promise<void> {
+    return this.rpc<void>('liberar_resultados', { p_avaliacao: avaliacao, p_notas: notas, p_correcao: correcao });
+  }
+
   /** Apaga a tentativa do aluno para ele poder fazer de novo (ex.: problema técnico). */
   liberarNovaTentativa(tentativa: number): Promise<void> {
     return this.rpc<void>('liberar_nova_tentativa', { p_tentativa: tentativa });
@@ -139,6 +166,10 @@ export class AvaliacoesService {
 
   minhas(): Promise<AvaliacaoAluno[]> {
     return this.rpc<AvaliacaoAluno[]>('minhas_avaliacoes');
+  }
+
+  minhaCorrecao(avaliacao: number): Promise<MinhaCorrecao> {
+    return this.rpc<MinhaCorrecao>('minha_correcao', { p_avaliacao: avaliacao });
   }
 
   iniciar(avaliacao: number, senha: string): Promise<ProvaAberta> {

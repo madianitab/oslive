@@ -61,7 +61,7 @@ import { dataHora } from '../../models/datas';
     @if (auth.papel() === 'aluno' && provas()?.length) {
       <div class="tab-wrap">
         <table class="tab">
-          <thead><tr><th>Prova</th><th>Turma</th><th>Abre (Brasília)</th><th>Fecha</th><th>Duração</th><th>Situação</th><th></th></tr></thead>
+          <thead><tr><th>Prova</th><th>Turma</th><th>Abre (Brasília)</th><th>Fecha</th><th>Duração</th><th>Situação</th><th>Nota</th><th></th></tr></thead>
           <tbody>
             @for (a of provas(); track a.id) {
               <tr>
@@ -71,11 +71,14 @@ import { dataHora } from '../../models/datas';
                 <td class="mono">{{ dataHora(a.fim) }}</td>
                 <td class="mono">{{ a.duracao_min }} min</td>
                 <td><os-badge [variant]="corSituacao(a.situacao)">{{ textoSituacao(a.situacao) }}</os-badge></td>
+                <td class="mono">{{ a.nota !== null && a.nota !== undefined ? num(a.nota) + ' / ' + num(a.valor_total ?? 0) : '—' }}</td>
                 <td class="acao">
                   @if (a.situacao === 'aberta' || a.situacao === 'em_andamento') {
                     <os-button variant="p" size="sm" (click)="router.navigateByUrl('/avaliacoes/' + a.id)">
                       {{ a.situacao === 'aberta' ? 'Fazer prova' : 'Continuar' }}
                     </os-button>
+                  } @else if (a.correcao) {
+                    <os-button variant="s" size="sm" (click)="router.navigateByUrl('/avaliacoes/' + a.id + '/correcao')">Ver correção</os-button>
                   }
                 </td>
               </tr>
@@ -136,6 +139,10 @@ export class HomeAvaliacoesComponent implements OnInit {
     } catch {
       this.provas.set(null);
     }
+  }
+
+  num(n: number | string): string {
+    return Number(n).toLocaleString('pt-BR', { maximumFractionDigits: 2 });
   }
 
   textoSituacao(s: SituacaoAluno): string {
