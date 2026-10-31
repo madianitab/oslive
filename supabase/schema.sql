@@ -298,3 +298,258 @@ grant execute on function public.meu_email(), public.gerencia_turma(bigint),
   public.criar_turma(text), public.renomear_turma(bigint, text), public.excluir_turma(bigint),
   public.matricular(bigint, text[]), public.desmatricular(bigint, text),
   public.listar_turmas(), public.alunos_da_turma(bigint) to authenticated;
+
+-- ============================================================
+-- 9. Avaliações (provas)
+--    A professora cria a prova para uma turma: horário, duração, senha,
+--    valor total e o modelo (lista de tipos de questão). Cada aluno recebe
+--    as mesmas questões com valores diferentes (semente própria, secreta).
+--    As questões são geradas e corrigidas na função "avaliacao" do Supabase
+--    (supabase/functions/avaliacao); o gabarito nunca vai para o navegador.
+--    Ninguém lê ou altera estas tabelas diretamente: só pelas funções abaixo.
+-- ============================================================
+create extension if not exists pgcrypto with schema extensions;
+
+create table if not exists public.avaliacoes (
+  id          bigint generated always as identity primary key,
+  turma_id    bigint not null references public.turmas(id) on delete cascade,
+  titulo      text not null check (char_length(btrim(titulo)) between 2 and 120),
+  inicio      timestamptz not null,
+  fim         timestamptz not null,
+  duracao_min integer not null check (duracao_min between 5 and 600),
+  valor_total numeric(6,2) not null check (valor_total > 0 and valor_total <= 1000),
+  modelo      jsonb not null check (jsonb_typeof(modelo) = 'array'
+                                    and jsonb_array_length(modelo) between 1 and 20),
+  senha_hash  text not null,
+  liberada    boolean not null default false,
+  criado_por  uuid not null references auth.users(id) on delete cascade,
+  criado_em   timestamptz not null default now(),
+  check (fim > inicio)
+);
+
+create table if not exists public.tentativas (
+  id           bigint generated always as identity primary key,
+  avaliacao_id bigint not null references public.avaliacoes(id) on delete cascade,
+  aluno_id     uuid not null references auth.users(id) on delete cascade,
+  email        text not null,
+  -- semente secreta: com ela e o código aberto dos geradores daria para calcular o gabarito
+  semente      text not null default encode(extensions.gen_random_bytes(16), 'hex'),
+  iniciada_em  timestamptz not null default now(),
+  prazo        timestamptz not null,
+  respostas    jsonb not null default '{}'::jsonb,
+  salva_em     timestamptz,
+  enviada_em   timestamptz,
+  envio        text check (envio in ('aluno', 'tempo')),
+  nota         numeric(6,2),
+  correcao     jsonb,
+  ip_inicio    text check (char_length(ip_inicio) <= 100),
+  ip_envio     text check (char_length(ip_envio) <= 100),
+  navegador    text check (char_length(navegador) <= 300),
+  unique (avaliacao_id, aluno_id)
+);
+
+create table if not exists public.senha_falhas (
+  avaliacao_id bigint not null references public.avaliacoes(id) on delete cascade,
+  aluno_id     uuid not null,
+  em           timestamptz not null default now()
+);
+create index if not exists senha_falhas_idx on public.senha_falhas (avaliacao_id, aluno_id, em);
+
+alter table public.avaliacoes enable row level security;
+alter table public.tentativas enable row level security;
+alter table public.senha_falhas enable row level security;
+revoke all on public.avaliacoes, public.tentativas, public.senha_falhas from anon, authenticated;
+
+-- ── professora / professor ──────────────────────────────────
+
+-- cria (p_id nulo) ou altera uma avaliação; senha nula na alteração mantém a atual
+create or replace function public.salvar_avaliacao(
+  p_id bigint, p_turma bigint, p_titulo text, p_inicio timestamptz, p_fim timestamptz,
+  p_duracao integer, p_valor numeric, p_modelo jsonb, p_senha text, p_liberada boolean)
+returns bigint language plpgsql security definer set search_path = public as $$
+declare
+  atual public.avaliacoes;
+  novo_id bigint;
+begin
+  if not public.gerencia_turma(p_turma) then raise exception 'Sem permissão para esta turma'; end if;
+  if p_senha is not null and char_length(p_senha) not between 4 and 64 then
+    raise exception 'A senha deve ter de 4 a 64 caracteres';
+  end if;
+
+  if p_id is null then
+    if p_senha is null then raise exception 'Informe a senha da prova'; end if;
+    insert into public.avaliacoes (turma_id, titulo, inicio, fim, duracao_min, valor_total, modelo, senha_hash, liberada, criado_por)
+    values (p_turma, btrim(p_titulo), p_inicio, p_fim, p_duracao, p_valor, p_modelo,
+            extensions.crypt(p_senha, extensions.gen_salt('bf')), coalesce(p_liberada, false), auth.uid())
+    returning id into novo_id;
+    return novo_id;
+  end if;
+
+  select * into atual from public.avaliacoes where id = p_id;
+  if atual.id is null or not public.gerencia_turma(atual.turma_id) then
+    raise exception 'Avaliação não encontrada';
+  end if;
+  -- depois que alguém começou, as questões e o valor não mudam (as notas ficariam inconsistentes)
+  if exists (select 1 from public.tentativas where avaliacao_id = p_id)
+     and (atual.modelo is distinct from p_modelo or atual.valor_total <> p_valor or atual.turma_id <> p_turma) then
+    raise exception 'Alunos já começaram esta prova: as questões, o valor e a turma não podem mais mudar';
+  end if;
+  update public.avaliacoes set
+    turma_id = p_turma, titulo = btrim(p_titulo), inicio = p_inicio, fim = p_fim,
+    duracao_min = p_duracao, valor_total = p_valor, modelo = p_modelo, liberada = coalesce(p_liberada, liberada),
+    senha_hash = case when p_senha is null then senha_hash
+                      else extensions.crypt(p_senha, extensions.gen_salt('bf')) end
+  where id = p_id;
+  return p_id;
+end $$;
+
+create or replace function public.excluir_avaliacao(p_id bigint)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from public.avaliacoes a where a.id = p_id and public.gerencia_turma(a.turma_id)) then
+    raise exception 'Avaliação não encontrada';
+  end if;
+  delete from public.avaliacoes where id = p_id;
+end $$;
+
+create or replace function public.listar_avaliacoes()
+returns table (id bigint, turma_id bigint, turma text, titulo text, inicio timestamptz, fim timestamptz,
+               duracao_min integer, valor_total numeric, modelo jsonb, liberada boolean,
+               iniciadas bigint, enviadas bigint)
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if public.meu_papel() not in ('admin', 'professor') then
+    raise exception 'Apenas professores podem ver as avaliações';
+  end if;
+  return query
+    select a.id, a.turma_id, t.nome, a.titulo, a.inicio, a.fim, a.duracao_min, a.valor_total, a.modelo, a.liberada,
+           (select count(*) from public.tentativas x where x.avaliacao_id = a.id),
+           (select count(*) from public.tentativas x where x.avaliacao_id = a.id and x.enviada_em is not null)
+      from public.avaliacoes a join public.turmas t on t.id = a.turma_id
+     where public.gerencia_turma(a.turma_id)
+     order by a.inicio desc;
+end $$;
+
+-- ── aluno ───────────────────────────────────────────────────
+
+-- avaliações liberadas das turmas do aluno, com a situação dele em cada uma
+create or replace function public.minhas_avaliacoes()
+returns table (id bigint, titulo text, turma text, inicio timestamptz, fim timestamptz,
+               duracao_min integer, questoes integer, situacao text, prazo timestamptz)
+language sql stable security definer set search_path = public as $$
+  select a.id, a.titulo, t.nome, a.inicio, a.fim, a.duracao_min, jsonb_array_length(a.modelo),
+         case
+           when x.enviada_em is not null then 'enviada'
+           when x.id is not null and now() <= x.prazo then 'em_andamento'
+           when x.id is not null then 'tempo_esgotado'
+           when now() < a.inicio then 'em_breve'
+           when now() <= a.fim then 'aberta'
+           else 'encerrada'
+         end,
+         x.prazo
+    from public.avaliacoes a
+    join public.turmas t on t.id = a.turma_id
+    left join public.tentativas x on x.avaliacao_id = a.id and x.aluno_id = auth.uid()
+   where a.liberada
+     and exists (select 1 from public.turma_alunos m where m.turma_id = a.turma_id and m.email = public.meu_email())
+   order by a.inicio desc
+$$;
+
+-- ── só a função "avaliacao" do Supabase (service_role) ──────
+
+-- começa ou retoma a prova; confere turma, horário, senha e tentativas de senha
+create or replace function public.iniciar_tentativa(
+  p_avaliacao bigint, p_aluno uuid, p_senha text, p_ip text, p_navegador text)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare
+  a public.avaliacoes;
+  x public.tentativas;
+  v_email text;
+begin
+  select lower(email) into v_email from public.perfis where id = p_aluno;
+  select * into a from public.avaliacoes where id = p_avaliacao and liberada;
+  if a.id is null or v_email is null
+     or not exists (select 1 from public.turma_alunos m where m.turma_id = a.turma_id and m.email = v_email) then
+    return jsonb_build_object('erro', 'Avaliação não encontrada.');
+  end if;
+
+  -- no máximo 5 senhas erradas a cada 10 minutos
+  if (select count(*) from public.senha_falhas f
+       where f.avaliacao_id = a.id and f.aluno_id = p_aluno and f.em > now() - interval '10 minutes') >= 5 then
+    return jsonb_build_object('erro', 'Muitas senhas erradas. Aguarde 10 minutos.');
+  end if;
+  if p_senha is null or extensions.crypt(p_senha, a.senha_hash) <> a.senha_hash then
+    insert into public.senha_falhas (avaliacao_id, aluno_id) values (a.id, p_aluno);
+    return jsonb_build_object('erro', 'Senha incorreta.');
+  end if;
+
+  select * into x from public.tentativas where avaliacao_id = a.id and aluno_id = p_aluno;
+  if x.id is not null and x.enviada_em is not null then
+    return jsonb_build_object('erro', 'Você já enviou esta prova.');
+  end if;
+  if x.id is null then
+    if now() < a.inicio then return jsonb_build_object('erro', 'A prova ainda não começou.'); end if;
+    if now() > a.fim then return jsonb_build_object('erro', 'O prazo da prova terminou.'); end if;
+    insert into public.tentativas (avaliacao_id, aluno_id, email, prazo, ip_inicio, navegador)
+    values (a.id, p_aluno, v_email, least(now() + make_interval(mins => a.duracao_min), a.fim),
+            left(p_ip, 100), left(p_navegador, 300))
+    returning * into x;
+  end if;
+
+  return jsonb_build_object(
+    'id', x.id, 'semente', x.semente, 'modelo', a.modelo, 'titulo', a.titulo,
+    'valor_total', a.valor_total, 'prazo', x.prazo, 'agora', now(), 'respostas', x.respostas,
+    'esgotado', now() > x.prazo + interval '1 minute');
+end $$;
+
+-- salva as respostas durante a prova (até 1 minuto de tolerância após o prazo)
+create or replace function public.salvar_respostas(p_tentativa bigint, p_aluno uuid, p_respostas jsonb)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare x public.tentativas;
+begin
+  select * into x from public.tentativas where id = p_tentativa and aluno_id = p_aluno;
+  if x.id is null then return jsonb_build_object('erro', 'Prova não encontrada.'); end if;
+  if x.enviada_em is not null then return jsonb_build_object('erro', 'A prova já foi enviada.'); end if;
+  if now() > x.prazo + interval '1 minute' then return jsonb_build_object('erro', 'O tempo da prova terminou.'); end if;
+  if jsonb_typeof(p_respostas) <> 'object' or pg_column_size(p_respostas) > 65536 then
+    return jsonb_build_object('erro', 'Respostas inválidas.');
+  end if;
+  update public.tentativas set respostas = p_respostas, salva_em = now() where id = x.id;
+  return jsonb_build_object('ok', true, 'salva_em', now());
+end $$;
+
+-- dados para corrigir (inclui a semente); só a função do servidor chama
+create or replace function public.tentativa_para_correcao(p_tentativa bigint, p_aluno uuid)
+returns jsonb language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'id', x.id, 'semente', x.semente, 'modelo', a.modelo, 'valor_total', a.valor_total,
+    'respostas', x.respostas, 'enviada', x.enviada_em is not null,
+    'no_prazo', now() <= x.prazo + interval '1 minute')
+    from public.tentativas x join public.avaliacoes a on a.id = x.avaliacao_id
+   where x.id = p_tentativa and x.aluno_id = p_aluno
+$$;
+
+-- grava o envio e a nota (uma vez só)
+create or replace function public.finalizar_tentativa(
+  p_tentativa bigint, p_aluno uuid, p_respostas jsonb, p_nota numeric, p_correcao jsonb, p_envio text, p_ip text)
+returns jsonb language plpgsql security definer set search_path = public as $$
+begin
+  if p_envio not in ('aluno', 'tempo') then raise exception 'Envio inválido'; end if;
+  update public.tentativas set
+    respostas = p_respostas, nota = p_nota, correcao = p_correcao,
+    enviada_em = now(), envio = p_envio, ip_envio = left(p_ip, 100)
+  where id = p_tentativa and aluno_id = p_aluno and enviada_em is null;
+  if not found then return jsonb_build_object('erro', 'A prova já foi enviada.'); end if;
+  return jsonb_build_object('ok', true);
+end $$;
+
+revoke all on function public.salvar_avaliacao(bigint, bigint, text, timestamptz, timestamptz, integer, numeric, jsonb, text, boolean),
+  public.excluir_avaliacao(bigint), public.listar_avaliacoes(), public.minhas_avaliacoes(),
+  public.iniciar_tentativa(bigint, uuid, text, text, text), public.salvar_respostas(bigint, uuid, jsonb),
+  public.tentativa_para_correcao(bigint, uuid),
+  public.finalizar_tentativa(bigint, uuid, jsonb, numeric, jsonb, text, text) from public, anon, authenticated;
+grant execute on function public.salvar_avaliacao(bigint, bigint, text, timestamptz, timestamptz, integer, numeric, jsonb, text, boolean),
+  public.excluir_avaliacao(bigint), public.listar_avaliacoes(), public.minhas_avaliacoes() to authenticated;
+grant execute on function public.iniciar_tentativa(bigint, uuid, text, text, text), public.salvar_respostas(bigint, uuid, jsonb),
+  public.tentativa_para_correcao(bigint, uuid),
+  public.finalizar_tentativa(bigint, uuid, jsonb, numeric, jsonb, text, text) to service_role;

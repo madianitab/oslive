@@ -24,6 +24,7 @@ import { AuthService } from '../../core/auth/auth.service';
           <div class="quem"><b>{{ nome() }}</b><span>{{ u.email }}</span></div>
           <a role="menuitem" routerLink="/avaliacoes">Avaliações</a>
           @if (auth.papel() === 'admin' || auth.papel() === 'professor') {
+            <a role="menuitem" routerLink="/admin/avaliacoes">Provas</a>
             <a role="menuitem" routerLink="/admin/turmas">Turmas</a>
           }
           @if (auth.papel() === 'admin') {

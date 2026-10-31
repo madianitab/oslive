@@ -5,18 +5,24 @@ import { OsAlertComponent } from '../../../../ui/alert/alert.component';
 import { OsBadgeComponent } from '../../../../ui/badge/badge.component';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { TurmasService } from '../../services/turmas.service';
+import { AvaliacaoAluno, AvaliacoesService, SituacaoAluno } from '../../services/avaliacoes.service';
+import { dataHora } from '../../models/datas';
 
 /**
- * Área das avaliações (exige login). Por enquanto mostra a conta e o papel;
- * os módulos de prova entram aqui.
+ * Área das avaliações (exige login): o aluno vê as provas das turmas dele;
+ * professor e admin têm atalhos para Turmas e Provas.
  */
 @Component({
   selector: 'app-home-avaliacoes',
   standalone: true,
   imports: [OsButtonComponent, OsAlertComponent, OsBadgeComponent],
-  providers: [TurmasService],
-  styleUrls: ['../../../../ui/styles/pagina.css'],
-  styles: ['.pg-turmas { margin: 24px 0 0; font-size: 14px; color: var(--text-2); } .pg-turmas b { color: var(--text); }'],
+  providers: [TurmasService, AvaliacoesService],
+  styleUrls: ['../../../../ui/styles/pagina.css', '../../../../pages/admin-usuarios/admin-usuarios.component.css'],
+  styles: [`
+    .pg-turmas { margin: 24px 0 0; font-size: 14px; color: var(--text-2); }
+    .pg-turmas b { color: var(--text); }
+    .tab-wrap { margin-top: 16px; }
+  `],
   template: `
 <div class="pg">
   <header class="pg-head">
@@ -52,15 +58,43 @@ import { TurmasService } from '../../services/turmas.service';
     @if (auth.papel() === 'aluno' && turmas()?.length) {
       <p class="pg-turmas">Turma(s): <b>{{ nomesTurmas() }}</b></p>
     }
-    <div class="pg-bloco">
-      <os-alert variant="info" title="Nenhuma avaliação disponível">
-        Quando houver uma prova liberada, ela aparece aqui.
-      </os-alert>
-    </div>
+    @if (auth.papel() === 'aluno' && provas()?.length) {
+      <div class="tab-wrap">
+        <table class="tab">
+          <thead><tr><th>Prova</th><th>Turma</th><th>Abre (Brasília)</th><th>Fecha</th><th>Duração</th><th>Situação</th><th></th></tr></thead>
+          <tbody>
+            @for (a of provas(); track a.id) {
+              <tr>
+                <td><b>{{ a.titulo }}</b></td>
+                <td>{{ a.turma }}</td>
+                <td class="mono">{{ dataHora(a.inicio) }}</td>
+                <td class="mono">{{ dataHora(a.fim) }}</td>
+                <td class="mono">{{ a.duracao_min }} min</td>
+                <td><os-badge [variant]="corSituacao(a.situacao)">{{ textoSituacao(a.situacao) }}</os-badge></td>
+                <td class="acao">
+                  @if (a.situacao === 'aberta' || a.situacao === 'em_andamento') {
+                    <os-button variant="p" size="sm" (click)="router.navigateByUrl('/avaliacoes/' + a.id)">
+                      {{ a.situacao === 'aberta' ? 'Fazer prova' : 'Continuar' }}
+                    </os-button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="pg-bloco">
+        <os-alert variant="info" title="Nenhuma avaliação disponível">
+          Quando houver uma prova liberada, ela aparece aqui.
+        </os-alert>
+      </div>
+    }
   }
 
   @if (auth.papel() === 'admin' || auth.papel() === 'professor') {
     <div class="pg-acoes">
+      <os-button variant="s" (click)="router.navigateByUrl('/admin/avaliacoes')">Provas</os-button>
       <os-button variant="s" (click)="router.navigateByUrl('/admin/turmas')">Turmas</os-button>
     </div>
   }
@@ -78,6 +112,11 @@ export class HomeAvaliacoesComponent implements OnInit {
   readonly auth = inject(AuthService);
   readonly router = inject(Router);
   private readonly svc = inject(TurmasService);
+  private readonly avaliacoes = inject(AvaliacoesService);
+  readonly dataHora = dataHora;
+
+  /** Provas liberadas das turmas do aluno (null enquanto carrega). */
+  readonly provas = signal<AvaliacaoAluno[] | null>(null);
 
   readonly nome = computed(() => this.auth.perfil()?.nome || this.auth.usuario()?.email || '');
 
@@ -92,6 +131,22 @@ export class HomeAvaliacoesComponent implements OnInit {
     } catch {
       this.turmas.set(null);   // tabelas ainda não criadas: mantém o aviso padrão
     }
+    try {
+      this.provas.set(await this.avaliacoes.minhas());
+    } catch {
+      this.provas.set(null);
+    }
+  }
+
+  textoSituacao(s: SituacaoAluno): string {
+    return {
+      em_breve: 'abre em breve', aberta: 'aberta', em_andamento: 'em andamento',
+      tempo_esgotado: 'tempo esgotado', enviada: 'enviada', encerrada: 'encerrada',
+    }[s];
+  }
+
+  corSituacao(s: SituacaoAluno): 'n' | 'a' | 's' | 'w' {
+    return s === 'aberta' ? 'a' : s === 'em_andamento' ? 'w' : s === 'enviada' ? 's' : 'n';
   }
 
   async sair(): Promise<void> {

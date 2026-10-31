@@ -22,6 +22,8 @@ Simulador didático de Sistemas Operacionais.
 | Segmentação | Exercícios | `#/segmentacao/exercicios` | `src/app/features/segmentacao/exercicios` |
 | Avaliações | Área do aluno (login) | `#/avaliacoes` | `src/app/features/avaliacoes` |
 | Avaliações | Turmas e matrícula por e-mail (professor e admin) | `#/admin/turmas` | `src/app/pages/admin-turmas` |
+| Avaliações | Criar prova: conteúdos, quantidade, horário, senha, valor; prévia com gabarito (professor e admin) | `#/admin/avaliacoes` | `src/app/pages/admin-avaliacoes` |
+| Avaliações | Fazer a prova (aluno da turma; senha, relógio, salvamento automático) | `#/avaliacoes/:id` | `src/app/features/avaliacoes/components/fazer-prova` |
 | Sugestões | Enviar sugestão (login) — botão flutuante em todas as páginas | `#/sugestao` | `src/app/pages/sugestao` |
 | Administração | Usuários (só admin) | `#/admin/usuarios` | `src/app/pages/admin-usuarios` |
 | Administração | Sugestões recebidas (só admin) | `#/admin/sugestoes` | `src/app/pages/admin-sugestoes` |
@@ -29,6 +31,10 @@ Simulador didático de Sistemas Operacionais.
 Em cada assunto, `models/` e `services/` ficam na raiz da pasta e são compartilhados entre simulador e exercícios.
 
 Aplicação Angular 18. Simuladores e exercícios rodam sem backend; as avaliações e o envio de sugestões usam login com Google via Supabase (botão **Entrar** na barra superior) (veja [docs/login-supabase.md](docs/login-supabase.md)).
+
+## Avaliações (provas)
+
+As questões são geradas e corrigidas no servidor, pela função `avaliacao` do Supabase (`supabase/functions/avaliacao`); o gabarito nunca vai para o navegador. A função é publicada pelo GitHub Action `.github/workflows/supabase-funcoes.yml`, que precisa dos secrets `SUPABASE_ACCESS_TOKEN` e `SUPABASE_PROJECT_REF` (veja [docs/login-supabase.md](docs/login-supabase.md)).
 
 ## Executar localmente
 

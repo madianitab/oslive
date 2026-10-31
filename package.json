@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "questoes:servidor": "esbuild src/app/features/avaliacoes/questoes/servidor.ts --bundle --format=esm --platform=neutral --tsconfig=tsconfig.json --outfile=supabase/functions/avaliacao/questoes.js"
   },
   "private": true,
   "dependencies": {

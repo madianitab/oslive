@@ -1,0 +1,6 @@
+# Configuração mínima para publicar a função pelo GitHub Action.
+project_id = "oslive"
+
+[functions.avaliacao]
+# a própria função confere quem está logado (auth.getUser)
+verify_jwt = false
