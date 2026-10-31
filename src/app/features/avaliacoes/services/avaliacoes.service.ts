@@ -46,6 +46,41 @@ export interface NovaAvaliacao {
   liberada: boolean;
 }
 
+export type SituacaoTentativa = 'nao_iniciou' | 'em_andamento' | 'tempo_esgotado' | 'enviada';
+
+/** Uma linha do painel de resultados (um aluno da turma). */
+export interface ResultadoAluno {
+  tentativa: number | null;
+  email: string;
+  nome: string | null;
+  situacao: SituacaoTentativa;
+  iniciada_em: string | null;
+  prazo: string | null;
+  enviada_em: string | null;
+  envio: 'aluno' | 'tempo' | null;
+  nota: number | null;
+  ip_inicio: string | null;
+  ip_envio: string | null;
+  navegador: string | null;
+  notas_questoes: number[] | null;
+}
+
+/** Prova de um aluno para revisão (só professor e admin). */
+export interface DetalheTentativa {
+  id: number;
+  email: string;
+  semente: string;
+  modelo: ItemModelo[];
+  valor_total: number;
+  respostas: RespostasProva;
+  correcao: { questoes: { nota: number; valor: number; acertos: number; total: number; campos: Record<string, boolean> }[] } | null;
+  nota: number | null;
+  iniciada_em: string;
+  prazo: string;
+  enviada_em: string | null;
+  envio: 'aluno' | 'tempo' | null;
+}
+
 export interface ProvaAberta {
   tentativa: number;
   titulo: string;
@@ -80,6 +115,24 @@ export class AvaliacoesService {
 
   excluir(id: number): Promise<void> {
     return this.rpc<void>('excluir_avaliacao', { p_id: id });
+  }
+
+  resultados(avaliacao: number): Promise<ResultadoAluno[]> {
+    return this.rpc<ResultadoAluno[]>('resultados_avaliacao', { p_avaliacao: avaliacao });
+  }
+
+  detalhe(tentativa: number): Promise<DetalheTentativa> {
+    return this.rpc<DetalheTentativa>('tentativa_detalhe', { p_tentativa: tentativa });
+  }
+
+  /** Encerra com as respostas salvas uma prova cujo tempo acabou sem envio. */
+  encerrarPorTempo(tentativa: number, nota: number, correcao: unknown): Promise<void> {
+    return this.rpc<void>('encerrar_por_tempo', { p_tentativa: tentativa, p_nota: nota, p_correcao: correcao });
+  }
+
+  /** Apaga a tentativa do aluno para ele poder fazer de novo (ex.: problema técnico). */
+  liberarNovaTentativa(tentativa: number): Promise<void> {
+    return this.rpc<void>('liberar_nova_tentativa', { p_tentativa: tentativa });
   }
 
   // ───────── aluno ─────────

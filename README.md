@@ -24,6 +24,7 @@ Simulador didático de Sistemas Operacionais.
 | Avaliações | Turmas e matrícula por e-mail (professor e admin) | `#/admin/turmas` | `src/app/pages/admin-turmas` |
 | Avaliações | Criar prova: conteúdos, quantidade, horário, senha, valor; prévia com gabarito (professor e admin) | `#/admin/avaliacoes` | `src/app/pages/admin-avaliacoes` |
 | Avaliações | Fazer a prova (aluno da turma; senha, relógio, salvamento automático) | `#/avaliacoes/:id` | `src/app/features/avaliacoes/components/fazer-prova` |
+| Avaliações | Resultados: notas, horários, IPs, prova de cada aluno, planilha CSV (professor e admin) | `#/admin/avaliacoes/:id/resultados` | `src/app/pages/admin-resultados` |
 | Sugestões | Enviar sugestão (login) — botão flutuante em todas as páginas | `#/sugestao` | `src/app/pages/sugestao` |
 | Administração | Usuários (só admin) | `#/admin/usuarios` | `src/app/pages/admin-usuarios` |
 | Administração | Sugestões recebidas (só admin) | `#/admin/sugestoes` | `src/app/pages/admin-sugestoes` |

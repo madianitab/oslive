@@ -9,6 +9,7 @@ Só as rotas de avaliação e de sugestão exigem login. Simuladores e exercíci
 | `#/admin/turmas` | professor e admin (cria turmas e inclui alunos pelo e-mail) |
 | `#/admin/avaliacoes` | professor e admin (cria, gera e libera provas) |
 | `#/avaliacoes/:id` | aluno da turma da prova (faz a prova) |
+| `#/admin/avaliacoes/:id/resultados` | professor e admin (notas, prova de cada aluno, CSV) |
 | `#/sugestao` | qualquer usuário logado (envia sugestão, erro ou dúvida) |
 | `#/admin/usuarios` | só a administradora |
 | `#/admin/sugestoes` | só a administradora |
@@ -45,6 +46,7 @@ As regras ficam no banco (RLS), não no navegador:
 - ninguém altera a tabela `perfis` diretamente;
 - só a admin muda papéis, pela função `definir_papel` (aluno ↔ professor; a admin não pode ser rebaixada);
 - provas: as tabelas `avaliacoes`, `tentativas` e `senha_falhas` não têm acesso direto. A professora usa `salvar_avaliacao`, `listar_avaliacoes` e `excluir_avaliacao`; o aluno, `minhas_avaliacoes`. Começar, salvar e enviar passam pela função `avaliacao`, que chama funções que só o `service_role` executa (`iniciar_tentativa`, `salvar_respostas`, `tentativa_para_correcao`, `finalizar_tentativa`). O banco confere turma, horário, senha (guardada com bcrypt; 5 erros bloqueiam por 10 minutos), uma tentativa por aluno e o prazo (1 minuto de tolerância). A semente de cada aluno nunca sai do servidor. Depois que alguém começa, as questões, o valor e a turma não mudam. O IP de início e de envio fica registrado;
+- resultados: `resultados_avaliacao` (todos os alunos da turma, com nota, horários e IPs), `tentativa_detalhe` (inclui a semente, para o navegador da professora gerar as mesmas questões e mostrar a correção), `encerrar_por_tempo` (só depois do prazo + 1 minuto, nota entre 0 e o valor da prova) e `liberar_nova_tentativa` (apaga a tentativa). Todas conferem se quem chama gerencia a turma;
 - turmas: ninguém altera `turmas` e `turma_alunos` diretamente; só pelas funções `criar_turma`, `renomear_turma`, `excluir_turma`, `matricular` e `desmatricular`, que conferem o papel. O professor gerencia só as turmas dele; a admin, todas. O aluno lê só as turmas e a matrícula do próprio e-mail.
 
 ## Plano gratuito

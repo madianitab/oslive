@@ -190,6 +190,7 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
   - **Modelo da prova** = lista de tipos, igual para todos. Cada aluno tem uma semente secreta no banco; a questão *i* usa `"<semente>:<i>"`.
   - **Correção proporcional:** cada questão vale `valor total / quantidade`; nota da questão = valor × campos certos / campos. O aluno não vê a nota.
   - **Servidor:** `supabase/functions/avaliacao/index.ts` (Deno) importa `questoes.js`, gerado por `npm run questoes:servidor` (não vai para o Git). O GitHub Action `supabase-funcoes.yml` gera e publica. Para conferir a função localmente: `npx deno@2 check supabase/functions/avaliacao/index.ts`.
+  - **Resultados** (`pages/admin-resultados`): a revisão gera a prova do aluno no navegador da professora, com a semente vinda de `tentativa_detalhe` e o mesmo `gerarProva`, e mostra a correção gravada no envio (`components/questao` no modo `revisao`). Provas com tempo esgotado e sem envio são corrigidas pela professora com as respostas salvas (`encerrar_por_tempo`). A planilha (`models/csv.ts`) usa `;`, vírgula decimal e BOM, e põe um apóstrofo antes de texto que começa com `= + - @` (proteção contra fórmulas no Excel).
   - **Datas** sempre em Brasília (`features/avaliacoes/models/datas.ts`), qualquer que seja o fuso do computador.
 - **Serviços das avaliações** ficam em `features/avaliacoes/services/` e usam `AuthService.db()` para obter o cliente do Supabase. Regra de acesso nova vai sempre no banco (RLS ou função `security definer` que confere `meu_papel()`), nunca só no navegador.
 
