@@ -24,7 +24,8 @@ Simulador didático de Sistemas Operacionais.
 | Avaliações | Turmas e matrícula por e-mail (professor e admin) | `#/admin/turmas` | `src/app/pages/admin-turmas` |
 | Avaliações | Criar prova: conteúdos, quantidade, horário, senha, valor; prévia com gabarito (professor e admin) | `#/admin/avaliacoes` | `src/app/pages/admin-avaliacoes` |
 | Avaliações | Fazer a prova (aluno da turma; senha, relógio, salvamento automático) | `#/avaliacoes/:id` | `src/app/features/avaliacoes/components/fazer-prova` |
-| Avaliações | Resultados: notas, horários, IPs, prova de cada aluno, planilha CSV (professor e admin) | `#/admin/avaliacoes/:id/resultados` | `src/app/pages/admin-resultados` |
+| Avaliações | Resultados: notas, horários, IPs, prova de cada aluno, planilha CSV; liberar notas e correção para os alunos (professor e admin) | `#/admin/avaliacoes/:id/resultados` | `src/app/pages/admin-resultados` |
+| Avaliações | Correção da prova para o aluno (quando liberada) | `#/avaliacoes/:id/correcao` | `src/app/features/avaliacoes/components/minha-correcao` |
 | Sugestões | Enviar sugestão (login) — botão flutuante em todas as páginas | `#/sugestao` | `src/app/pages/sugestao` |
 | Administração | Usuários (só admin) | `#/admin/usuarios` | `src/app/pages/admin-usuarios` |
 | Administração | Sugestões recebidas (só admin) | `#/admin/sugestoes` | `src/app/pages/admin-sugestoes` |
@@ -36,6 +37,10 @@ Aplicação Angular 18. Simuladores e exercícios rodam sem backend; as avaliaç
 ## Avaliações (provas)
 
 As questões são geradas e corrigidas no servidor, pela função `avaliacao` do Supabase (`supabase/functions/avaliacao`); o gabarito nunca vai para o navegador. A função é publicada pelo GitHub Action `.github/workflows/supabase-funcoes.yml`, que precisa dos secrets `SUPABASE_ACCESS_TOKEN` e `SUPABASE_PROJECT_REF` (veja [docs/login-supabase.md](docs/login-supabase.md)).
+
+Quando o `supabase/schema.sql` mudar, rode-o de novo no *SQL Editor* do Supabase (ele não apaga dados).
+
+Depois que a prova fecha, a professora pode **liberar as notas** e **liberar a correção** na página de Resultados. Com a correção liberada, o aluno vê a própria prova com os acertos e os erros (e a resposta certa).
 
 ## Executar localmente
 

@@ -52,6 +52,7 @@ const routes: Routes = [
   { path: "entrar", loadComponent: () => import('./pages/entrar/entrar.component').then(m => m.EntrarComponent) },
   { path: "avaliacoes", canActivate: [exigirLogin()], loadComponent: () => import('src/app/features/avaliacoes/components/home-avaliacoes/home-avaliacoes.component').then(m => m.HomeAvaliacoesComponent) },
   { path: "sugestao", canActivate: [exigirLogin()], loadComponent: () => import('./pages/sugestao/sugestao.component').then(m => m.SugestaoComponent) },
+  { path: "avaliacoes/:id/correcao", canActivate: [exigirLogin()], loadComponent: () => import('src/app/features/avaliacoes/components/minha-correcao/minha-correcao.component').then(m => m.MinhaCorrecaoComponent) },
   { path: "avaliacoes/:id", canActivate: [exigirLogin()], loadComponent: () => import('src/app/features/avaliacoes/components/fazer-prova/fazer-prova.component').then(m => m.FazerProvaComponent) },
   { path: "admin/avaliacoes/:id/resultados", canActivate: [exigirLogin('admin', 'professor')], loadComponent: () => import('./pages/admin-resultados/admin-resultados.component').then(m => m.AdminResultadosComponent) },
   { path: "admin/avaliacoes", canActivate: [exigirLogin('admin', 'professor')], loadComponent: () => import('./pages/admin-avaliacoes/admin-avaliacoes.component').then(m => m.AdminAvaliacoesComponent) },

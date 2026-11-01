@@ -327,6 +327,10 @@ create table if not exists public.avaliacoes (
   check (fim > inicio)
 );
 
+-- notas e correção para o aluno: a professora libera depois que a prova fecha (seção 11)
+alter table public.avaliacoes add column if not exists notas_liberadas   boolean not null default false;
+alter table public.avaliacoes add column if not exists correcao_liberada boolean not null default false;
+
 create table if not exists public.tentativas (
   id           bigint generated always as identity primary key,
   avaliacao_id bigint not null references public.avaliacoes(id) on delete cascade,
@@ -389,6 +393,10 @@ begin
   if atual.id is null or not public.gerencia_turma(atual.turma_id) then
     raise exception 'Avaliação não encontrada';
   end if;
+  -- com notas ou correção liberadas, a prova não pode ser reaberta (o gabarito já está com os alunos)
+  if (atual.notas_liberadas or atual.correcao_liberada) and p_fim > now() then
+    raise exception 'As notas ou a correção estão liberadas: oculte-as antes de reabrir a prova';
+  end if;
   -- depois que alguém começou, as questões e o valor não mudam (as notas ficariam inconsistentes)
   if exists (select 1 from public.tentativas where avaliacao_id = p_id)
      and (atual.modelo is distinct from p_modelo or atual.valor_total <> p_valor or atual.turma_id <> p_turma) then
@@ -412,10 +420,11 @@ begin
   delete from public.avaliacoes where id = p_id;
 end $$;
 
+drop function if exists public.listar_avaliacoes();
 create or replace function public.listar_avaliacoes()
 returns table (id bigint, turma_id bigint, turma text, titulo text, inicio timestamptz, fim timestamptz,
                duracao_min integer, valor_total numeric, modelo jsonb, liberada boolean,
-               iniciadas bigint, enviadas bigint)
+               iniciadas bigint, enviadas bigint, notas_liberadas boolean, correcao_liberada boolean)
 language plpgsql stable security definer set search_path = public as $$
 begin
   if public.meu_papel() not in ('admin', 'professor') then
@@ -424,7 +433,8 @@ begin
   return query
     select a.id, a.turma_id, t.nome, a.titulo, a.inicio, a.fim, a.duracao_min, a.valor_total, a.modelo, a.liberada,
            (select count(*) from public.tentativas x where x.avaliacao_id = a.id),
-           (select count(*) from public.tentativas x where x.avaliacao_id = a.id and x.enviada_em is not null)
+           (select count(*) from public.tentativas x where x.avaliacao_id = a.id and x.enviada_em is not null),
+           a.notas_liberadas, a.correcao_liberada
       from public.avaliacoes a join public.turmas t on t.id = a.turma_id
      where public.gerencia_turma(a.turma_id)
      order by a.inicio desc;
@@ -432,10 +442,13 @@ end $$;
 
 -- ── aluno ───────────────────────────────────────────────────
 
--- avaliações liberadas das turmas do aluno, com a situação dele em cada uma
+-- avaliações liberadas das turmas do aluno, com a situação dele em cada uma;
+-- a nota só aparece com as notas liberadas, e "correcao" diz se ele pode ver a prova corrigida
+drop function if exists public.minhas_avaliacoes();
 create or replace function public.minhas_avaliacoes()
 returns table (id bigint, titulo text, turma text, inicio timestamptz, fim timestamptz,
-               duracao_min integer, questoes integer, situacao text, prazo timestamptz)
+               duracao_min integer, questoes integer, situacao text, prazo timestamptz,
+               nota numeric, valor_total numeric, correcao boolean)
 language sql stable security definer set search_path = public as $$
   select a.id, a.titulo, t.nome, a.inicio, a.fim, a.duracao_min, jsonb_array_length(a.modelo),
          case
@@ -446,7 +459,10 @@ language sql stable security definer set search_path = public as $$
            when now() <= a.fim then 'aberta'
            else 'encerrada'
          end,
-         x.prazo
+         x.prazo,
+         case when a.notas_liberadas and x.enviada_em is not null then x.nota end,
+         case when a.notas_liberadas then a.valor_total end,
+         a.correcao_liberada and x.enviada_em is not null and x.correcao is not null
     from public.avaliacoes a
     join public.turmas t on t.id = a.turma_id
     left join public.tentativas x on x.avaliacao_id = a.id and x.aluno_id = auth.uid()
@@ -468,6 +484,7 @@ declare
 begin
   select lower(email) into v_email from public.perfis where id = p_aluno;
   select * into a from public.avaliacoes where id = p_avaliacao and liberada;
+  if a.correcao_liberada then return jsonb_build_object('erro', 'O prazo da prova terminou.'); end if;
   if a.id is null or v_email is null
      or not exists (select 1 from public.turma_alunos m where m.turma_id = a.turma_id and m.email = v_email) then
     return jsonb_build_object('erro', 'Avaliação não encontrada.');
@@ -629,11 +646,12 @@ end $$;
 -- libera uma nova tentativa (ex.: problema técnico): apaga a tentativa do aluno
 create or replace function public.liberar_nova_tentativa(p_tentativa bigint)
 returns void language plpgsql security definer set search_path = public as $$
-declare v_turma bigint;
+declare v_turma bigint; v_correcao boolean;
 begin
-  select a.turma_id into v_turma
+  select a.turma_id, a.correcao_liberada into v_turma, v_correcao
     from public.tentativas x join public.avaliacoes a on a.id = x.avaliacao_id where x.id = p_tentativa;
   if v_turma is null or not public.gerencia_turma(v_turma) then raise exception 'Prova não encontrada'; end if;
+  if v_correcao then raise exception 'A correção está liberada: oculte-a antes de dar nova tentativa'; end if;
   delete from public.tentativas where id = p_tentativa;
 end $$;
 
@@ -641,3 +659,50 @@ revoke all on function public.resultados_avaliacao(bigint), public.tentativa_det
   public.encerrar_por_tempo(bigint, numeric, jsonb), public.liberar_nova_tentativa(bigint) from public, anon;
 grant execute on function public.resultados_avaliacao(bigint), public.tentativa_detalhe(bigint),
   public.encerrar_por_tempo(bigint, numeric, jsonb), public.liberar_nova_tentativa(bigint) to authenticated;
+
+-- ============================================================
+-- 11. Notas e correção para o aluno
+--    A professora libera (ou oculta) as notas e a correção de cada prova,
+--    só depois que ela fecha (fim + 1 minuto de tolerância). Com a correção
+--    liberada, o aluno vê a própria prova corrigida: recebe a semente dele e
+--    gera as mesmas questões no navegador. Enquanto algo estiver liberado,
+--    a prova não pode ser reaberta nem ganhar nova tentativa.
+-- ============================================================
+
+create or replace function public.liberar_resultados(p_avaliacao bigint, p_notas boolean, p_correcao boolean)
+returns void language plpgsql security definer set search_path = public as $$
+declare a public.avaliacoes;
+begin
+  select * into a from public.avaliacoes where id = p_avaliacao;
+  if a.id is null or not public.gerencia_turma(a.turma_id) then raise exception 'Avaliação não encontrada'; end if;
+  if (coalesce(p_notas, false) or coalesce(p_correcao, false)) and now() <= a.fim + interval '1 minute' then
+    raise exception 'Só é possível liberar depois que a prova fechar';
+  end if;
+  update public.avaliacoes
+     set notas_liberadas = coalesce(p_notas, notas_liberadas),
+         correcao_liberada = coalesce(p_correcao, correcao_liberada)
+   where id = p_avaliacao;
+end $$;
+
+-- prova corrigida do próprio aluno (só com a correção liberada e a prova enviada);
+-- a nota e os pontos de cada questão só vêm com as notas liberadas
+create or replace function public.minha_correcao(p_avaliacao bigint)
+returns jsonb language plpgsql stable security definer set search_path = public as $$
+declare a public.avaliacoes; x public.tentativas;
+begin
+  select * into a from public.avaliacoes where id = p_avaliacao and liberada;
+  select * into x from public.tentativas where avaliacao_id = p_avaliacao and aluno_id = auth.uid();
+  if a.id is null or not a.correcao_liberada or x.id is null or x.enviada_em is null or x.correcao is null then
+    raise exception 'Correção não disponível';
+  end if;
+  return jsonb_build_object(
+    'titulo', a.titulo, 'semente', x.semente, 'modelo', a.modelo, 'respostas', x.respostas,
+    'nota', case when a.notas_liberadas then x.nota end,
+    'valor_total', case when a.notas_liberadas then a.valor_total end,
+    'questoes', (select jsonb_agg(case when a.notas_liberadas then q
+                                       else jsonb_build_object('campos', q->'campos') end order by i)
+                   from jsonb_array_elements(x.correcao->'questoes') with ordinality as e(q, i)));
+end $$;
+
+revoke all on function public.liberar_resultados(bigint, boolean, boolean), public.minha_correcao(bigint) from public, anon;
+grant execute on function public.liberar_resultados(bigint, boolean, boolean), public.minha_correcao(bigint) to authenticated;
