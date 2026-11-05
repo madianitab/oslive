@@ -85,7 +85,7 @@
         <p class="hint-diagrama">Quando a CPU estiver ociosa em um tempo, use <b>-</b>.</p>
       } @else {
         <p class="hint-diagrama">
-          Use o diagrama como base: <b>turnaround</b> = instante em que o processo termina − chegada;
+          Use o diagrama como base: <b>turnaround (tempo total)</b> = instante em que o processo termina − chegada;
           <b>tempo de espera</b> = turnaround − execução (tempo na fila de aptos). O tempo "–" indica CPU ociosa.
         </p>
       }
@@ -98,7 +98,7 @@
         <div class="res-card tabela-card">
           <table class="res-table">
             <thead>
-              <tr><th>Processo</th><th>Tempo de espera</th><th>Turnaround</th></tr>
+              <tr><th>Processo</th><th>Tempo de espera</th><th>Turnaround (tempo total)</th></tr>
             </thead>
             <tbody>
               @for (linha of gabarito()!.tabela; track linha.nome; let i = $index) {
@@ -110,7 +110,7 @@
                   </td>
                   <td>
                     <input type="number" min="0" class="campo-resposta" [ngClass]="classeCorrecao(respostasTabela()[i].corretoTurnaround)"
-                      [ngModel]="respostasTabela()[i].turnaround" (ngModelChange)="atualizarTabela(i, 'turnaround', $event)" aria-label="Turnaround">
+                      [ngModel]="respostasTabela()[i].turnaround" (ngModelChange)="atualizarTabela(i, 'turnaround', $event)" aria-label="Turnaround (tempo total)">
                   </td>
                 </tr>
               }
@@ -153,7 +153,7 @@
         @if (respondeTabela) {
           <div class="res-card tabela-card" [class.mt-bloco]="respondeDiagrama">
             <table class="res-table">
-              <thead><tr><th>Processo</th><th>Tempo de espera</th><th>Turnaround</th></tr></thead>
+              <thead><tr><th>Processo</th><th>Tempo de espera</th><th>Turnaround (tempo total)</th></tr></thead>
               <tbody>
                 @for (linha of gabarito()!.tabela; track linha.nome) {
                   <tr>

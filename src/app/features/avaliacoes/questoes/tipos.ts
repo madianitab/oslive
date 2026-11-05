@@ -21,6 +21,8 @@ export interface Campo {
   opcoes?: { valor: string; rotulo: string }[];
   /** Dica no campo vazio (ex.: "binário, 5 bits" ou "- se foi para a fila"). */
   dica?: string;
+  /** Campo de 1 ou 2 caracteres (ex.: célula do diagrama de uso da CPU). */
+  mini?: boolean;
 }
 
 /** Célula de tabela: texto, ou referência a um campo de resposta. */
@@ -67,6 +69,27 @@ export interface TipoQuestao {
   assunto: string;
   nome: string;
   gerar(rnd: () => number): QuestaoGerada;
+  /**
+   * Características usadas no sorteio para variar a prova (ex.: ['alg:RR', 'forma:diag']):
+   * entre os tipos marcados, o sorteio prefere os que repetem menos características já escolhidas.
+   */
+  chaves?: string[];
+  /** Tipo antigo: continua valendo nas provas já salvas, mas não aparece na criação. */
+  oculto?: boolean;
+}
+
+/**
+ * Assunto escolhido em duas listas que se combinam (ex.: escalonamento:
+ * algoritmos × o que pedir). Cada combinação é um tipo do catálogo.
+ */
+export interface GradeAssunto {
+  assunto: string;
+  linhasTitulo: string;
+  colunasTitulo: string;
+  linhas: { id: string; nome: string }[];
+  colunas: { id: string; nome: string }[];
+  /** Id do tipo da combinação. */
+  tipo(linha: string, coluna: string): string;
 }
 
 /** Respostas do aluno: questão (índice) → campo → valor digitado. */

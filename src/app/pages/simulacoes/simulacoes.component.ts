@@ -42,13 +42,13 @@ import { OsBadgeComponent } from '../../ui/badge/badge.component';
       <os-card title="Simulador">
         <os-card-icon slot="icon" variant="info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h6l2-7 4 14 2-7h4"/></svg></os-card-icon>
         <os-badge slot="badge" variant="a">simulador</os-badge>
-        FIFO, SJF, prioridades, Round Robin e múltiplas filas com a CPU em tempo real.
+        FIFO (FCFS), SJF, prioridades, Round Robin e múltiplas filas com a CPU em tempo real.
         <div slot="footer"><os-button variant="p" size="sm" (click)="go('/escalonamento/simulador')">Abrir →</os-button></div>
       </os-card>
       <os-card title="Exercícios">
         <os-card-icon slot="icon" variant="info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h6l2-7 4 14 2-7h4"/></svg></os-card-icon>
         <os-badge slot="badge" variant="s">exercícios</os-badge>
-        Preencha a tabela de espera/turnaround ou o diagrama de CPU e corrija na hora.
+        Preencha a tabela de espera/turnaround (tempo total) ou o diagrama de CPU e corrija na hora.
         <div slot="footer"><os-button variant="p" size="sm" (click)="go('/escalonamento/exercicios')">Abrir →</os-button></div>
       </os-card>
     </div>

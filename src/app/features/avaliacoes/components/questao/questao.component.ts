@@ -51,7 +51,7 @@ import { Campo, Celula, QuestaoPublica, Tabela } from '../../questoes/tipos';
               <tr>
                 @for (cel of linha; track $index) {
                   @if (campoDe(cel); as c) {
-                    <td class="q-campo">
+                    <td class="q-campo" [class.q-td-mini]="c.mini">
                       @if (modo === 'gabarito') {
                         <span class="q-gab">{{ rotuloResposta(c, gabarito?.[c.id] ?? '') }}</span>
                       } @else if (modo === 'revisao') {
@@ -70,8 +70,9 @@ import { Campo, Celula, QuestaoPublica, Tabela } from '../../questoes/tipos';
                           }
                         </select>
                       } @else {
-                        <input type="text" autocomplete="off" spellcheck="false" maxlength="40"
+                        <input type="text" autocomplete="off" spellcheck="false" [attr.maxlength]="c.mini ? 2 : 40"
                                [class.q-curto]="(c.tipo === 'numero' || c.tipo === 'binario') && (c.dica?.length ?? 0) <= 10"
+                               [class.q-mini]="c.mini"
                                [attr.inputmode]="c.tipo === 'numero' || c.tipo === 'binario' ? 'decimal' : null"
                                [value]="respostas?.[c.id] ?? ''" [placeholder]="c.dica ?? ''"
                                (input)="mudar(c, $any($event.target).value)" [attr.aria-label]="c.rotulo" [disabled]="bloqueado">
@@ -119,6 +120,9 @@ import { Campo, Celula, QuestaoPublica, Tabela } from '../../questoes/tipos';
       background: var(--surface); color: var(--text); font-family: var(--f-mono); font-size: 13px;
     }
     input.q-curto { width: calc(10ch + 18px); }
+    /* célula do diagrama de uso da CPU: uma letra (ou "-") */
+    td.q-td-mini { padding: 4px 3px; text-align: center; }
+    input.q-mini { width: calc(2ch + 14px); padding: 0 4px; text-align: center; text-transform: uppercase; }
     select { width: auto; min-width: 96px; }
     input:focus, select:focus { outline: none; border-color: var(--a); box-shadow: var(--ring); }
     input:disabled, select:disabled { opacity: .6; }
