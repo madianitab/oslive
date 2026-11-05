@@ -124,7 +124,7 @@ function alocacao(alg: AlgoritmoFit, rnd: () => number): QuestaoGerada {
       tipo: `var-${alg}`,
       titulo: `Partições variáveis — ${info.nome}`,
       enunciado:
-        `${AVISO_VAR} Aloque com ${info.nome} (${info.regra}; empate: menor endereço)` +
+        `${AVISO_VAR} Aloque com ${info.nome} (em caso de empate escolha o menor endereço)` +
         (alg === 'CIRCULAR' ? `. A busca começa em ${ex.inicial.ponteiro} KB (após a última alocação)` : '') +
         `. Sem lacuna que comporte, o processo vai para a fila e tenta de novo quando memória é liberada. ` +
         `Informe o resultado e o endereço inicial de cada evento. Use "-" quando não se aplica.`,

@@ -58,8 +58,8 @@ function traducao(rnd: () => number): QuestaoGerada {
     publica: {
       tipo: 'seg-traducao',
       titulo: 'Segmentação — tradução de endereços',
-      enunciado: `${MODELO} Traduza cada endereço lógico em físico (${BITS_FISICO} bits). Se o deslocamento não for menor ` +
-        'que o limite (ou o segmento não existir), responda "erro": ocorre uma interrupção.',
+      enunciado: `${MODELO} Traduza cada endereço lógico em físico (${BITS_FISICO} bits). ` +
+        'Quando a tradução não for possível, responda "erro".',
       dados: ex.processos.map(tabelaSegmentos),
       apoio: [colaBinario()],
       respostas: [{
@@ -117,8 +117,8 @@ function alocacao(rnd: () => number): QuestaoGerada {
       tipo: 'seg-alocacao',
       titulo: 'Segmentação — alocação best-fit',
       enunciado: `${MODELO} O processo ${novo.nome} vai ser criado com código de ${novo.tamanhos.C}, dados de ${novo.tamanhos.D} ` +
-        `e pilha de ${novo.tamanhos.P} bytes. Aloque segmento a segmento por best-fit, na ordem código → dados → pilha ` +
-        '(menor lacuna que comporta; empate: menor endereço). É tudo ou nada: se um segmento não couber, o processo não é criado. ' +
+        `e pilha de ${novo.tamanhos.P} bytes. Aloque segmento a segmento por best-fit (em caso de empate escolha o menor endereço), ` +
+        'na ordem código → dados → pilha. É tudo ou nada: se um segmento não couber, o processo não é criado. ' +
         'Diga se o processo é criado e a base de cada segmento ("-" se não for criado).',
       dados: [memoriaFisica(ex.processos)],
       apoio: [colaBinario()],

@@ -216,9 +216,7 @@ function arvoreZumbi(rnd: Aleatorio): QuestaoGerada {
     return {
       publica: {
         tipo: 'arv-zumbi', titulo: 'Árvore de processos — zumbi e órfão',
-        enunciado: `${REGRAS_FORK} Um processo que termina fica zumbi até o pai chamar wait; ` +
-          'se o pai termina antes do filho, o filho fica órfão e é adotado pelo init (PID 1), que coleta os zumbis. ' +
-          'Classifique cada filho.',
+        enunciado: `${REGRAS_FORK} Classifique cada filho.`,
         codigo, dados: [],
         respostas: [{
           titulo: 'Filhos',
