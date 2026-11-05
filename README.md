@@ -22,7 +22,7 @@ Simulador didático de Sistemas Operacionais.
 | Segmentação | Exercícios | `#/segmentacao/exercicios` | `src/app/features/segmentacao/exercicios` |
 | Avaliações | Área do aluno (login) | `#/avaliacoes` | `src/app/features/avaliacoes` |
 | Avaliações | Turmas e matrícula por e-mail (professor e admin) | `#/admin/turmas` | `src/app/pages/admin-turmas` |
-| Avaliações | Criar prova: conteúdos, quantidade, horário, senha, valor; prévia com gabarito (professor e admin) | `#/admin/avaliacoes` | `src/app/pages/admin-avaliacoes` |
+| Avaliações | Criar prova: conteúdos e quantidade de questões por assunto (sorteio sem repetir tipo; escalonamento por algoritmo × o que pedir: diagrama, diagrama e tabela, tabela com diagrama pronto, tabela), horário, senha, valor; prévia com gabarito (professor e admin) | `#/admin/avaliacoes` | `src/app/pages/admin-avaliacoes` |
 | Avaliações | Fazer a prova (aluno da turma; senha, relógio, salvamento automático) | `#/avaliacoes/:id` | `src/app/features/avaliacoes/components/fazer-prova` |
 | Avaliações | Resultados: notas, horários, IPs, prova de cada aluno, planilha CSV; liberar notas e correção para os alunos (professor e admin) | `#/admin/avaliacoes/:id/resultados` | `src/app/pages/admin-resultados` |
 | Avaliações | Correção da prova para o aluno (quando liberada) | `#/avaliacoes/:id/correcao` | `src/app/features/avaliacoes/components/minha-correcao` |

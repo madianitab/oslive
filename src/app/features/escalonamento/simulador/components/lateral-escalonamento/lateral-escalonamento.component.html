@@ -17,28 +17,28 @@
       <div class="fila" style="--q:#ec422a">
         <span class="fila-name">Fila 1 · Prioridade 0</span>
         <label><input type="checkbox" id="checkRRFila1" [(ngModel)]="fila1RR" (change)="fila1fifo = false" (change)="onCheckboxChange($event)"> RR</label>
-        <label><input type="checkbox" id="checkFIFOFila1" [(ngModel)]="fila1fifo" (change)="fila1RR = false" (change)="onCheckboxChange($event)"> FIFO</label>
+        <label><input type="checkbox" id="checkFIFOFila1" [(ngModel)]="fila1fifo" (change)="fila1RR = false" (change)="onCheckboxChange($event)"> FIFO (FCFS)</label>
       </div>
     }
     @if (escalonador.exec > 4) {
       <div class="fila" style="--q:#f1822f">
         <span class="fila-name">Fila 2 · Prioridade 1</span>
         <label><input type="checkbox" id="checkRRFila2" [(ngModel)]="fila2RR" (change)="fila2fifo = false" (change)="onCheckboxChange($event)"> RR</label>
-        <label><input type="checkbox" id="checkFIFOFila2" [(ngModel)]="fila2fifo" (change)="fila2RR = false" (change)="onCheckboxChange($event)"> FIFO</label>
+        <label><input type="checkbox" id="checkFIFOFila2" [(ngModel)]="fila2fifo" (change)="fila2RR = false" (change)="onCheckboxChange($event)"> FIFO (FCFS)</label>
       </div>
     }
     @if (escalonador.exec > 5) {
       <div class="fila" style="--q:#d4a94a">
         <span class="fila-name">Fila 3 · Prioridade 2</span>
         <label><input type="checkbox" id="checkRRFila3" [(ngModel)]="fila3RR" (change)="fila3fifo = false" (change)="onCheckboxChange($event)"> RR</label>
-        <label><input type="checkbox" id="checkFIFOFila3" [(ngModel)]="fila3fifo" (change)="fila3RR = false" (change)="onCheckboxChange($event)"> FIFO</label>
+        <label><input type="checkbox" id="checkFIFOFila3" [(ngModel)]="fila3fifo" (change)="fila3RR = false" (change)="onCheckboxChange($event)"> FIFO (FCFS)</label>
       </div>
     }
     @if (escalonador.exec > 6) {
       <div class="fila" style="--q:#63bb46">
         <span class="fila-name">Fila 4 · Prioridade 3</span>
         <label><input type="checkbox" id="checkRRFila4" [(ngModel)]="fila4RR" (change)="fila4fifo = false" (change)="onCheckboxChange($event)"> RR</label>
-        <label><input type="checkbox" id="checkFIFOFila4" [(ngModel)]="fila4fifo" (change)="fila4RR = false" (change)="onCheckboxChange($event)"> FIFO</label>
+        <label><input type="checkbox" id="checkFIFOFila4" [(ngModel)]="fila4fifo" (change)="fila4RR = false" (change)="onCheckboxChange($event)"> FIFO (FCFS)</label>
       </div>
     }
 

@@ -61,7 +61,7 @@ export class AreaExercicioEscalonamentoComponent implements OnChanges {
   /** Nome curto para a faixa de estatísticas (ex.: "SJF", "RR"). */
   get nomeAlgoritmoCurto(): string {
     const curtos: Record<string, string> = {
-      FIFO: 'FIFO', SJF: 'SJF', PRIO: 'Prioridade NP', PRIO_P: 'Prioridade P', RR: 'Round Robin',
+      FIFO: 'FIFO (FCFS)', SJF: 'SJF', PRIO: 'Prioridade NP', PRIO_P: 'Prioridade P', RR: 'Round Robin',
     };
     return curtos[this.configuracao?.algoritmo ?? ''] ?? '';
   }

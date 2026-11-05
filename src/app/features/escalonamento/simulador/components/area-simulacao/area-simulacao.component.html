@@ -145,7 +145,7 @@
       <div class="viz-stats">
         <os-stat label="Processos" [value]="nProcessos()"></os-stat>
         <os-stat label="Espera média" [value]="mediaEspera()" unit="u" [accent]="true"></os-stat>
-        <os-stat label="Turnaround médio" [value]="mediaTurnaround()" unit="u"></os-stat>
+        <os-stat label="Turnaround médio (tempo total)" [value]="mediaTurnaround()" unit="u"></os-stat>
       </div>
 
       <div class="res-grid">
@@ -155,7 +155,7 @@
             <tr>
               <td>Processo</td>
               <td>Espera</td>
-              <td>Turnaround</td>
+              <td>Turnaround (tempo total)</td>
             </tr>
             @for (rr of resultados2(); track rr) {
               <tr>

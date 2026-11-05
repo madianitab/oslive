@@ -37,7 +37,7 @@ export class LateralEscalonamentoComponent implements OnInit {
   public eBack: Number = 0;
   public listaProcessos = signal<Processo[]>([]);
   public algoritmoEscalonamento: Array<{ tipo: string, exec: number }> = [
-    { tipo: "FIFO (First In, First Out)", exec: 0 },
+    { tipo: "FIFO (FCFS)", exec: 0 },
     { tipo: "SJF (Shortest Job First)", exec: 1 },
     { tipo: "Prioridade (Não Preemptiva)", exec: 2 },
     { tipo: "Prioridade (Preemptiva)", exec: 3 },

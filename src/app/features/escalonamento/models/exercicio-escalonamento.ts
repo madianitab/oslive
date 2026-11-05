@@ -10,7 +10,7 @@ import { Escalonador, ResultadoCpu } from './escalonador';
 export type AlgoritmoExercicio = 'FIFO' | 'SJF' | 'PRIO' | 'PRIO_P' | 'RR';
 
 export const ALGORITMOS_EXERCICIO: { valor: AlgoritmoExercicio; nome: string }[] = [
-  { valor: 'FIFO', nome: 'FIFO (First In, First Out)' },
+  { valor: 'FIFO', nome: 'FIFO (FCFS)' },
   { valor: 'SJF', nome: 'SJF (Shortest Job First)' },
   { valor: 'PRIO', nome: 'Prioridade (Não Preemptiva)' },
   { valor: 'PRIO_P', nome: 'Prioridade (Preemptiva)' },
