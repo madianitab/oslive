@@ -25,3 +25,4 @@ os-alert { display: block; margin-bottom: 16px; }
 .lib-tit { font-family: var(--f-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--a); }
 .lib-estado { display: flex; gap: 6px; flex-wrap: wrap; }
 .hint.aviso { color: var(--warn-deep); }
+.saiu { color: var(--warn-deep); font-weight: 600; }

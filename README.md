@@ -23,8 +23,8 @@ Simulador didático de Sistemas Operacionais.
 | Avaliações | Área do aluno (login) | `#/avaliacoes` | `src/app/features/avaliacoes` |
 | Avaliações | Turmas e matrícula por e-mail (professor e admin) | `#/admin/turmas` | `src/app/pages/admin-turmas` |
 | Avaliações | Criar prova: conteúdos e quantidade de questões por assunto (sorteio sem repetir tipo; escalonamento por algoritmo × o que pedir: diagrama, diagrama e tabela, tabela com diagrama pronto, tabela), horário, senha, valor; prévia com gabarito (professor e admin) | `#/admin/avaliacoes` | `src/app/pages/admin-avaliacoes` |
-| Avaliações | Fazer a prova (aluno da turma; senha, relógio, salvamento automático) | `#/avaliacoes/:id` | `src/app/features/avaliacoes/components/fazer-prova` |
-| Avaliações | Resultados: notas, horários, IPs, prova de cada aluno, planilha CSV; liberar notas e correção para os alunos (professor e admin) | `#/admin/avaliacoes/:id/resultados` | `src/app/pages/admin-resultados` |
+| Avaliações | Fazer a prova (aluno da turma; senha, relógio, salvamento automático; saídas da página registradas) | `#/avaliacoes/:id` | `src/app/features/avaliacoes/components/fazer-prova` |
+| Avaliações | Resultados: notas, horários, IPs, saídas da página e tempo fora, prova de cada aluno, planilha CSV; liberar notas e correção para os alunos (professor e admin) | `#/admin/avaliacoes/:id/resultados` | `src/app/pages/admin-resultados` |
 | Avaliações | Correção da prova para o aluno (quando liberada) | `#/avaliacoes/:id/correcao` | `src/app/features/avaliacoes/components/minha-correcao` |
 | Sugestões | Enviar sugestão (login) — botão flutuante em todas as páginas | `#/sugestao` | `src/app/pages/sugestao` |
 | Administração | Usuários (só admin) | `#/admin/usuarios` | `src/app/pages/admin-usuarios` |
