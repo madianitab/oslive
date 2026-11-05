@@ -7,6 +7,7 @@ import { AvaliacaoAluno, AvaliacoesService, ProvaAberta } from '../../services/a
 import { QuestaoComponent } from '../questao/questao.component';
 import { RespostasProva } from '../../questoes/tipos';
 import { dataHora, tempoRestante } from '../../models/datas';
+import { ContadorSaidas } from '../../models/saidas';
 
 const SALVAR_A_CADA_MS = 15_000;
 
@@ -15,6 +16,7 @@ type Etapa = 'carregando' | 'senha' | 'prova' | 'enviada' | 'indisponivel';
 /**
  * Prova do aluno (#/avaliacoes/:id): pede a senha, mostra as questões, salva sozinha
  * a cada 15 s e envia no fim (ou quando o tempo acaba). A nota não aparece.
+ * Registra as saídas da página (trocar de aba, minimizar, outra janela) e o tempo fora.
  */
 @Component({
   selector: 'app-fazer-prova',
@@ -44,6 +46,8 @@ type Etapa = 'carregando' | 'senha' | 'prova' | 'enviada' | 'indisponivel';
     .info { font-size: 14px; color: var(--text-2); line-height: 1.7; }
     .fim-acoes { display: flex; gap: 10px; margin-top: 24px; }
     os-alert { display: block; margin-top: 16px; }
+    .aviso-saidas { margin: -8px 0 16px; font-size: 13px; color: var(--text-3); }
+    .aviso-saidas i { margin-right: 6px; color: var(--warn); }
   `],
   template: `
 <div class="pg pg-larga">
@@ -71,6 +75,7 @@ type Etapa = 'carregando' | 'senha' | 'prova' | 'enviada' | 'indisponivel';
           Ao começar, você terá <b>{{ info()?.duracao_min }} minutos</b> (sem passar do fechamento).
           As respostas são salvas sozinhas. Você pode enviar só uma vez.
         }
+        <br><i class="fa-solid fa-eye"></i> Sair da página da prova (trocar de aba, minimizar ou ir para outra janela) fica registrado para a professora.
       </div>
       <form class="senha" (submit)="$event.preventDefault(); comecar()">
         <input type="password" autocomplete="off" placeholder="Senha da prova" maxlength="64" aria-label="Senha da prova"
@@ -88,6 +93,7 @@ type Etapa = 'carregando' | 'senha' | 'prova' | 'enviada' | 'indisponivel';
         <span class="estado" [class.erro]="!!erroSalvar()">{{ erroSalvar() || estadoSalvo() }}</span>
         <os-button variant="p" size="sm" [disabled]="ocupado()" (click)="enviar(false)"><i class="fa-solid fa-paper-plane"></i> Enviar prova</os-button>
       </div>
+      <p class="aviso-saidas"><i class="fa-solid fa-eye"></i>Sair desta página (outra aba, outra janela ou minimizar) fica registrado, com o tempo fora.</p>
       <div class="questoes">
         @for (q of prova()!.questoes; track $index) {
           <app-questao [questao]="q" [numero]="$index + 1" [valor]="valorQuestao()"
@@ -130,6 +136,9 @@ export class FazerProvaComponent implements OnInit, OnDestroy {
   private alterado = false;
   private tique?: ReturnType<typeof setInterval>;
   private salvamento?: ReturnType<typeof setInterval>;
+  private readonly saidas = new ContadorSaidas();
+  /** Enquanto a janela de confirmação do envio está aberta, a perda de foco não conta como saída. */
+  private confirmando = false;
 
   readonly restanteMs = computed(() => {
     const p = this.prova();
@@ -172,10 +181,51 @@ export class FazerProvaComponent implements OnInit, OnDestroy {
     if (this.etapa() === 'prova' && this.alterado) ev.preventDefault();
   }
 
-  /** Ao trocar de aba ou minimizar, salva na hora. */
+  /** Ao trocar de aba ou minimizar: salva na hora e registra a saída. */
   @HostListener('document:visibilitychange')
   aoEsconder(): void {
-    if (document.visibilityState === 'hidden') this.salvar();
+    if (document.visibilityState === 'hidden') {
+      this.saiu();
+      this.salvar();
+    } else {
+      this.talvezVoltou();
+    }
+  }
+
+  /** Outra janela ou programa em primeiro plano (a aba continua visível). */
+  @HostListener('window:blur')
+  aoPerderFoco(): void {
+    this.saiu();
+  }
+
+  @HostListener('window:focus')
+  aoGanharFoco(): void {
+    this.talvezVoltou();
+  }
+
+  private saiu(): void {
+    if (this.etapa() !== 'prova' || this.confirmando) return;
+    this.saidas.sair(Date.now());
+    this.enviarSaidas();
+  }
+
+  private talvezVoltou(): void {
+    if (document.visibilityState !== 'visible' || !document.hasFocus()) return;
+    this.saidas.voltar(Date.now());
+    this.enviarSaidas();
+  }
+
+  /** Envia o que ainda não foi registrado; se falhar, tenta de novo no próximo salvamento. */
+  private async enviarSaidas(): Promise<void> {
+    const p = this.prova();
+    if (!p || this.etapa() !== 'prova') return;
+    const r = this.saidas.retirar();
+    if (!r.saidas && !r.segundos) return;
+    try {
+      await this.svc.registrarSaidas(p.tentativa, r.saidas, r.segundos);
+    } catch {
+      this.saidas.devolver(r);
+    }
   }
 
   async comecar(): Promise<void> {
@@ -194,7 +244,7 @@ export class FazerProvaComponent implements OnInit, OnDestroy {
         this.agora.set(Date.now());
         if (this.restanteMs() <= 0) this.enviar(true);
       }, 1000);
-      this.salvamento = setInterval(() => this.salvar(), SALVAR_A_CADA_MS);
+      this.salvamento = setInterval(() => this.salvarTudo(), SALVAR_A_CADA_MS);
     } catch (e) {
       this.mensagem.set(msg(e));
     }
@@ -205,6 +255,11 @@ export class FazerProvaComponent implements OnInit, OnDestroy {
     const k = String(questao);
     this.respostas.update(r => ({ ...r, [k]: { ...(r[k] ?? {}), [campo]: valor } }));
     this.alterado = true;
+  }
+
+  private salvarTudo(): void {
+    this.salvar();
+    this.enviarSaidas();
   }
 
   async salvar(): Promise<void> {
@@ -227,11 +282,17 @@ export class FazerProvaComponent implements OnInit, OnDestroy {
     if (!automatico) {
       const vazios = this.camposVazios();
       const aviso = vazios ? `\n\nAinda há ${vazios} campo(s) sem resposta.` : '';
-      if (!confirm(`Enviar a prova? Depois de enviar não dá para mudar as respostas.${aviso}`)) return;
+      this.confirmando = true;
+      const ok = confirm(`Enviar a prova? Depois de enviar não dá para mudar as respostas.${aviso}`);
+      this.confirmando = false;
+      if (!ok) return;
     }
     this.ocupado.set(true);
     clearInterval(this.tique);
     clearInterval(this.salvamento);
+    // fecha a contagem antes do envio (depois dele o banco não aceita mais)
+    if (this.saidas.estaFora) this.saidas.voltar(Date.now());
+    await this.enviarSaidas();
     try {
       await this.svc.enviar(p.tentativa, this.respostas());
       this.alterado = false;
@@ -244,7 +305,7 @@ export class FazerProvaComponent implements OnInit, OnDestroy {
       } else {
         this.erroSalvar.set(`Não enviou: ${msg(e)} Clique em Enviar de novo.`);
         this.tique = setInterval(() => this.agora.set(Date.now()), 1000);
-        this.salvamento = setInterval(() => this.salvar(), SALVAR_A_CADA_MS);
+        this.salvamento = setInterval(() => this.salvarTudo(), SALVAR_A_CADA_MS);
       }
     }
     this.ocupado.set(false);

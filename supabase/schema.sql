@@ -352,6 +352,10 @@ create table if not exists public.tentativas (
   unique (avaliacao_id, aluno_id)
 );
 
+-- saídas da página durante a prova (trocar de aba, minimizar, outra janela); veja a seção 12
+alter table public.tentativas add column if not exists saidas integer not null default 0 check (saidas >= 0);
+alter table public.tentativas add column if not exists tempo_fora_seg integer not null default 0 check (tempo_fora_seg >= 0);
+
 create table if not exists public.senha_falhas (
   avaliacao_id bigint not null references public.avaliacoes(id) on delete cascade,
   aluno_id     uuid not null,
@@ -580,7 +584,8 @@ drop function if exists public.resultados_avaliacao(bigint);
 create or replace function public.resultados_avaliacao(p_avaliacao bigint)
 returns table (tentativa bigint, email text, nome text, situacao text, iniciada_em timestamptz,
                prazo timestamptz, enviada_em timestamptz, envio text, nota numeric,
-               ip_inicio text, ip_envio text, navegador text, notas_questoes jsonb)
+               ip_inicio text, ip_envio text, navegador text, notas_questoes jsonb,
+               saidas integer, tempo_fora_seg integer)
 language plpgsql stable security definer set search_path = public as $$
 declare v_turma bigint;
 begin
@@ -593,7 +598,8 @@ begin
                 when now() <= x.prazo then 'em_andamento'
                 else 'tempo_esgotado' end,
            x.iniciada_em, x.prazo, x.enviada_em, x.envio, x.nota, x.ip_inicio, x.ip_envio, x.navegador,
-           (select jsonb_agg(q->'nota') from jsonb_array_elements(x.correcao->'questoes') q)
+           (select jsonb_agg(q->'nota') from jsonb_array_elements(x.correcao->'questoes') q),
+           x.saidas, x.tempo_fora_seg
       from public.turma_alunos m
       left join public.tentativas x on x.avaliacao_id = p_avaliacao and x.email = m.email
       left join public.perfis p on lower(p.email) = m.email
@@ -603,7 +609,8 @@ begin
     select x.id, x.email, p.nome,
            case when x.enviada_em is not null then 'enviada' when now() <= x.prazo then 'em_andamento' else 'tempo_esgotado' end,
            x.iniciada_em, x.prazo, x.enviada_em, x.envio, x.nota, x.ip_inicio, x.ip_envio, x.navegador,
-           (select jsonb_agg(q->'nota') from jsonb_array_elements(x.correcao->'questoes') q)
+           (select jsonb_agg(q->'nota') from jsonb_array_elements(x.correcao->'questoes') q),
+           x.saidas, x.tempo_fora_seg
       from public.tentativas x left join public.perfis p on p.id = x.aluno_id
      where x.avaliacao_id = p_avaliacao
        and not exists (select 1 from public.turma_alunos m where m.turma_id = v_turma and m.email = x.email)
@@ -706,3 +713,30 @@ end $$;
 
 revoke all on function public.liberar_resultados(bigint, boolean, boolean), public.minha_correcao(bigint) from public, anon;
 grant execute on function public.liberar_resultados(bigint, boolean, boolean), public.minha_correcao(bigint) to authenticated;
+
+-- ============================================================
+-- 12. Saídas da página durante a prova
+--    A página da prova avisa quando o aluno troca de aba, minimiza ou vai
+--    para outra janela, e quanto tempo ficou fora. É um indício para a
+--    professora avaliar (nada é zerado automaticamente). O registro vem do
+--    navegador do aluno, então pode faltar se ele bloquear o envio; mas
+--    ninguém diminui o que já foi gravado nem registra na prova de outro.
+-- ============================================================
+
+-- soma saídas e segundos fora na tentativa do próprio aluno, só com a prova em andamento
+create or replace function public.registrar_saidas(p_tentativa bigint, p_saidas integer, p_segundos integer)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if p_saidas is null or p_segundos is null
+     or p_saidas not between 0 and 50 or p_segundos not between 0 and 36000 then
+    raise exception 'Registro inválido';
+  end if;
+  update public.tentativas
+     set saidas = least(saidas + p_saidas, 100000),
+         tempo_fora_seg = least(tempo_fora_seg + p_segundos, 1000000)
+   where id = p_tentativa and aluno_id = auth.uid()
+     and enviada_em is null and now() <= prazo + interval '1 minute';
+end $$;
+
+revoke all on function public.registrar_saidas(bigint, integer, integer) from public, anon;
+grant execute on function public.registrar_saidas(bigint, integer, integer) to authenticated;

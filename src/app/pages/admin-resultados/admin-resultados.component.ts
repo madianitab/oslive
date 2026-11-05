@@ -18,6 +18,7 @@ import { corrigirProva } from '../../features/avaliacoes/questoes/corrigir';
 import { QuestaoGerada } from '../../features/avaliacoes/questoes/tipos';
 import { dataHora } from '../../features/avaliacoes/models/datas';
 import { gerarCsv, nomeArquivo } from '../../features/avaliacoes/models/csv';
+import { tempoFora } from '../../features/avaliacoes/models/saidas';
 
 const SITUACOES: Record<SituacaoTentativa, { texto: string; cor: 'n' | 'a' | 's' | 'w' | 'd' }> = {
   nao_iniciou: { texto: 'não iniciou', cor: 'n' },
@@ -97,7 +98,7 @@ interface Revisao {
   <div class="tab-wrap">
     <table class="tab">
       <thead>
-        <tr><th>Aluno</th><th>Situação</th><th>Nota</th><th>Início</th><th>Envio</th><th>IP (início → envio)</th><th></th></tr>
+        <tr><th>Aluno</th><th>Situação</th><th>Nota</th><th>Início</th><th>Envio</th><th>IP (início → envio)</th><th title="Vezes que saiu da página da prova (outra aba, outra janela ou minimizar) e tempo fora">Saídas da página</th><th></th></tr>
       </thead>
       <tbody>
         @for (a of alunos(); track a.email) {
@@ -116,6 +117,12 @@ interface Revisao {
                 → <span class="ip-mudou" title="O IP do envio é diferente do início">{{ a.ip_envio }}</span>
               }
             </td>
+            <td class="mono">
+              @if (a.tentativa) {
+                <span [class.saiu]="(a.saidas ?? 0) > 0">{{ a.saidas ?? 0 }}</span>
+                @if ((a.saidas ?? 0) > 0) { <span class="obs">({{ tempoFora(a.tempo_fora_seg) }})</span> }
+              } @else { — }
+            </td>
             <td class="acao">
               @if (a.tentativa) {
                 <div class="botoes">
@@ -126,7 +133,7 @@ interface Revisao {
             </td>
           </tr>
         } @empty {
-          <tr><td colspan="7" class="vazio">{{ carregando() ? 'Carregando…' : 'Nenhum aluno na turma.' }}</td></tr>
+          <tr><td colspan="8" class="vazio">{{ carregando() ? 'Carregando…' : 'Nenhum aluno na turma.' }}</td></tr>
         }
       </tbody>
     </table>
@@ -162,6 +169,7 @@ export class AdminResultadosComponent implements OnInit {
   private readonly rota = inject(ActivatedRoute);
   private readonly aviso = inject(MatSnackBar);
   readonly dataHora = dataHora;
+  readonly tempoFora = tempoFora;
 
   readonly avaliacao = signal<Avaliacao | null>(null);
   readonly alunos = signal<ResultadoAluno[]>([]);
@@ -311,13 +319,14 @@ export class AdminResultadosComponent implements OnInit {
     const n = a?.modelo.length ?? Math.max(0, ...this.alunos().map(x => x.notas_questoes?.length ?? 0));
     const cab = ['Nome', 'E-mail', 'Situação', 'Nota', 'Valor',
       ...Array.from({ length: n }, (_, i) => `Q${i + 1}`),
-      'Início', 'Envio', 'Enviada por', 'IP início', 'IP envio'];
+      'Início', 'Envio', 'Enviada por', 'IP início', 'IP envio', 'Saídas da página', 'Tempo fora (s)'];
     const linhas = this.alunos().map(x => [
       x.nome ?? '', x.email, SITUACOES[x.situacao].texto, x.nota === null ? null : Number(x.nota), a ? Number(a.valor_total) : null,
       ...Array.from({ length: n }, (_, i) => x.notas_questoes?.[i] ?? null),
       x.iniciada_em ? dataHora(x.iniciada_em) : '', x.enviada_em ? dataHora(x.enviada_em) : '',
       x.envio === 'tempo' ? 'fim do tempo' : x.envio === 'aluno' ? 'aluno' : '',
       x.ip_inicio ?? '', x.ip_envio ?? '',
+      x.tentativa ? x.saidas ?? 0 : null, x.tentativa ? x.tempo_fora_seg ?? 0 : null,
     ]);
     const blob = new Blob([gerarCsv(cab, linhas)], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);

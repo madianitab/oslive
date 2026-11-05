@@ -85,6 +85,9 @@ export interface ResultadoAluno {
   ip_envio: string | null;
   navegador: string | null;
   notas_questoes: number[] | null;
+  /** Vezes que saiu da página da prova e segundos fora (null se não começou). */
+  saidas: number | null;
+  tempo_fora_seg: number | null;
 }
 
 /** Prova de um aluno para revisão (só professor e admin). */
@@ -182,6 +185,11 @@ export class AvaliacoesService {
 
   enviar(tentativa: number, respostas: RespostasProva): Promise<void> {
     return this.funcao({ acao: 'enviar', tentativa, respostas });
+  }
+
+  /** Soma saídas da página e segundos fora (o banco só aceita na própria prova em andamento). */
+  registrarSaidas(tentativa: number, saidas: number, segundos: number): Promise<void> {
+    return this.rpc<void>('registrar_saidas', { p_tentativa: tentativa, p_saidas: saidas, p_segundos: segundos });
   }
 
   // ───────── internos ─────────
