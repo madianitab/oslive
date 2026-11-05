@@ -47,8 +47,10 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         # --no-verify-jwt: a função confere o usuário ela mesma (auth.getUser),
-        # o que funciona também com as chaves novas do Supabase
+        # o que funciona também com as chaves novas do Supabase.
+        # --yes: as versões novas da ferramenta pedem confirmação antes de publicar;
+        # sem terminal no GitHub, ela parava sem publicar nada.
         run: >
           supabase functions deploy avaliacao
           --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
-          --no-verify-jwt --use-api
+          --no-verify-jwt --use-api --yes
