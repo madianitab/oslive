@@ -191,10 +191,11 @@ const NOME_VITIMA: Record<AlgoritmoVitima, string> = {
   SEGUNDA_CHANCE: 'Segunda Chance',
 };
 
-const REGRA_VITIMA: Record<AlgoritmoVitima, string> = {
-  FIFO: 'Sai a página carregada há mais tempo (menor carga).',
-  HISTORICO: 'Compare a partir de T4 (o mais recente), depois T3, T2 e T1; persistindo o empate, sai a de menor carga.',
-  SEGUNDA_CHANCE: 'Percorra em ordem de carga: bit R = 1 ganha segunda chance (vira 0 e vai para o fim); a primeira com bit 0 sai.',
+/** Só o critério de desempate, quando houver: o enunciado não explica o algoritmo. */
+const DESEMPATE_VITIMA: Record<AlgoritmoVitima, string> = {
+  FIFO: '',
+  HISTORICO: ' (em caso de empate, sai a de menor carga)',
+  SEGUNDA_CHANCE: '',
 };
 
 function demandaVitima(alg: AlgoritmoVitima, rnd: () => number): QuestaoGerada {
@@ -207,7 +208,7 @@ function demandaVitima(alg: AlgoritmoVitima, rnd: () => number): QuestaoGerada {
       tipo: `dem-${alg}`,
       titulo: `Paginação por demanda — página vítima (${NOME_VITIMA[alg]})`,
       enunciado: `A memória física está cheia e ocorreu falta de página para ${nomePagina(ex.paginaSolicitada!)}. ` +
-        `Pelo algoritmo ${NOME_VITIMA[alg]}, qual página sai? ${REGRA_VITIMA[alg]}`,
+        `Pelo algoritmo ${NOME_VITIMA[alg]}, qual página sai${DESEMPATE_VITIMA[alg]}?`,
       dados: [memoriaDemanda(ex.quadros, alg)],
       respostas: [{
         cabecalho: ['Página vítima'],
@@ -226,12 +227,10 @@ function demandaVitima(alg: AlgoritmoVitima, rnd: () => number): QuestaoGerada {
 
 const SITUACOES_SC = 3;
 
-const REGRA_SC: Record<AlgoritmoSC, string> = {
-  SC: 'Segunda Chance: percorra a fila a partir do início; com R = 1 a página ganha segunda chance ' +
-    '(R vira 0, recebe o momento atual e vai para o fim); a primeira com R = 0 sai.',
-  SCM: 'Segunda Chance Melhorada, classes (R,M) na ordem (0,0) → (0,1) → (1,0) → (1,1): ' +
-    '1ª volta procura (0,0) sem alterar nada; 2ª volta procura (0,1), e quem tem R = 1 e é ultrapassada fica com R = 0, ' +
-    'recebe o momento atual e vai para o fim (M é mantido); repita se preciso.',
+/** Só o nome do algoritmo: o enunciado não explica como ele funciona. */
+const NOME_SC: Record<AlgoritmoSC, string> = {
+  SC: 'Segunda Chance',
+  SCM: 'Segunda Chance Melhorada',
 };
 
 function tabelaFila(fila: PaginaFila[], alg: AlgoritmoSC, titulo: string): Tabela {
@@ -266,8 +265,8 @@ function segundaChanceSequencia(alg: AlgoritmoSC, rnd: () => number): QuestaoGer
     publica: {
       tipo: `sc-${alg}`,
       titulo: `Paginação por demanda — ${alg === 'SC' ? 'Segunda Chance' : 'Segunda Chance Melhorada'} em sequência`,
-      enunciado: `${REGRA_SC[alg]} Em cada situação, aplique os acessos (leitura liga R${alg === 'SCM' ? '; escrita liga R e M' : ''}) ` +
-        'à fila mostrada e responda qual página sai e quantas páginas ganham segunda chance (vão para o fim com R = 0).',
+      enunciado: `Use o algoritmo ${NOME_SC[alg]}. Em cada situação, aplique os acessos (leitura liga R${alg === 'SCM' ? '; escrita liga R e M' : ''}) ` +
+        'à fila mostrada e responda qual página sai e quantas páginas ganham segunda chance.',
       dados,
       respostas: [{
         titulo: 'Respostas',
