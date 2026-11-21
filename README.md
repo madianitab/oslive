@@ -8,6 +8,7 @@ A página **Simulações** (`#/simulacoes`) segue a divisão clássica da discip
 
 | Assunto | Modo | Rota | Pasta |
 |---|---|---|---|
+| Introdução | O que é um SO: camadas do sistema, modo usuário × modo kernel e o passo a passo de chamadas de sistema (write, read, getpid, fork, open com erro e instrução privilegiada) | `#/introducao/o-que-e-so` | `src/app/features/introducao/o-que-e-so` |
 | Processos | Estados do Processo | `#/processos/estados` | `src/app/features/processos/estados` |
 | Processos | Árvore de Processos | `#/processos/arvore` | `src/app/features/processos/arvore` |
 | Escalonamento de Processos | Simulador | `#/escalonamento/simulador` | `src/app/features/escalonamento/simulador` |

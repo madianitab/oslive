@@ -33,10 +33,11 @@ import { OsBadgeComponent } from '../../ui/badge/badge.component';
     <section class="sim-group">
       <h3 class="group-title">Introdução</h3>
       <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 sim-deck">
-        <os-card class="breve" title="O que é um SO">
+        <os-card title="O que é um SO">
           <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="5" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="5" rx="1"/></svg></os-card-icon>
-          <os-badge slot="badge" variant="n">em breve</os-badge>
-          Camadas do sistema (usuário, SO e hardware) e chamadas de sistema.
+          <os-badge slot="badge" variant="a">simulador</os-badge>
+          Camadas do sistema (usuário, SO e hardware), modo usuário × modo kernel e o caminho de uma chamada de sistema.
+          <div slot="footer"><os-button variant="p" size="sm" (click)="go('/introducao/o-que-e-so')">Abrir →</os-button></div>
         </os-card>
       </div>
     </section>

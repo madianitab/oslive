@@ -17,6 +17,7 @@ import { HomeExercicioParticoesFixasComponent } from 'src/app/features/particoes
 import { HomeExercicioParticoesVariaveisComponent } from 'src/app/features/particoes/exercicios-variaveis/components/home-exercicio-particoes-variaveis/home-exercicio-particoes-variaveis.component';
 import { HomeEstadosComponent } from 'src/app/features/processos/estados/components/home-estados/home-estados.component';
 import { exigirLogin } from './core/auth/auth.guard';
+import { HomeOQueESoComponent } from 'src/app/features/introducao/o-que-e-so/components/home-o-que-e-so/home-o-que-e-so.component';
 import { HomeArvoreComponent } from 'src/app/features/processos/arvore/components/home-arvore/home-arvore.component';
 
 const routes: Routes = [
@@ -25,6 +26,7 @@ const routes: Routes = [
   { path: "brandkit", component: BrandkitComponent },
 
   // Processos
+  { path: "introducao/o-que-e-so", component: HomeOQueESoComponent },
   { path: "processos/estados", component: HomeEstadosComponent },
   { path: "processos/arvore", component: HomeArvoreComponent },
 
