@@ -69,18 +69,22 @@ type SceneKind = 'zoom' | 'slideX' | 'slideUp';
         <div class="scene-inner">
           <div class="section-idx">01 — O que você aprende</div>
           <h2 class="section-title">Os pilares de um SO, na prática</h2>
-          <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 tw-mt-8 scene-deck">
-            <os-card title="Processos">
+          <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-4 tw-mt-8 scene-deck">
+            <os-card title="Gerência de Processos">
               <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></os-card-icon>
-              Criação, estados e escalonamento — Round Robin, prioridades e filas de prontos.
+              Estados, fork, escalonamento, comunicação e sincronização.
             </os-card>
-            <os-card title="Memória">
+            <os-card title="Gerência de Memória">
               <os-card-icon slot="icon" variant="info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 6v12M11 6v12M15 6v12"/></svg></os-card-icon>
-              Paginação por demanda, substituição de páginas e segmentação.
+              Partições, paginação, substituição de páginas e segmentação.
             </os-card>
-            <os-card title="Disco & E/S">
-              <os-card-icon slot="icon" variant="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></os-card-icon>
-              Como a memória física conversa com o disco quando a RAM não basta.
+            <os-card title="Gerência de E/S">
+              <os-card-icon slot="icon" variant="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/></svg></os-card-icon>
+              Dispositivos, interrupções e DMA.
+            </os-card>
+            <os-card title="Sistema de Arquivos">
+              <os-card-icon slot="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/></svg></os-card-icon>
+              Diretórios e alocação de blocos.
             </os-card>
           </div>
         </div>
