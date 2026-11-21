@@ -21,7 +21,7 @@ Este guia reúne os padrões do projeto. Quem for alterar o OSLive (pessoa ou as
 src/app/
 ├── core/          utilitários (gera_cor, constantes, tema claro/escuro)
 ├── ui/            DESIGN SYSTEM (componentes os-*, tokens.css, styles/)
-├── pages/         landing, simulacoes (página com os cards), brandkit (vitrine do design system)
+├── pages/         landing, simulacoes (cards por gerência → assunto), brandkit (vitrine do design system)
 └── features/      um assunto por pasta
     └── <assunto>/
         ├── models/       lógica pura (algoritmos), sem Angular → fácil de testar
@@ -31,6 +31,18 @@ src/app/
 ```
 
 Assuntos atuais: `processos`, `escalonamento`, `particoes`, `paginacao` e `segmentacao`. A tabela de rotas está no `README.md`.
+
+**Página Simulações (`pages/simulacoes`):** organizada pela divisão clássica do SO, em três níveis: **gerência → assunto → módulo (card)**. Um sumário no topo leva a cada gerência.
+
+```
+00 Visão geral           Introdução (em breve)
+01 Gerência de Processos Processos · Escalonamento · Comunicação entre processos (em breve) · Sincronização e deadlock (em breve)
+02 Gerência de Memória   Alocação contígua (partições) · Paginação · Segmentação
+03 Gerência de E/S       Dispositivos (em breve)
+04 Sistema de Arquivos   Arquivos (em breve)
+```
+
+As pastas de `features/` continuam por assunto (não por gerência). Módulo planejado aparece como card com a classe `breve`, badge `em breve` (variante `n`) e sem botão. As avaliações não entram nessa página: ficam no menu da conta.
 
 **Cores dos processos:** use sempre `gera_cor(processosExistentes)` de `core/utils.ts`. Ela usa a paleta de 16 cores e, quando acaba, gera cores escuras novas (texto branco legível); não há limite de processos.
 
@@ -208,7 +220,7 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
 2. **Serviço:** crie `services/<nome>.service.ts` com `@Injectable()` (sem `providedIn`), guardando o estado em signals.
 3. **Componentes:** crie os componentes `home-…`, `lateral-…` e `area-…` no padrão da seção 3.4.
 4. **Rota:** registre a rota em `app-routing.module.ts`, no grupo do assunto.
-5. **Card:** adicione o card em `pages/simulacoes/simulacoes.component.ts`, no grupo certo, com o badge `simulador` (`a`) ou `exercícios` (`s`).
+5. **Card:** adicione o card em `pages/simulacoes/simulacoes.component.ts`, na gerência e no assunto certos (veja a seção 2), com o badge `simulador` (`a`) ou `exercícios` (`s`). Se o módulo substituir um card `em breve`, troque esse card (tire a classe `breve`, troque o badge e acrescente o botão **Abrir →**).
 6. **README:** acrescente uma linha na tabela de módulos do `README.md`.
 7. **Convenções:** se o módulo trouxer uma convenção conceitual nova, registre-a na seção 4 deste guia.
 

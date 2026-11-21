@@ -4,6 +4,8 @@
 
 Simulador didático de Sistemas Operacionais.
 
+A página **Simulações** (`#/simulacoes`) segue a divisão clássica da disciplina: **Visão geral**, **Gerência de Processos**, **Gerência de Memória**, **Gerência de E/S** e **Sistema de Arquivos**, cada uma com seus assuntos. Os assuntos ainda sem módulo aparecem como "em breve".
+
 | Assunto | Modo | Rota | Pasta |
 |---|---|---|---|
 | Processos | Estados do Processo | `#/processos/estados` | `src/app/features/processos/estados` |
