@@ -57,7 +57,7 @@ type SceneKind = 'zoom' | 'slideX' | 'slideUp';
           <h1 class="hero-title">OS<b>Live</b><span class="cursor"></span></h1>
           <p class="hero-tagline">o sistema operacional, <em>por dentro</em>.<br>simule processos, memória e escalonamento — e entenda de verdade.</p>
           <div class="hero-cta">
-            <os-button variant="p" size="lg" [glow]="true" (click)="go('/simulacoes')">Explorar Simulações</os-button>
+            <os-button variant="p" size="lg" [glow]="true" (click)="go('/simulacoes')">Explorar</os-button>
             <os-button variant="s" size="lg" (click)="go('/brandkit')">Design System</os-button>
           </div>
           <div class="hero-term"><span class="p">user&#64;oslive</span><span class="d">:~$</span> oslive boot --simular</div>
