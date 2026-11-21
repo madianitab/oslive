@@ -30,12 +30,12 @@ src/app/
         └── exercicios/components/...    (ou exercicios-simples...)
 ```
 
-Assuntos atuais: `processos`, `escalonamento`, `particoes`, `paginacao` e `segmentacao`. A tabela de rotas está no `README.md`.
+Assuntos atuais: `introducao`, `processos`, `escalonamento`, `particoes`, `paginacao` e `segmentacao`. A tabela de rotas está no `README.md`.
 
 **Página Simulações (`pages/simulacoes`):** organizada pela divisão clássica do SO, em três níveis: **gerência → assunto → módulo (card)**. Um sumário no topo leva a cada gerência.
 
 ```
-00 Visão geral           Introdução (em breve)
+00 Visão geral           Introdução (O que é um SO)
 01 Gerência de Processos Processos · Escalonamento · Comunicação entre processos (em breve) · Sincronização e deadlock (em breve)
 02 Gerência de Memória   Alocação contígua (partições) · Paginação · Segmentação
 03 Gerência de E/S       Dispositivos (em breve)
@@ -168,6 +168,14 @@ Use **sempre** variáveis CSS, para funcionar nos temas claro e escuro:
 - **Tradução:** se o deslocamento for menor que o limite, físico = base + deslocamento. Caso contrário, ou se o segmento não existir, ocorre **interrupção**.
 - **Alocação best-fit segmento a segmento, na ordem código → dados → pilha:** a menor lacuna que comporta o segmento, com desempate pelo menor endereço. É **tudo ou nada**: se um segmento não couber, o processo não é criado.
 - **Mensagens:** **fragmentação externa** quando há memória livre suficiente no total; **memória insuficiente** quando não há. A compactação atualiza as bases.
+
+### O que é um SO (introdução)
+- **Modelo:** `introducao/models/chamadas-sistema.ts`. Cada cenário é uma lista de passos (bloco do diagrama, modo da CPU, evento, registradores, tela e estado do processo); `montarPassos` repete o que não mudou.
+- **Camadas:** usuário → programas (aplicativos e programas de sistema/utilitários, como shell e compilador) → biblioteca/API → **chamadas de sistema** → SO (núcleo) → hardware. Na **visão do usuário** o SO é um bloco só (interior escondido); na **visão do projeto** aparecem a tabela de chamadas e as gerências do processador, de memória, de E/S e de arquivos.
+- **Modo dual:** bit de modo **kernel = 0, usuário = 1** (Silberschatz). O modo só muda com **trap** (interrupção de software), **exceção**, **interrupção de hardware** ou **retorno**. O SO só executa em modo kernel; programas e biblioteca, só em modo usuário.
+- **Chamada de sistema:** função da biblioteca → número da chamada em `rax` e parâmetros em `rdi`, `rsi`, `rdx` → instrução `syscall` (trap) → tabela de chamadas → verificação (chamada legítima) → rotina → resultado em `rax` → retorno. Números do Linux x86-64 (read 0, write 1, open 2, getpid 39, fork 57). Erro: o núcleo devolve o código negativo (−ENOENT), a biblioteca guarda em `errno` e retorna −1.
+- **Instrução privilegiada no modo usuário** (`cli`): exceção (trap de proteção), o SO envia SIGSEGV e o processo é destruído.
+- **Tipos de chamadas** (tabela UNIX × Windows) seguem o Silberschatz.
 
 ### Estados do processo
 - **Diagrama:** segue a Figura 4.2 do livro, com cinco estados, as transições do livro e as linhas pontilhadas (retorno imediato e kill/exceção).

@@ -1,0 +1,17 @@
+<os-sim-shell
+  title="O que é um SO"
+  subtitle="Camadas do sistema e o caminho de uma chamada de sistema, do programa ao hardware e de volta."
+>
+  <ng-container slot="actions">
+    <os-button-group>
+      <button class="osbg-btn" type="button" aria-label="Voltar um passo" title="Voltar" [disabled]="sim.indice() < 0" (click)="sim.voltar()"><i class="fa-solid fa-backward-step"></i></button>
+      <button class="osbg-btn primary" type="button" [attr.aria-label]="sim.tocando() ? 'Pausar' : 'Reproduzir'" [title]="sim.tocando() ? 'Pausar' : 'Reproduzir'" (click)="sim.alternar()">
+        <i [class]="sim.tocando() ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
+      </button>
+      <button class="osbg-btn" type="button" aria-label="Avançar um passo" title="Próximo passo" [disabled]="sim.fim()" (click)="sim.avancar()"><i class="fa-solid fa-forward-step"></i></button>
+      <button class="osbg-btn danger" type="button" aria-label="Reiniciar" title="Reiniciar" (click)="sim.reiniciar()"><i class="fa-solid fa-rotate-right"></i></button>
+    </os-button-group>
+  </ng-container>
+  <app-lateral-o-que-e-so slot="config"></app-lateral-o-que-e-so>
+  <app-area-o-que-e-so></app-area-o-que-e-so>
+</os-sim-shell>

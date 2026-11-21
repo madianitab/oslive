@@ -1,0 +1,147 @@
+<div class="viz">
+
+  <div class="viz-stats">
+    <os-stat label="Modo da CPU" [value]="modo() === 'KERNEL' ? 'Kernel' : 'Usuário'" [accent]="modo() === 'KERNEL'"></os-stat>
+    <os-stat label="Bit de modo" [value]="bit()" hint="kernel = 0 · usuário = 1"></os-stat>
+    <os-stat label="Processo" [value]="estado()"></os-stat>
+    <os-stat label="Passo" [value]="(sim.indice() + 1) + ' / ' + sim.total()"></os-stat>
+  </div>
+
+  <!-- NARRAÇÃO -->
+  <section class="narracao" aria-live="polite">
+    @if (sim.passo(); as p) {
+      <div class="narr-topo">
+        <b class="narr-tit">{{ p.titulo }}</b>
+        @if (p.evento) { <span class="chip-ev" [class.hw]="p.evento === 'INT_HW'" [class.exc]="p.evento === 'EXCECAO'">{{ rotulosEvento[p.evento] }}</span> }
+        <span class="contador">passo {{ sim.indice() + 1 }} de {{ sim.total() }}</span>
+      </div>
+      <p class="narr-texto">{{ p.texto }}</p>
+    } @else {
+      <div class="narr-topo"><b class="narr-tit">{{ sim.cenario().nome }}</b><span class="contador">{{ sim.total() }} passos</span></div>
+      <p class="narr-texto">Clique em <b>▶</b> para assistir ou em <b>⏭</b> para avançar um passo por vez. A camada em execução fica em destaque.</p>
+    }
+  </section>
+
+  <section class="principal">
+    <!-- CAMADAS -->
+    <div class="col">
+      <div class="viz-label">Camadas do sistema</div>
+      <div class="camadas">
+        <div class="faixa">
+          <div class="faixa-rot">Usuário</div>
+          <div class="blocos">
+            <div class="bloco" [class.ativo]="ativo('usuario')"><i class="fa-solid fa-user"></i><span class="b-nome">Usuário</span></div>
+          </div>
+        </div>
+
+        <div class="zona usuario" [class.ligada]="sim.indice() >= 0 && modo() === 'USUARIO'">
+          <span class="zona-rot">modo usuário · bit 1</span>
+          <div class="faixa">
+            <div class="faixa-rot">Programas</div>
+            <div class="blocos">
+              @for (b of programas; track b.id) {
+                <div class="bloco" [class.ativo]="ativo(b.id)"><i [class]="b.icone"></i><span class="b-nome">{{ b.nome }}</span><span class="b-sub">{{ b.sub }}</span></div>
+              }
+            </div>
+          </div>
+          <div class="faixa">
+            <div class="faixa-rot">Biblioteca / API</div>
+            <div class="blocos">
+              <div class="bloco" [class.ativo]="ativo('biblioteca')"><i class="fa-solid fa-book"></i><span class="b-nome">Biblioteca C (POSIX)</span><span class="b-sub">printf, read, fork…</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fronteira" [class.ativa]="fronteira('US-SO')" [class.sobe]="fronteira('US-SO') === 'sobe'">
+          <i class="fa-solid" [class.fa-arrow-down]="fronteira('US-SO') !== 'sobe'" [class.fa-arrow-up]="fronteira('US-SO') === 'sobe'"></i>
+          <span>{{ rotuloFronteira('US-SO') }}</span>
+        </div>
+
+        <div class="zona kernel" [class.ligada]="modo() === 'KERNEL'">
+          <span class="zona-rot">modo kernel · bit 0</span>
+          <div class="faixa">
+            <div class="faixa-rot">Sistema operacional (núcleo)</div>
+            <div class="blocos">
+              @if (sim.visao() === 'PROJETO') {
+                @for (b of nucleo; track b.id) {
+                  <div class="bloco" [class.ativo]="ativo(b.id)"><i [class]="b.icone"></i><span class="b-nome">{{ b.nome }}</span><span class="b-sub">{{ b.sub }}</span></div>
+                }
+              } @else {
+                <div class="bloco caixa-preta" [class.ativo]="soAtivo()"><i class="fa-solid fa-eye-slash"></i><span class="b-nome">Sistema operacional</span><span class="b-sub">o interior fica escondido do usuário</span></div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="fronteira" [class.ativa]="fronteira('SO-HW')" [class.sobe]="fronteira('SO-HW') === 'sobe'">
+          <i class="fa-solid" [class.fa-arrow-down]="fronteira('SO-HW') !== 'sobe'" [class.fa-arrow-up]="fronteira('SO-HW') === 'sobe'"></i>
+          <span>{{ rotuloFronteira('SO-HW') }}</span>
+        </div>
+
+        <div class="faixa hw">
+          <div class="faixa-rot">Hardware</div>
+          <div class="blocos">
+            @for (b of hardware; track b.id) {
+              <div class="bloco" [class.ativo]="ativo(b.id)"><i [class]="b.icone"></i><span class="b-nome">{{ b.nome }}</span>
+                <span class="b-sub">@if (b.id === 'cpu') { bit de modo: <b>{{ bit() }}</b> } @else { {{ b.sub }} }</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRAMA, REGISTRADORES E TELA -->
+    <div class="col">
+      <div class="viz-label">Programa</div>
+      <pre class="codigo">@for (l of sim.cenario().codigo; track $index; let i = $index) {<span class="lin" [class.atual]="sim.indice() >= 0 && i === linha()"><span class="num">{{ i + 1 }}</span>{{ l }}</span>}</pre>
+
+      <div class="viz-label">Registradores</div>
+      <table class="res-table regs">
+        @for (r of nomesReg; track r.id) {
+          <tr>
+            <th scope="row">{{ r.id }}</th>
+            <td class="papel">{{ r.papel }}</td>
+            <td class="valor" [class.mudou]="mudou(r.id)">{{ regs()[r.id] }}</td>
+          </tr>
+        }
+      </table>
+
+      <div class="viz-label">Tela</div>
+      <os-terminal label="terminal"><pre class="tela">$ ./prog
+{{ tela() }}</pre></os-terminal>
+    </div>
+  </section>
+
+  <!-- PASSOS -->
+  <section>
+    <div class="viz-label">Passos (clique para ir a um passo)</div>
+    <ol class="passos">
+      @for (p of sim.cenario().passos; track $index; let i = $index) {
+        <li [class.atual]="i === sim.indice()" [class.futuro]="i > sim.indice()" (click)="sim.irPara(i)">
+          <span class="p-modo" [class.k]="p.modo === 'KERNEL'">{{ p.modo === 'KERNEL' ? 'K' : 'U' }}</span>
+          {{ p.titulo }}
+        </li>
+      }
+    </ol>
+  </section>
+
+  <!-- TIPOS -->
+  <section>
+    <div class="viz-label">Tipos de chamadas de sistema</div>
+    <div class="viz-scroll">
+      <table class="res-table tipos">
+        <thead><tr><th>Tipo</th><th>UNIX / Linux</th><th>Windows</th></tr></thead>
+        <tbody>
+          @for (t of tipos; track t.tipo) {
+            <tr [class.atual]="tipoAtual(t.tipo)">
+              <td class="tipo">{{ t.tipo }}</td>
+              <td>@for (par of t.pares; track $index; let ult = $last) {<code [class.ch]="parAtual(par[0], par[1])">{{ par[0] }}()</code>@if (!ult) {<span class="sep">, </span>}}</td>
+              <td>@for (par of t.pares; track $index; let ult = $last) {<code [class.ch]="parAtual(par[0], par[1])">{{ par[1] }}()</code>@if (!ult) {<span class="sep">, </span>}}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

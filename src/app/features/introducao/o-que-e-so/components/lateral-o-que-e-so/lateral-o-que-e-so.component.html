@@ -1,0 +1,42 @@
+<div class="sim-config">
+  <os-panel title="Programa">
+    <label class="rotulo" for="cen">O que o programa faz</label>
+    <select id="cen" class="form-control" [ngModel]="sim.cenario().id" (ngModelChange)="sim.escolher($event)">
+      @for (c of sim.cenarios; track c.id) { <option [ngValue]="c.id">{{ c.nome }}</option> }
+    </select>
+
+    @if (sim.cenario().chamada; as ch) {
+      <dl class="ficha">
+        <dt>Chamada</dt><dd><code>{{ ch.unix }}</code> <span class="dim nro">nº {{ ch.numero }} (Linux x86-64)</span></dd>
+        <dt>Tipo</dt><dd>{{ ch.tipo }}</dd>
+        <dt>Windows</dt><dd><code>{{ ch.windows }}</code></dd>
+      </dl>
+    } @else {
+      <p class="hint mt-campo">Sem chamada de sistema: o programa tenta usar uma instrução privilegiada diretamente.</p>
+    }
+
+    <label class="rotulo" for="vel">Velocidade da animação</label>
+    <select id="vel" class="form-control" [ngModel]="sim.velocidade()" (ngModelChange)="sim.definirVelocidade(+$event)">
+      @for (v of velocidades; track v.ms) { <option [ngValue]="v.ms">{{ v.nome }}</option> }
+    </select>
+  </os-panel>
+
+  <os-panel title="Imagem do SO">
+    <label class="check-row">
+      <input type="radio" name="visao" value="USUARIO" [ngModel]="sim.visao()" (ngModelChange)="sim.definirVisao($event)">
+      <span><b>Visão do usuário:</b> o SO fica escondido; só se vê o que ele oferece.</span>
+    </label>
+    <label class="check-row mt-campo">
+      <input type="radio" name="visao" value="PROJETO" [ngModel]="sim.visao()" (ngModelChange)="sim.definirVisao($event)">
+      <span><b>Visão do projeto:</b> a organização interna do SO.</span>
+    </label>
+  </os-panel>
+
+  <os-panel title="Modo dual">
+    <ul class="legenda">
+      <li><span class="marca usuario"></span><span><b>Modo usuário</b> (bit 1): programas; acesso restrito.</span></li>
+      <li><span class="marca kernel"></span><span><b>Modo kernel</b> (bit 0): núcleo do SO; acesso total ao hardware.</span></li>
+    </ul>
+    <p class="hint mt-campo">Instruções privilegiadas (E/S direta, desabilitar interrupções, registradores da MMU) só executam no modo kernel.</p>
+  </os-panel>
+</div>
